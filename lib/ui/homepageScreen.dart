@@ -1,30 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:midtermm/ui/homepageScreen.dart';
-import 'package:midtermm/ui/welcomeScreen.dart';
+import 'package:midtermm/ui/settingScreen.dart';
 
-
-void main() => runApp(MyApp());
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Navigation Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      debugShowCheckedModeBanner: false, // Remove debug banner
-      home: MyHomePage(),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
+class homepageScreen extends StatefulWidget {
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<homepageScreen> {
   int _selectedIndex = 0;
 
   static const List<Widget> _widgetOptions = <Widget>[
@@ -32,7 +14,7 @@ class _MyHomePageState extends State<MyHomePage> {
     Text('Lời Giải'),
     Text('Thêm'),
     Text('Thư Viện'),
-    SettingsScreen(), // Thêm widget SettingsScreen vào danh sách widget
+    settingScreen(), // Thêm widget settingScreen vào danh sách widget
   ];
 
   void _onItemTapped(int index) {
