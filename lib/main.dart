@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'SettingsScreen.dart'; // Import file SettingsScreen.dart
 
 void main() => runApp(MyApp());
 
@@ -6,65 +7,95 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Settings UI',
+      title: 'Navigation Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: SettingsScreen(),
+      debugShowCheckedModeBanner: false, // Remove debug banner
+      home: MyHomePage(),
     );
   }
 }
 
-class SettingsScreen extends StatelessWidget {
+class MyHomePage extends StatefulWidget {
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  int _selectedIndex = 0;
+
+  static const List<Widget> _widgetOptions = <Widget>[
+    Text('Trang Chủ'),
+    Text('Lời Giải'),
+    Text('Thêm'),
+    Text('Thư Viện'),
+    SettingsScreen(), // Thêm widget SettingsScreen vào danh sách widget
+  ];
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Cài đặt'),
+        title: const Text('Navigation Demo'),
       ),
-      body: ListView(
-        children: <Widget>[
-          UserAccountsDrawerHeader(
-            accountName: Text('an_nguyen5010'),
-            accountEmail: Text('an66528@gmail.com'),
-          ),
-          ListTile(
-            title: Text('Tạo mật khẩu'),
-            trailing: Icon(Icons.keyboard_arrow_right),
-            onTap: () {
-              // Navigate to password creation screen
-            },
-          ),
-          ListTile(
-            title: Text('Lưu học phần để học ngoại tuyến'),
-            subtitle: Text('8 học phần mới học gần đây nhất của bạn sẽ được tự động tải xuống'),
-            trailing: Icon(Icons.keyboard_arrow_right),
-            onTap: () {
-              // Navigate to offline learning screen
-            },
-          ),
-          ListTile(
-            title: Text('Quản lý dung lượng lưu trữ'),
-            trailing: Icon(Icons.keyboard_arrow_right),
-            onTap: () {
-              // Navigate to storage management screen
-            },
-          ),
-          SwitchListTile(
-            title: Text('Thông báo đẩy'),
-            value: false,
-            onChanged: (bool value) {
-              // Handle push notification toggle
-            },
-          ),
-          SwitchListTile(
-            title: Text('Hiệu ứng âm thanh'),
-            value: true,
-            onChanged: (bool value) {
-              // Handle sound effects toggle
-            },
-          ),
-        ],
+      body: Center(
+        child: _widgetOptions.elementAt(_selectedIndex),
+      ),
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: Color(0xFF4254FE), // Màu nền của BottomNavigationBar
+        ),
+        child: BottomNavigationBar(
+          items: const <BottomNavigationBarItem>[
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              backgroundColor: Color(0xFF4254FE),
+              label: 'Trang Chủ',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.lightbulb_outline),
+              backgroundColor: Color(0xFF4254FE),
+              label: 'Lời Giải',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.add),
+              backgroundColor: Color(0xFF4254FE),
+              label: 'Thêm',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.library_books),
+              backgroundColor: Color(0xFF4254FE),
+              label: 'Thư Viện',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person),
+              backgroundColor: Color(0xFF4254FE),
+              label: 'Hồ Sơ',
+            ),
+          ],
+          currentIndex: _selectedIndex,
+          selectedItemColor:
+              Color.fromARGB(255, 255, 255, 255), // Màu khi được chọn
+          unselectedItemColor: Colors.white, // Màu khi không được chọn
+          onTap: (index) {
+            if (index == 4) {
+              // Nếu chọn "Hồ Sơ", chỉ cập nhật index mà không chuyển hướng ngay lập tức
+              setState(() {
+                _selectedIndex = index;
+              });
+            } else {
+              // Nếu chọn các mục khác, chuyển hướng ngay lập tức
+              _onItemTapped(index);
+            }
+          },
+        ),
       ),
     );
   }
