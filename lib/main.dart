@@ -39,6 +39,46 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  void _showAddOptions(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return Container(
+          padding: EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              ListTile(
+                leading: Icon(Icons.camera),
+                title: Text('Chụp ảnh'),
+                onTap: () {
+                  // Handle camera option
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.image),
+                title: Text('Chọn ảnh từ thư viện'),
+                onTap: () {
+                  // Handle gallery option
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: Icon(Icons.note),
+                title: Text('Tạo ghi chú'),
+                onTap: () {
+                  // Handle note creation option
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -90,6 +130,9 @@ class _MyHomePageState extends State<MyHomePage> {
               setState(() {
                 _selectedIndex = index;
               });
+            } else if (index == 2) {
+              // Nếu chọn "Thêm", hiển thị pop-up với 3 sự lựa chọn
+              _showAddOptions(context);
             } else {
               // Nếu chọn các mục khác, chuyển hướng ngay lập tức
               _onItemTapped(index);
