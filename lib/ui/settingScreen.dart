@@ -1,8 +1,17 @@
-import 'package:flutter/material.dart';
+import 'dart:js';
 
-class settingScreen extends StatelessWidget {
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:midtermm/ui/welcomeScreen.dart';
+
+class settingScreen extends StatefulWidget {
   const settingScreen({Key? key}) : super(key: key);
 
+  @override
+  State<settingScreen> createState() => _settingScreenState();
+}
+
+class _settingScreenState extends State<settingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -73,8 +82,27 @@ class settingScreen extends StatelessWidget {
               // Handle push notification toggle
             },
           ),
+          Divider(),
+          Padding(
+            padding: const EdgeInsets.all(0),
+            child: ListTile(
+              title: Text('Đăng xuất'),
+              trailing: Icon(Icons.logout),
+              onTap: () {
+                signOut();
+              },
+            ),
+          ),
         ],
       ),
     );
+  }
+
+  void signOut() {
+    FirebaseAuth.instance.signOut();
+    // Navigator.pushAndRemoveUntil(
+    //     context as BuildContext,
+    //     MaterialPageRoute(builder: (context) => const welcomeScreen()),
+    //     (route) => false);
   }
 }

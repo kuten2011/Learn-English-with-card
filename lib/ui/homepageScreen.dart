@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:midtermm/ui/homeScreen.dart';
 import 'package:midtermm/ui/settingScreen.dart';
 
 class homepageScreen extends StatefulWidget {
@@ -10,7 +11,7 @@ class _MyHomePageState extends State<homepageScreen> {
   int _selectedIndex = 0;
 
   static const List<Widget> _widgetOptions = <Widget>[
-    Text('Trang Chủ'),
+    homeScreen(),
     Text('Lời Giải'),
     Text('Thêm'),
     Text('Thư Viện'),

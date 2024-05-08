@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "330343697924",
+    "project_id": "quizlet-48de4",
+    "storage_bucket": "quizlet-48de4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:330343697924:android:9a585622dd7ab0a1f9af51",
+        "android_client_info": {
+          "package_name": "com.example.midtermm"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA2lUXQFymruyLubI3-mVGJrpMdhvMZ_Tg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
