@@ -1,5 +1,3 @@
-import 'dart:js';
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:midtermm/ui/welcomeScreen.dart';
@@ -100,9 +98,9 @@ class _settingScreenState extends State<settingScreen> {
 
   void signOut() {
     FirebaseAuth.instance.signOut();
-    // Navigator.pushAndRemoveUntil(
-    //     context as BuildContext,
-    //     MaterialPageRoute(builder: (context) => const welcomeScreen()),
-    //     (route) => false);
+    Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (context) => const welcomeScreen()),
+        (route) => false);
   }
 }
