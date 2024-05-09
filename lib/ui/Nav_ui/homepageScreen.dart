@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:midtermm/ui/homeScreen.dart';
-import 'package:midtermm/ui/settingScreen.dart';
+import 'package:midtermm/ui/homepage_ui/homeScreen.dart';
+import 'package:midtermm/ui/homepage_ui/libraryScreen.dart';
+import 'package:midtermm/ui/homepage_ui/popUp.dart';
+import 'package:midtermm/ui/homepage_ui/settingScreen.dart';
 
 class homepageScreen extends StatefulWidget {
   @override
@@ -9,33 +11,41 @@ class homepageScreen extends StatefulWidget {
 
 class _MyHomePageState extends State<homepageScreen> {
   int _selectedIndex = 0;
+  bool _showAppBar = true; // Biến để kiểm tra hiển thị AppBar
 
   static const List<Widget> _widgetOptions = <Widget>[
     homeScreen(),
     Text('Lời Giải'),
     Text('Thêm'),
-    Text('Thư Viện'),
-    settingScreen(), // Thêm widget settingScreen vào danh sách widget
+    libraryScreen(),
+    settingScreen(), // Thêm widget SettingsScreen vào danh sách widget
   ];
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
+      _showAppBar = true; // Hiển thị AppBar khi chuyển đổi các tab khác
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Navigation Demo'),
-      ),
+      // appBar: _showAppBar
+      //     ? AppBar(
+      //       automaticallyImplyLeading: false,
+      //       title: const Text('Quizlet'))
+      //     : null, // Kiểm tra và hiển thị AppBar
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),
       ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: Color(0xFF4254FE), // Màu nền của BottomNavigationBar
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(16.0), // Bo tròn góc trên bên trái
+            topRight: Radius.circular(16.0), // Bo tròn góc trên bên phải
+          ),
         ),
         child: BottomNavigationBar(
           items: const <BottomNavigationBarItem>[
@@ -70,14 +80,41 @@ class _MyHomePageState extends State<homepageScreen> {
               Color.fromARGB(255, 255, 255, 255), // Màu khi được chọn
           unselectedItemColor: Colors.white, // Màu khi không được chọn
           onTap: (index) {
-            if (index == 4) {
+            if (index == 2) {
+              // Index 2 tương ứng với mục "Thêm"
+              showModalBottomSheet(
+                context: context,
+                builder: (BuildContext context) =>
+                    AddMenuPopup(), // Gọi pop-up từ AddMenuPopup
+              );
+            } else if (index == 0) {
               // Nếu chọn "Hồ Sơ", chỉ cập nhật index mà không chuyển hướng ngay lập tức
               setState(() {
                 _selectedIndex = index;
+                _showAppBar = false; // Ẩn AppBar khi chọn "Hồ Sơ"
+              });
+            } else if (index == 1) {
+              // Nếu chọn "Hồ Sơ", chỉ cập nhật index mà không chuyển hướng ngay lập tức
+              setState(() {
+                _selectedIndex = index;
+                _showAppBar = false; // Ẩn AppBar khi chọn "Hồ Sơ"
+              });
+            } else if (index == 3) {
+              // Nếu chọn "Hồ Sơ", chỉ cập nhật index mà không chuyển hướng ngay lập tức
+              setState(() {
+                _selectedIndex = index;
+                _showAppBar = false; // Ẩn AppBar khi chọn "Hồ Sơ"
+              });
+            } else if (index == 4) {
+              // Nếu chọn "Hồ Sơ", chỉ cập nhật index mà không chuyển hướng ngay lập tức
+              setState(() {
+                _selectedIndex = index;
+                _showAppBar = false; // Ẩn AppBar khi chọn "Hồ Sơ"
               });
             } else {
               // Nếu chọn các mục khác, chuyển hướng ngay lập tức
               _onItemTapped(index);
+              _showAppBar = true; // Hiển thị AppBar khi chuyển đổi các tab khác
             }
           },
         ),

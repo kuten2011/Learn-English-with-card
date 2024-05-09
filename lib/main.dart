@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:midtermm/auth/firebase_auth.dart';
-import 'package:midtermm/ui/homepageScreen.dart';
-import 'package:midtermm/ui/loginScreen.dart';
-import 'package:midtermm/ui/signupScreen.dart';
-import 'package:midtermm/ui/welcomeScreen.dart';
+import 'package:midtermm/ui/Nav_ui/homepageScreen.dart';
+import 'package:midtermm/ui/auth_ui/loginScreen.dart';
+import 'package:midtermm/ui/homepage_ui/settingScreen.dart';
+import 'package:midtermm/ui/auth_ui/signupScreen.dart';
+import 'package:midtermm/ui/auth_ui/welcomeScreen.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
+import 'auth/firebase_options.dart';
 
 
 void main() async{
