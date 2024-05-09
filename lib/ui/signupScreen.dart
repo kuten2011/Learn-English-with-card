@@ -1,4 +1,7 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:midtermm/ui/homepageScreen.dart';
+import 'package:midtermm/ui/loginScreen.dart';
 
 class signupScreen extends StatefulWidget {
   const signupScreen({Key? key}) : super(key: key);
@@ -8,6 +11,11 @@ class signupScreen extends StatefulWidget {
 }
 
 class _signupScreenState extends State<signupScreen> {
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+  TextEditingController confirmpasswordController = TextEditingController();
+  bool _passwordVisible = false;
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -48,7 +56,8 @@ class _signupScreenState extends State<signupScreen> {
                 width: double.infinity,
                 child: SingleChildScrollView(
                   child: Padding(
-                    padding: const EdgeInsets.only(left: 18.0, right: 18),
+                    padding:
+                        const EdgeInsets.only(left: 18.0, right: 18, top: 18),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -59,34 +68,46 @@ class _signupScreenState extends State<signupScreen> {
                                 color: Colors.grey,
                               ),
                               label: Text(
-                                'Full Name',
+                                'Username',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: Color(0xFF4254FE),
                                 ),
                               )),
                         ),
-                        const TextField(
-                          decoration: InputDecoration(
+                        TextField(
+                          controller: emailController,
+                          decoration: const InputDecoration(
                               suffixIcon: Icon(
                                 Icons.check,
                                 color: Colors.grey,
                               ),
                               label: Text(
-                                'Gmail',
+                                'Email',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: Color(0xFF4254FE),
                                 ),
                               )),
                         ),
-                        const TextField(
+                        TextField(
+                          controller: passwordController,
+                          obscureText: !_passwordVisible,
                           decoration: InputDecoration(
-                              suffixIcon: Icon(
-                                Icons.visibility_off,
-                                color: Colors.grey,
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _passwordVisible
+                                      ? Icons.visibility
+                                      : Icons.visibility_off,
+                                  color: Colors.grey,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _passwordVisible = !_passwordVisible;
+                                  });
+                                },
                               ),
-                              label: Text(
+                              label: const Text(
                                 'Password',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
@@ -94,12 +115,23 @@ class _signupScreenState extends State<signupScreen> {
                                 ),
                               )),
                         ),
-                        const TextField(
-                          decoration: InputDecoration(
-                              suffixIcon: Icon(
-                                Icons.visibility_off,
-                                color: Colors.grey,
-                              ),
+                        TextField(
+                          controller: confirmpasswordController,
+                          obscureText: !_passwordVisible,
+                          decoration: const InputDecoration(
+                              // suffixIcon: IconButton(
+                              //   icon: Icon(
+                              //     _passwordVisible
+                              //         ? Icons.visibility
+                              //         : Icons.visibility_off,
+                              //     color: Colors.grey,
+                              //   ),
+                              //   onPressed: () {
+                              //     setState(() {
+                              //       _passwordVisible = !_passwordVisible;
+                              //     });
+                              //   },
+                              // ),
                               label: Text(
                                 'Confirm Password',
                                 style: TextStyle(
@@ -114,44 +146,58 @@ class _signupScreenState extends State<signupScreen> {
                         const SizedBox(
                           height: 70,
                         ),
-                        Container(
-                          height: 55,
-                          width: 300,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(30),
-                            color: Color(0xFF4254FE),
-                          ),
-                          child: const Center(
-                            child: Text(
-                              'SIGN IN',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 20,
-                                  color: Colors.white),
+                        GestureDetector(
+                          onTap: () {
+                            signUp();
+                          },
+                          child: Container(
+                            height: 55,
+                            width: 300,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(30),
+                              color: Color(0xFF4254FE),
+                            ),
+                            child: const Center(
+                              child: Text(
+                                'SIGN UP',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20,
+                                    color: Colors.white),
+                              ),
                             ),
                           ),
                         ),
                         const SizedBox(
                           height: 80,
                         ),
-                        const Align(
+                        Align(
                           alignment: Alignment.bottomRight,
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.end,
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              Text(
-                                "Have an account?",
+                              const Text(
+                                "Alredy have an account?",
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     color: Colors.grey),
                               ),
-                              Text(
-                                "Sign in",
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 17,
-                                    color: Colors.black),
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.pushAndRemoveUntil(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => loginScreen()),
+                                      (route) => false);
+                                },
+                                child: const Text(
+                                  "Sign in",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 17,
+                                      color: Colors.black),
+                                ),
                               ),
                             ],
                           ),
@@ -166,5 +212,47 @@ class _signupScreenState extends State<signupScreen> {
         ),
       ),
     );
+  }
+
+  void signUp() async {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      },
+    );
+
+    try {
+      if (passwordController.text == confirmpasswordController.text) {
+        await FirebaseAuth.instance.createUserWithEmailAndPassword(
+            email: emailController.text, password: passwordController.text);
+        Navigator.pop(context);
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => homepageScreen()),
+        );
+      } else {
+        Navigator.pop(context);
+        showErrorMsg("Password don't match!");
+      }
+    } on FirebaseAuthException catch (e) {
+      Navigator.pop(context);
+      showErrorMsg(e.code);
+    }
+  }
+
+  void showErrorMsg(String msg) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Center(child: Text(msg, style: TextStyle(color: Colors.black))),
+      ),
+    );
+
+    Future.delayed(Duration(seconds: 1), () {
+      Navigator.of(context).pop();
+    });
   }
 }

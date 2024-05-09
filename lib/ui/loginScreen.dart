@@ -13,6 +13,7 @@ class loginScreen extends StatefulWidget {
 class _loginScreenState extends State<loginScreen> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  bool _passwordVisible = false;
 
   @override
   Widget build(BuildContext context) {
@@ -53,7 +54,8 @@ class _loginScreenState extends State<loginScreen> {
                 width: double.infinity,
                 child: SingleChildScrollView(
                   child: Padding(
-                    padding: const EdgeInsets.only(left: 18.0, right: 18),
+                    padding:
+                        const EdgeInsets.only(left: 18.0, right: 18, top: 18),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -74,18 +76,29 @@ class _loginScreenState extends State<loginScreen> {
                         ),
                         TextField(
                           controller: passwordController,
-                          decoration: const InputDecoration(
-                              suffixIcon: Icon(
-                                Icons.visibility_off,
+                          obscureText: !_passwordVisible,
+                          decoration: InputDecoration(
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _passwordVisible
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
                                 color: Colors.grey,
                               ),
-                              label: Text(
-                                'Password',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF4254FE),
-                                ),
-                              )),
+                              onPressed: () {
+                                setState(() {
+                                  _passwordVisible = !_passwordVisible;
+                                });
+                              },
+                            ),
+                            label: Text(
+                              'Password',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF4254FE),
+                              ),
+                            ),
+                          ),
                         ),
                         const SizedBox(
                           height: 20,
@@ -136,7 +149,7 @@ class _loginScreenState extends State<loginScreen> {
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               const Text(
-                                "Don't have account?",
+                                "Not a member?",
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     color: Colors.grey),
@@ -192,35 +205,24 @@ class _loginScreenState extends State<loginScreen> {
       );
     } on FirebaseAuthException catch (e) {
       Navigator.pop(context);
-      if (e.code == 'user-not-found') {
-        wrongEmailMsg();
-      } else if (e.code == 'wrong-password') {
-        wrongPasswordMsg();
-      }
+      if (e.code == 'invalid-credential') {
+        errorMsg('Account does not exist');
+      } else {
+        errorMsg(e.code);
+      } 
     }
   }
 
-  void wrongEmailMsg() {
-    OverlayEntry overlayEntry = OverlayEntry(
-      builder: (context) => const AlertDialog(
-        title: Text('Incorrect Email'),
+  void errorMsg(String msg) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Center(child: Text(msg, style: TextStyle(color: Colors.black))),
       ),
     );
-    Overlay.of(context)!.insert(overlayEntry);
-    Future.delayed(Duration(seconds: 2), () {
-      overlayEntry.remove();
-    });
-  }
 
-  void wrongPasswordMsg() {
-    OverlayEntry overlayEntry = OverlayEntry(
-      builder: (context) => const AlertDialog(
-        title: Text('Incorrect Password'),
-      ),
-    );
-    Overlay.of(context)!.insert(overlayEntry);
-    Future.delayed(Duration(seconds: 2), () {
-      overlayEntry.remove();
+    Future.delayed(Duration(seconds: 1), () {
+      Navigator.of(context).pop();
     });
   }
 }

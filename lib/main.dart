@@ -21,7 +21,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Quizlet App',
-      debugShowCheckedModeBanner: false, // Remove debug banner
+      debugShowCheckedModeBanner: false,
       //home: homepageScreen(),
       routes: {
         '/': (context) => AuthPage(),
