@@ -1,5 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:midtermm/ui/term_ui/termInLabrary.dart';
+import 'ui/term_ui/termInLabrary.dart';
+
+void main() => runApp(MyApp());
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Term List',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: TermListScreen(),
+    );
+  }
+}
 
 class libraryScreen extends StatefulWidget {
   const libraryScreen({Key? key}) : super(key: key);
@@ -38,7 +54,7 @@ class _libraryScreenState extends State<libraryScreen>
         bottom: TabBar(
           controller: _tabController,
           tabs: [
-            Tab(text: 'Học phần'),
+            TermListScreen(),
             Tab(text: 'Lớp học'),
             Tab(text: 'Thư mục'),
           ],
@@ -47,7 +63,7 @@ class _libraryScreenState extends State<libraryScreen>
       body: TabBarView(
         controller: _tabController,
         children: [
-          TermListScreen(),
+          Center(child: Text('Nội dung Học phần')),
           Center(child: Text('Nội dung Lớp học')),
           Center(child: Text('Nội dung Thư mục')),
         ],
