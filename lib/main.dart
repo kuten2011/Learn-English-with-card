@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:midtermm/auth/firebase_auth.dart';
 import 'package:midtermm/ui/Nav_ui/homepageScreen.dart';
+import 'package:midtermm/ui/auth_ui/forgetPasswordScreen.dart';
 import 'package:midtermm/ui/auth_ui/loginScreen.dart';
 import 'package:midtermm/ui/homepage_ui/settingScreen.dart';
 import 'package:midtermm/ui/auth_ui/signupScreen.dart';

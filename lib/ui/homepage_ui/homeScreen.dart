@@ -24,151 +24,153 @@ class _HomeScreenState extends State<HomeScreen> {
     return DefaultTabController(
       length: 4,
       child: Scaffold(
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              color: Colors.blue,
-              padding: EdgeInsets.only(
-                  left: 8.0, right: 8.0, bottom: 8.0, top: 24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          onChanged: (value) {
-                            setState(() {
-                              searchText = value;
-                            });
-                          },
-                          decoration: InputDecoration(
-                            hintText: tt,
-                            hintStyle: TextStyle(
-                                color: Color.fromARGB(255, 82, 82, 82)),
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.purple),
-                              borderRadius: BorderRadius.circular(25.0),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(
+        body: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                color: Color(0xFF4254FE),
+                padding: EdgeInsets.only(
+                    left: 8.0, right: 8.0, bottom: 8.0, top: 24.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            onChanged: (value) {
+                              setState(() {
+                                searchText = value;
+                              });
+                            },
+                            decoration: InputDecoration(
+                              hintText: tt,
+                              hintStyle: TextStyle(
                                   color: Color.fromARGB(255, 82, 82, 82)),
-                              borderRadius: BorderRadius.circular(25.0),
-                            ),
-                            prefixIcon: Icon(Icons.search,
-                                color: const Color.fromARGB(255, 82, 82, 82)),
-                            suffixIcon: IconButton(
-                              icon: Icon(Icons.clear,
+                              border: OutlineInputBorder(
+                                borderSide: BorderSide(color: Color(0xFF4254FE)),
+                                borderRadius: BorderRadius.circular(25.0),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                    color: Color.fromARGB(255, 82, 82, 82)),
+                                borderRadius: BorderRadius.circular(25.0),
+                              ),
+                              prefixIcon: Icon(Icons.search,
                                   color: const Color.fromARGB(255, 82, 82, 82)),
-                              onPressed: () {
-                                setState(() {
-                                  searchText = '';
-                                  tt = '';
-                                });
-                              },
+                              suffixIcon: IconButton(
+                                icon: Icon(Icons.clear,
+                                    color: const Color.fromARGB(255, 82, 82, 82)),
+                                onPressed: () {
+                                  setState(() {
+                                    searchText = '';
+                                    tt = '';
+                                  });
+                                },
+                              ),
+                              contentPadding: EdgeInsets.symmetric(
+                                  vertical: 16.0, horizontal: 16.0),
+                              filled: true,
+                              fillColor: Color.fromARGB(255, 255, 255, 255)
+                                  .withOpacity(0.8),
+                              isDense: true,
                             ),
-                            contentPadding: EdgeInsets.symmetric(
-                                vertical: 16.0, horizontal: 16.0),
-                            filled: true,
-                            fillColor: Color.fromARGB(255, 255, 255, 255)
-                                .withOpacity(0.8),
-                            isDense: true,
+                            style: TextStyle(
+                                color: const Color.fromARGB(255, 0, 0, 0)),
                           ),
-                          style: TextStyle(
-                              color: const Color.fromARGB(255, 0, 0, 0)),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-            SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Các học phần',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      // Handle "Xem tất cả" button tap
-                    },
-                    child: Text('Xem tất cả'),
-                  ),
-                ],
+              SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Các học phần',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        // Handle "Xem tất cả" button tap
+                      },
+                      child: Text('Xem tất cả'),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            SizedBox(height: 8),
-            Container(
-              height: 170,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: subjects.length,
-                itemBuilder: (context, index) {
-                  final subject = subjects[index];
-                  return EducationCard(
-                    title: subject['name'],
-                    termsCount: subject['terms'],
-                    teacherName: subject['teacher'],
-                  );
-                },
+              SizedBox(height: 8),
+              Container(
+                height: 170,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: subjects.length,
+                  itemBuilder: (context, index) {
+                    final subject = subjects[index];
+                    return EducationCard(
+                      title: subject['name'],
+                      termsCount: subject['terms'],
+                      teacherName: subject['teacher'],
+                    );
+                  },
+                ),
               ),
-            ),
-            SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Tương tự học phần của ${subjects[0]['teacher']}',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                ],
+              SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Tương tự học phần của ${subjects[0]['teacher']}',
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            SizedBox(height: 8),
-            Container(
-              height: 170,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: subjects.length,
-                itemBuilder: (context, index) {
-                  final subject = subjects[index];
-                  return EducationCard(
-                    title: subject['name'],
-                    termsCount: subject['terms'],
-                    teacherName: subject['teacher'],
-                  );
-                },
+              SizedBox(height: 8),
+              Container(
+                height: 170,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: subjects.length,
+                  itemBuilder: (context, index) {
+                    final subject = subjects[index];
+                    return EducationCard(
+                      title: subject['name'],
+                      termsCount: subject['terms'],
+                      teacherName: subject['teacher'],
+                    );
+                  },
+                ),
               ),
-            ),
-            SizedBox(height: 8),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Thư mục',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      // Handle "Xem tất cả" button tap
-                    },
-                    child: Text('Xem tất cả'),
-                  ),
-                ],
+              SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Thư mục',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        // Handle "Xem tất cả" button tap
+                      },
+                      child: Text('Xem tất cả'),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

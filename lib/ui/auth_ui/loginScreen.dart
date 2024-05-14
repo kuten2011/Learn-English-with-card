@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:midtermm/ui/Nav_ui/homepageScreen.dart';
+import 'package:midtermm/ui/auth_ui/forgetPasswordScreen.dart';
 import 'package:midtermm/ui/auth_ui/signupScreen.dart';
 
 class loginScreen extends StatefulWidget {
@@ -103,14 +104,22 @@ class _loginScreenState extends State<loginScreen> {
                         const SizedBox(
                           height: 20,
                         ),
-                        const Align(
+                        Align(
                           alignment: Alignment.centerRight,
-                          child: Text(
-                            'Forgot Password?',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 17,
-                              color: Color(0xff281537),
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => forgetPasswordScreen()),
+                              );
+                            },
+                            child: const Text(
+                              'Forgot Password?',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 17,
+                                color: Color(0xff281537),
+                              ),
                             ),
                           ),
                         ),
