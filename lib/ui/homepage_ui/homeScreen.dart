@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -10,14 +12,52 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   String searchText = '';
   String tt = 'Học phần, Sách giáo khoa, Học phần, ...';
+  late User? user;
+  late String userEmail = 'No Email';
 
-  List<Map<String, dynamic>> subjects = [
-    {'name': 'Toán cao cấp A1', 'terms': 10, 'teacher': 'Nguyễn Văn A'},
-    {'name': 'Lập trình di động', 'terms': 8, 'teacher': 'Trần Thị B'},
-    {'name': 'Vật lý đại cương', 'terms': 12, 'teacher': 'Lê Minh C'},
-    {'name': 'Tiếng Anh 1', 'terms': 6, 'teacher': 'Phạm Thị D'},
-    // Thêm các học phần khác vào đây
-  ];
+  List<Map<String, dynamic>> subjects = [];
+  List<Map<String, dynamic>> usersubjects = [];
+  List<Map<String, dynamic>> similarsubjects = [];
+
+  @override
+  void initState() {
+    super.initState();
+    initializeData();
+  }
+
+  Future<void> initializeData() async {
+    await getUser();
+    getTermsFromFirestore();
+  }
+
+  Future<void> getUser() async {
+    user = FirebaseAuth.instance.currentUser;
+    userEmail = user?.email ?? 'No Email';
+    print('Current User Email: $userEmail'); // Debug output
+  }
+
+  Future<void> getTermsFromFirestore() async {
+    final CollectionReference termsCollection =
+        FirebaseFirestore.instance.collection('terms');
+
+    final QuerySnapshot querySnapshot = await termsCollection.get();
+
+    setState(() {
+      subjects = querySnapshot.docs
+          .map((doc) => doc.data() as Map<String, dynamic>)
+          .toList();
+
+      usersubjects = subjects
+          .where((subject) => subject['userEmail'] == userEmail)
+          .toList();
+      print('Filtered subjects: $usersubjects'); // Debug output
+
+      similarsubjects = subjects
+          .where((subject) => subject['userEmail'] != userEmail)
+          .toList();
+      print('Filtered similar subjects: $similarsubjects');  // Debug output
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +90,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               hintStyle: TextStyle(
                                   color: Color.fromARGB(255, 82, 82, 82)),
                               border: OutlineInputBorder(
-                                borderSide: BorderSide(color: Color(0xFF4254FE)),
+                                borderSide:
+                                    BorderSide(color: Color(0xFF4254FE)),
                                 borderRadius: BorderRadius.circular(25.0),
                               ),
                               focusedBorder: OutlineInputBorder(
@@ -62,7 +103,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   color: const Color.fromARGB(255, 82, 82, 82)),
                               suffixIcon: IconButton(
                                 icon: Icon(Icons.clear,
-                                    color: const Color.fromARGB(255, 82, 82, 82)),
+                                    color:
+                                        const Color.fromARGB(255, 82, 82, 82)),
                                 onPressed: () {
                                   setState(() {
                                     searchText = '';
@@ -93,8 +135,9 @@ class _HomeScreenState extends State<HomeScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Các học phần',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      'Học phần',
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                     ElevatedButton(
                       onPressed: () {
@@ -110,26 +153,27 @@ class _HomeScreenState extends State<HomeScreen> {
                 height: 170,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
-                  itemCount: subjects.length,
+                  itemCount: usersubjects.length,
                   itemBuilder: (context, index) {
-                    final subject = subjects[index];
+                    final usersubject = usersubjects[index];
                     return EducationCard(
-                      title: subject['name'],
-                      termsCount: subject['terms'],
-                      teacherName: subject['teacher'],
+                      title: usersubject['title'],
+                      userEmail: usersubject['userEmail'],
                     );
                   },
                 ),
               ),
               SizedBox(height: 8),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.0),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Tương tự học phần của ${subjects[0]['teacher']}',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      'Các học phần',
+                      // 'Tương tự học phần của ${subjects[0]['teacher']}',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -139,13 +183,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 height: 170,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
-                  itemCount: subjects.length,
+                  itemCount: similarsubjects.length,
                   itemBuilder: (context, index) {
-                    final subject = subjects[index];
+                    final similarsubject = similarsubjects[index];
                     return EducationCard(
-                      title: subject['name'],
-                      termsCount: subject['terms'],
-                      teacherName: subject['teacher'],
+                      title: similarsubject['title'],
+                      userEmail: similarsubject['userEmail'],
                     );
                   },
                 ),
@@ -158,7 +201,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     Text(
                       'Thư mục',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                     ElevatedButton(
                       onPressed: () {
@@ -179,14 +223,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
 class EducationCard extends StatelessWidget {
   final String title;
-  final int termsCount;
-  final String teacherName;
+  final String userEmail;
 
   const EducationCard({
     Key? key,
     required this.title,
-    required this.termsCount,
-    required this.teacherName,
+    required this.userEmail,
   }) : super(key: key);
 
   @override
@@ -219,7 +261,7 @@ class EducationCard extends StatelessWidget {
                       255, 199, 212, 252), // Màu nền xám cho số thuật ngữ
                 ),
                 child: Text(
-                  '$termsCount thuật ngữ',
+                  '1 thuật ngữ',
                   style: TextStyle(fontSize: 15, color: Colors.black),
                 ),
               ),
@@ -227,7 +269,7 @@ class EducationCard extends StatelessWidget {
               Row(
                 children: [
                   Text(
-                    '$teacherName   ',
+                    '$userEmail   ',
                     style: TextStyle(
                         color: const Color.fromARGB(255, 0, 0, 0),
                         fontSize: 16),
@@ -255,3 +297,82 @@ class EducationCard extends StatelessWidget {
     );
   }
 }
+
+// class EducationCard extends StatelessWidget {
+//   final String title;
+//   final int termsCount;
+//   final String teacherName;
+
+//   const EducationCard({
+//     Key? key,
+//     required this.title,
+//     required this.termsCount,
+//     required this.teacherName,
+//   }) : super(key: key);
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       width: 300,
+//       margin: EdgeInsets.symmetric(horizontal: 8.0),
+//       child: Card(
+//         shape: RoundedRectangleBorder(
+//           borderRadius: BorderRadius.circular(8.0),
+//           side: BorderSide(color: Colors.grey[300]!), // Màu xám cho viền
+//         ),
+//         child: Container(
+//           color: Colors.white, // Màu nền trắng cho nội dung
+//           padding: EdgeInsets.all(16.0),
+//           child: Column(
+//             crossAxisAlignment: CrossAxisAlignment.start,
+//             children: [
+//               Text(
+//                 title,
+//                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
+//               ),
+//               SizedBox(height: 4),
+//               Container(
+//                 padding: EdgeInsets.all(3.0),
+//                 decoration: BoxDecoration(
+//                   borderRadius: BorderRadius.circular(16.0),
+//                   border: Border.all(color: Colors.grey[400]!), // Viền màu xám
+//                   color: Color.fromARGB(
+//                       255, 199, 212, 252), // Màu nền xám cho số thuật ngữ
+//                 ),
+//                 child: Text(
+//                   '$termsCount thuật ngữ',
+//                   style: TextStyle(fontSize: 15, color: Colors.black),
+//                 ),
+//               ),
+//               SizedBox(height: 30),
+//               Row(
+//                 children: [
+//                   Text(
+//                     '$teacherName   ',
+//                     style: TextStyle(
+//                         color: const Color.fromARGB(255, 0, 0, 0),
+//                         fontSize: 16),
+//                   ),
+//                   Container(
+//                     padding: EdgeInsets.all(2.0),
+//                     decoration: BoxDecoration(
+//                       borderRadius: BorderRadius.circular(16.0),
+//                       border:
+//                           Border.all(color: Colors.grey[400]!), // Viền màu xám
+//                       color: Color.fromARGB(
+//                           255, 210, 211, 212), // Màu nền xám cho số thuật ngữ
+//                     ),
+//                     child: Text(
+//                       'Giáo viên',
+//                       style: TextStyle(fontSize: 15, color: Colors.black),
+//                     ),
+//                   ),
+//                 ],
+//               ),
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
