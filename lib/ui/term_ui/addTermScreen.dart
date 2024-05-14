@@ -1,11 +1,15 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'settingTermScreen.dart';
 
 class AddTermScreen extends StatelessWidget {
-  // Controllers for text fields
+  //final VoidCallback onTermAdded;
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _termController = TextEditingController();
   final TextEditingController _definitionController = TextEditingController();
+
+  //AddTermScreen({required this.onTermAdded});
 
   @override
   Widget build(BuildContext context) {
@@ -19,14 +23,39 @@ class AddTermScreen extends StatelessWidget {
               // Xử lý khi nhấn "Cài Đặt"
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => SettingTermScreen()), // Màn hình cài đặt
+                MaterialPageRoute(
+                    builder: (context) =>
+                        SettingTermScreen()), // Màn hình cài đặt
               );
             },
           ),
           IconButton(
             icon: Icon(Icons.done),
-            onPressed: () {
+            onPressed: () async {
               // Xử lý khi nhấn "Xong"
+              final CollectionReference termsCollection =
+                  FirebaseFirestore.instance.collection('terms');
+
+              final User? currentUser = FirebaseAuth.instance.currentUser;
+
+              Map<String, dynamic> term = {
+                'title': _titleController.text,
+                'term': _termController.text,
+                'definition': _definitionController.text,
+                'userEmail': currentUser?.email,
+              };
+
+              await termsCollection.add(term);
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Term has been added successfully.'),
+                ),
+              );
+
+              //onTermAdded();
+
+              Navigator.pop(context, true);
             },
           ),
         ],
