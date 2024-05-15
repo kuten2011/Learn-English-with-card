@@ -47,7 +47,7 @@ class _CardListScreenState extends State<CardListScreen> {
             Container(
               height: 200,
               child: PageView.builder(
-                itemCount: cardterms.length,
+                itemCount: cardterms[widget.indexterm]["english"].length,
                 controller: PageController(
                   initialPage: currentPage,
                   viewportFraction: 0.8,
@@ -57,14 +57,31 @@ class _CardListScreenState extends State<CardListScreen> {
                     currentPage = page;
                   });
                 },
-                itemBuilder: (context, index) {
-                  return Center(
-                    child: FlipCard(
-                      frontChild:
-                          CardItem(cardterms[index]["english"][0] ?? 'No English'),
-                      backChild:
-                          CardItem(cardterms[index]["vietnamese"][0] ?? 'No Vietnamese'),
+                itemBuilder: (context, indexterm) {
+                  int englishCount = cardterms[indexterm]["english"].length;
+                  return PageView.builder(
+                    itemCount: englishCount,
+                    controller: PageController(
+                      initialPage: 0,
+                      viewportFraction: 0.8,
                     ),
+                    onPageChanged: (int page) {
+                      setState(() {
+                        currentPage = page;
+                      });
+                    },
+                    itemBuilder: (context, arrayindex) {
+                      return Center(
+                        child: FlipCard(
+                          frontChild: CardItem(cardterms[widget.indexterm]["english"]
+                                  [arrayindex] ??
+                              'No English'),
+                          backChild: CardItem(cardterms[widget.indexterm]["vietnamese"]
+                                  [arrayindex] ??
+                              'No Vietnamese'),
+                        ),
+                      );
+                    },
                   );
                 },
               ),
@@ -129,7 +146,7 @@ class _CardListScreenState extends State<CardListScreen> {
                 ],
               ),
             ),
-            for (int index = 0; index < cardterms.length; index++)
+            for (int index = 0; index < cardterms[widget.indexterm]['english'].length; index++)
               Card(
                 elevation: 5,
                 shape: RoundedRectangleBorder(
@@ -154,11 +171,11 @@ class _CardListScreenState extends State<CardListScreen> {
                     children: <Widget>[
                       ListTile(
                         title: Text(
-                          cardterms[index]["title"] ?? 'No title',
+                          cardterms[widget.indexterm]["english"][index] ?? 'No English',
                           style: TextStyle(color: Colors.black),
                         ),
                         subtitle: Text(
-                          cardterms[index]["description"] ?? '',
+                          cardterms[widget.indexterm]["vietnamese"][index] ?? 'No Vietnamese',
                           style: TextStyle(color: Colors.black),
                         ),
                       ),

@@ -3,15 +3,27 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'settingTermScreen.dart';
 
-class AddTermScreen extends StatelessWidget {
-  //final VoidCallback onTermAdded;
+class AddTermScreen extends StatefulWidget {
+  @override
+  State<AddTermScreen> createState() => _AddTermScreenState();
+}
+
+class _AddTermScreenState extends State<AddTermScreen> {
   final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _termController = TextEditingController();
-  final TextEditingController _definitionController = TextEditingController();
   final TextEditingController _userNameController = TextEditingController();
+  final List<TextEditingController> _englishTermController = [];
+  final List<TextEditingController> _vietnameseDefinitionController = [];
+
+  @override
+  void initState() {
+    super.initState();
+    for (int i = 0; i < 3; i++) {
+      _englishTermController.add(TextEditingController());
+      _vietnameseDefinitionController.add(TextEditingController());
+    }
+  }
 
   //AddTermScreen({required this.onTermAdded});
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,43 +31,42 @@ class AddTermScreen extends StatelessWidget {
         title: Text('Thêm Học Phần'),
         actions: <Widget>[
           IconButton(
-            icon: Icon(Icons.settings), // Icon cài đặt
+            icon: Icon(Icons.settings),
             onPressed: () {
-              // Xử lý khi nhấn "Cài Đặt"
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                    builder: (context) =>
-                        SettingTermScreen()), // Màn hình cài đặt
+                MaterialPageRoute(builder: (context) => SettingTermScreen()),
               );
             },
           ),
           IconButton(
             icon: Icon(Icons.done),
             onPressed: () async {
-              // Xử lý khi nhấn "Xong"
               final CollectionReference termsCollection =
                   FirebaseFirestore.instance.collection('terms');
 
               final User? currentUser = FirebaseAuth.instance.currentUser;
 
-              Map<String, dynamic> term = {
-                'title': _titleController.text,
-                'term': _termController.text,
-                'definition': _definitionController.text,
-                'userEmail': currentUser?.email,
-                'userName': _userNameController.text,
-              };
+              List<Map<String, dynamic>> terms = [];
 
-              await termsCollection.add(term);
+              for (int i = 0; i < 3; i++) {
+                Map<String, dynamic> term = {
+                  'title': _titleController.text,
+                  'english': _englishTermController[i].text,
+                  'vietnamese': _vietnameseDefinitionController[i].text,
+                  'userEmail': currentUser?.email,
+                  'userName': _userNameController.text,
+                };
+                terms.add(term);
+              }
+
+              await termsCollection.add(terms);
 
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text('Term has been added successfully.'),
                 ),
               );
-
-              //onTermAdded();
 
               Navigator.pop(context, true);
             },
@@ -75,25 +86,7 @@ class AddTermScreen extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 8.0),
-              TextField(
-                controller: _termController,
-                decoration: InputDecoration(
-                  labelText: 'Thuật ngữ',
-                  suffixIcon: IconButton(
-                    icon: Icon(Icons.add),
-                    onPressed: () {
-                      // Xử lý khi nhấn thêm "Thuật ngữ"
-                    },
-                  ),
-                ),
-              ),
-              SizedBox(height: 8.0),
-              TextField(
-                controller: _definitionController,
-                decoration: InputDecoration(
-                  labelText: 'Định nghĩa',
-                ),
-              ),
+              ..._buildTermFields(),
               SizedBox(height: 24.0),
               Center(
                 child: ElevatedButton.icon(
@@ -109,5 +102,36 @@ class AddTermScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  List<Widget> _buildTermFields() {
+    List<Widget> termFields = [];
+
+    for (int i = 0; i < 3; i++) {
+      termFields.addAll([
+        SizedBox(height: 8.0),
+        TextField(
+          controller: _englishTermController[i],
+          decoration: InputDecoration(
+            labelText: 'Thuật ngữ',
+            suffixIcon: IconButton(
+              icon: Icon(Icons.add),
+              onPressed: () {
+                // Xử lý khi nhấn thêm "Thuật ngữ"
+              },
+            ),
+          ),
+        ),
+        SizedBox(height: 8.0),
+        TextField(
+          controller: _vietnameseDefinitionController[i],
+          decoration: InputDecoration(
+            labelText: 'Định nghĩa',
+          ),
+        ),
+      ]);
+    }
+
+    return termFields;
   }
 }
