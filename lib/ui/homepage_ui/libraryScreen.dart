@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:midtermm/ui/term_ui/termInLabrary.dart';
+import 'package:midtermm/ui/class_ui/addClassScreen.dart';
+import 'package:midtermm/ui/folder_ui/addFolderScreen.dart';
+import 'package:midtermm/ui/term_ui/addTermScreen.dart';
+import 'package:midtermm/ui/term_ui/termListScreen.dart';
 import 'package:midtermm/ui/class_ui/classOfLibrary.dart';
 import 'package:midtermm/ui/folder_ui/folderOfLibrary.dart';
 
@@ -23,6 +26,29 @@ class _libraryScreenState extends State<libraryScreen>
     });
   }
 
+  void _onAddButtonPressed() {
+    if (_tabController.index == 0) {
+      // Check if the current tab is 'Học phần'
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => AddTermScreen()),
+      );
+    } else if (_tabController.index == 1) {
+      // Check if the current tab is 'Lớp học'
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => AddClassScreen()),
+      );
+    }else {
+      // Check if the current tab is 'Thư mục'
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => AddFolderScreen()),
+      );
+    }
+    // Add more conditions here if needed for other tabs
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,7 +59,7 @@ class _libraryScreenState extends State<libraryScreen>
           IconButton(
             icon: Icon(Icons.add),
             onPressed: () {
-              // Xử lý khi nhấn "Xong"
+              _onAddButtonPressed();
             },
           ),
         ],

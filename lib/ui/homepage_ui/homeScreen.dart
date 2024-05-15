@@ -1,9 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:midtermm/ui/homepage_ui/libraryScreen.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  final Function(int) onTabTapped;
+
+  const HomeScreen({Key? key, required this.onTabTapped}) : super(key: key);
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -15,9 +18,9 @@ class _HomeScreenState extends State<HomeScreen> {
   late User? user;
   late String userEmail = 'No Email';
 
-  List<Map<String, dynamic>> subjects = [];
-  List<Map<String, dynamic>> usersubjects = [];
-  List<Map<String, dynamic>> similarsubjects = [];
+  List<Map<String, dynamic>> terms = [];
+  List<Map<String, dynamic>> userterms = [];
+  List<Map<String, dynamic>> similarterms = [];
 
   @override
   void initState() {
@@ -43,20 +46,24 @@ class _HomeScreenState extends State<HomeScreen> {
     final QuerySnapshot querySnapshot = await termsCollection.get();
 
     setState(() {
-      subjects = querySnapshot.docs
+      terms = querySnapshot.docs
           .map((doc) => doc.data() as Map<String, dynamic>)
           .toList();
 
-      usersubjects = subjects
+      userterms = terms
           .where((subject) => subject['userEmail'] == userEmail)
           .toList();
-      print('Filtered subjects: $usersubjects'); // Debug output
+      print('Filtered terms: $userterms'); // Debug output
 
-      similarsubjects = subjects
+      similarterms = terms
           .where((subject) => subject['userEmail'] != userEmail)
           .toList();
-      print('Filtered similar subjects: $similarsubjects');  // Debug output
+      print('Filtered similar terms: $similarterms'); // Debug output
     });
+  }
+
+  void _viewAllTerms(BuildContext context) {
+    widget.onTabTapped(3);
   }
 
   @override
@@ -141,7 +148,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     ElevatedButton(
                       onPressed: () {
-                        // Handle "Xem tất cả" button tap
+                        _viewAllTerms(context);
                       },
                       child: Text('Xem tất cả'),
                     ),
@@ -153,12 +160,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 height: 170,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
-                  itemCount: usersubjects.length,
+                  itemCount: userterms.length,
                   itemBuilder: (context, index) {
-                    final usersubject = usersubjects[index];
+                    final userterm = userterms[index];
                     return EducationCard(
-                      title: usersubject['title'],
-                      userEmail: usersubject['userEmail'],
+                      title: userterm['title'],
+                      userName: userterm['userName'],
+                      count:  userterm['english'] != null
+                          ? userterm['english'].length
+                          : 0,
                     );
                   },
                 ),
@@ -171,7 +181,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   children: [
                     Text(
                       'Các học phần',
-                      // 'Tương tự học phần của ${subjects[0]['teacher']}',
+                      // 'Tương tự học phần của ${terms[0]['teacher']}',
                       style:
                           TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
@@ -183,12 +193,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 height: 170,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
-                  itemCount: similarsubjects.length,
+                  itemCount: similarterms.length,
                   itemBuilder: (context, index) {
-                    final similarsubject = similarsubjects[index];
+                    final similarterm = similarterms[index];
                     return EducationCard(
-                      title: similarsubject['title'],
-                      userEmail: similarsubject['userEmail'],
+                      title: similarterm['title'],
+                      userName: similarterm['userName'],
+                      count: similarterm['english'] != null
+                          ? similarterm['english'].length
+                          : 0,
                     );
                   },
                 ),
@@ -223,12 +236,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
 class EducationCard extends StatelessWidget {
   final String title;
-  final String userEmail;
+  final String userName;
+  final int count;
 
   const EducationCard({
     Key? key,
     required this.title,
-    required this.userEmail,
+    required this.count,
+    required this.userName,
   }) : super(key: key);
 
   @override
@@ -261,7 +276,7 @@ class EducationCard extends StatelessWidget {
                       255, 199, 212, 252), // Màu nền xám cho số thuật ngữ
                 ),
                 child: Text(
-                  '1 thuật ngữ',
+                  '$count thuật ngữ',
                   style: TextStyle(fontSize: 15, color: Colors.black),
                 ),
               ),
@@ -269,7 +284,7 @@ class EducationCard extends StatelessWidget {
               Row(
                 children: [
                   Text(
-                    '$userEmail   ',
+                    '$userName   ',
                     style: TextStyle(
                         color: const Color.fromARGB(255, 0, 0, 0),
                         fontSize: 16),

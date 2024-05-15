@@ -19,7 +19,7 @@ class _AddFolderScreenState extends State<AddFolderScreen> {
             Navigator.of(context).pop(); // Đóng màn hình khi nhấn nút "Hủy"
           },
         ),
-        title: Text('Thu mục mới'),
+        title: Text('Thư mục mới'),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.check),

@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:midtermm/ui/Nav_ui/homepageScreen.dart';
@@ -11,6 +12,7 @@ class signupScreen extends StatefulWidget {
 }
 
 class _signupScreenState extends State<signupScreen> {
+  TextEditingController usernameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController confirmpasswordController = TextEditingController();
@@ -61,8 +63,9 @@ class _signupScreenState extends State<signupScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const TextField(
-                          decoration: InputDecoration(
+                        TextField(
+                          controller: usernameController,
+                          decoration: const InputDecoration(
                               suffixIcon: Icon(
                                 Icons.check,
                                 color: Colors.grey,
@@ -133,12 +136,12 @@ class _signupScreenState extends State<signupScreen> {
                               //   },
                               // ),
                               label: Text(
-                                'Confirm Password',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFF4254FE),
-                                ),
-                              )),
+                            'Confirm Password',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF4254FE),
+                            ),
+                          )),
                         ),
                         const SizedBox(
                           height: 10,
@@ -226,8 +229,20 @@ class _signupScreenState extends State<signupScreen> {
 
     try {
       if (passwordController.text == confirmpasswordController.text) {
+        bool usernameExists =
+            await checkIfUsernameExists(usernameController.text);
+
+        if (usernameExists) {
+          Navigator.pop(context);
+          showErrorMsg("Username already exists!");
+          return;
+        }
+
         await FirebaseAuth.instance.createUserWithEmailAndPassword(
             email: emailController.text, password: passwordController.text);
+
+        addUserNames();
+
         Navigator.pop(context);
         Navigator.pushReplacement(
           context,
@@ -241,6 +256,31 @@ class _signupScreenState extends State<signupScreen> {
       Navigator.pop(context);
       showErrorMsg(e.code);
     }
+  }
+
+  Future<bool> checkIfUsernameExists(String username) async {
+    final CollectionReference usersCollection =
+        FirebaseFirestore.instance.collection('users');
+
+    final QuerySnapshot result = await usersCollection
+        .where('userName', isEqualTo: username)
+        .limit(1)
+        .get();
+
+    final List<DocumentSnapshot> documents = result.docs;
+    return documents.isNotEmpty;
+  }
+
+  void addUserNames() async {
+    final CollectionReference termsCollection =
+        FirebaseFirestore.instance.collection('users');
+
+    Map<String, dynamic> user = {
+      'userName': usernameController.text,
+      'userEmail': emailController.text,
+    };
+
+    await termsCollection.add(user);
   }
 
   void showErrorMsg(String msg) {

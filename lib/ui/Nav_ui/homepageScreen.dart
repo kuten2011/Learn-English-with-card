@@ -13,8 +13,10 @@ class _MyHomePageState extends State<homepageScreen> {
   int _selectedIndex = 0;
   bool _showAppBar = true; // Biến để kiểm tra hiển thị AppBar
 
-  static const List<Widget> _widgetOptions = <Widget>[
-    HomeScreen(),
+  late final List<Widget> _widgetOptions = <Widget>[
+    HomeScreen(
+      onTabTapped: _onItemTapped,
+    ),
     Text('Lời Giải'),
     Text('Thêm'),
     libraryScreen(),

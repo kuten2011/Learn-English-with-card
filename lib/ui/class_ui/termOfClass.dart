@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../term_ui/cardScreen.dart';
+import '../term_ui/cartListScreen.dart';
 
 class TermList extends StatelessWidget {
   final List<Term> terms = [

@@ -8,6 +8,7 @@ class AddTermScreen extends StatelessWidget {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _termController = TextEditingController();
   final TextEditingController _definitionController = TextEditingController();
+  final TextEditingController _userNameController = TextEditingController();
 
   //AddTermScreen({required this.onTermAdded});
 
@@ -43,6 +44,7 @@ class AddTermScreen extends StatelessWidget {
                 'term': _termController.text,
                 'definition': _definitionController.text,
                 'userEmail': currentUser?.email,
+                'userName': _userNameController.text,
               };
 
               await termsCollection.add(term);
