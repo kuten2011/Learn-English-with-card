@@ -1,50 +1,19 @@
 import 'package:flutter/material.dart';
-//import 'package:midtermm/ui/Service/studyCardtermscreen.dart';
-
-// void main() {
-//   runApp(MyApp());
-// }
-
-// class MyApp extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       home: CardListScreen(),
-//     );
-//   }
-// }
 
 class CardListScreen extends StatefulWidget {
-  //final List<Map<String, dynamic>> userterms;
-  // final int indexterm;
+  final List<Map<String, dynamic>> cardterms;
+  final int indexterm;
 
-  // CardListScreen({
-  //   //required this.userterms,
-  //   required this.indexterm,
-  // });
+  CardListScreen({
+    required this.cardterms,
+    required this.indexterm,
+  });
 
   @override
   _CardListScreenState createState() => _CardListScreenState();
 }
 
 class _CardListScreenState extends State<CardListScreen> {
-  final List<Map<String, dynamic>> cardterms = [
-    {
-      'english': ['everyone', 'hello'],
-      'userEmail': 'an66528@gmail.com',
-      'vietnamese': ['mọi người', 'xin chào'],
-      'userName': 'an66528',
-      'title': 'LearnVocab'
-    },
-    {
-      'english': ['welcome', 'sad'],
-      'userEmail': 'an66528@gmail.com',
-      'vietnamese': ['chào mừng', 'buồn'],
-      'userName': 'an66528',
-      'title': 'Day1'
-    }
-  ];
-
   int currentPage = 0;
 
   void onReview() {
@@ -52,10 +21,7 @@ class _CardListScreenState extends State<CardListScreen> {
   }
 
   void onStudy() {
-    // Navigator.push(
-    //   context,
-    //   MaterialPageRoute(builder: (context) => StudyCardtermscreen(cardterms : cardterms)),
-    // );
+    // Navigate to study screen
   }
 
   void onTest() {
@@ -68,6 +34,8 @@ class _CardListScreenState extends State<CardListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    List<Map<String, dynamic>> cardterms = widget.cardterms;
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Horizontal Card Demo'),
@@ -93,9 +61,9 @@ class _CardListScreenState extends State<CardListScreen> {
                   return Center(
                     child: FlipCard(
                       frontChild:
-                          CardItem(cardterms[index]["title"] ?? 'No title'),
+                          CardItem(cardterms[index]["english"][0] ?? 'No English'),
                       backChild:
-                          CardItem(cardterms[index]["userName"] ?? 'No name'),
+                          CardItem(cardterms[index]["vietnamese"][0] ?? 'No Vietnamese'),
                     ),
                   );
                 },
@@ -120,7 +88,6 @@ class _CardListScreenState extends State<CardListScreen> {
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      // Handle "Xem tất cả" button tap
                       print('Xem tất cả button pressed');
                     },
                     child: Icon(
@@ -151,7 +118,6 @@ class _CardListScreenState extends State<CardListScreen> {
                   ),
                   ElevatedButton.icon(
                     onPressed: () {
-                      // Handle "Xem tất cả" button tap
                       print('Xem tất cả button pressed');
                     },
                     label: Text(
@@ -165,22 +131,21 @@ class _CardListScreenState extends State<CardListScreen> {
             ),
             for (int index = 0; index < cardterms.length; index++)
               Card(
-                elevation: 5, // Độ nổi bật của thẻ
+                elevation: 5,
                 shape: RoundedRectangleBorder(
-                  side: BorderSide(color: Colors.black, width: 1), // Viền đen
-                  borderRadius: BorderRadius.circular(10), // Bo góc
+                  side: BorderSide(color: Colors.black, width: 1),
+                  borderRadius: BorderRadius.circular(10),
                 ),
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.white, // Nền trắng
-                    borderRadius: BorderRadius.circular(10), // Bo góc
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(
-                            0.2), // Màu đen với độ trong suốt để tạo hiệu ứng nổi bật
-                        spreadRadius: 3, // Bán kính lan trải của shadow
-                        blurRadius: 5, // Độ mờ của shadow
-                        offset: Offset(0, 3), // Vị trí của shadow
+                        color: Colors.black.withOpacity(0.2),
+                        spreadRadius: 3,
+                        blurRadius: 5,
+                        offset: Offset(0, 3),
                       ),
                     ],
                   ),
