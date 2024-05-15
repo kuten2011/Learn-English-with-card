@@ -11,20 +11,19 @@ class TermListScreen extends StatefulWidget {
 class _TermListScreenState extends State<TermListScreen> {
   final List<Map<String, dynamic>> tterms = [
     {
-      'title': 'Flutter',
-      'count': 20,
-      'name': 'John Doe',
+      'english': ['everyone', 'hello'],
+      'userEmail': 'an66528@gmail.com',
+      'vietnamese': ['mọi người', 'xin chào'],
+      'userName': 'an66528',
+      'title': 'LearnVocab'
     },
     {
-      'title': 'Dart',
-      'count': 15,
-      'name': 'Jane Smith',
-    },
-    {
-      'title': 'Widget',
-      'count': 25,
-      'name': 'Alex Johnson',
-    },
+      'english': ['welcome', 'sad'],
+      'userEmail': 'an66528@gmail.com',
+      'vietnamese': ['chào mừng', 'buồn'],
+      'userName': 'an66528',
+      'title': 'Day1'
+    }
   ];
 
   late User? user;
@@ -75,6 +74,10 @@ class _TermListScreenState extends State<TermListScreen> {
               itemBuilder: (BuildContext context, int index) {
                 return InkWell(
                   onTap: () {
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(builder: (context) => CardListScreen(indexterm: 0)),
+                    // );
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => CardListScreen()),
@@ -83,7 +86,9 @@ class _TermListScreenState extends State<TermListScreen> {
                   child: Term(
                     title: userterms[index]['title'] ?? 'No Title',
                     name: userterms[index]['userName'] ?? 'No Name',
-                    count: userterms[index]['english'] != null ? userterms[index]['english'].length : 0,
+                    count: userterms[index]['english'] != null
+                        ? userterms[index]['english'].length
+                        : 0,
                     //eng: userterms[index]['english'][0] ?? 'No Name',
                     //print('Eng1: $userterms[index]['english'][0] ?? 'No Name''),
                   ),

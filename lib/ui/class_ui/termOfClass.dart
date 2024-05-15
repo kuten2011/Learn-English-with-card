@@ -20,10 +20,10 @@ class TermList extends StatelessWidget {
               itemBuilder: (BuildContext context, int index) {
                 return InkWell(
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => CardListScreen()),
-                    );
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(builder: (context) => CardListScreen()),
+                    // );
                   },
                   child: Card(
                     shape: RoundedRectangleBorder(

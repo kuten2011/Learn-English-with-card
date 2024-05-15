@@ -1,45 +1,48 @@
 import 'package:flutter/material.dart';
-import 'package:midtermm/ui/Service/studyCardScreen.dart';
+//import 'package:midtermm/ui/Service/studyCardtermscreen.dart';
 
-void main() {
-  runApp(MyApp());
-}
+// void main() {
+//   runApp(MyApp());
+// }
 
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: CardListScreen(),
-    );
-  }
-}
+// class MyApp extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       home: CardListScreen(),
+//     );
+//   }
+// }
 
 class CardListScreen extends StatefulWidget {
+  //final List<Map<String, dynamic>> userterms;
+  // final int indexterm;
+
+  // CardListScreen({
+  //   //required this.userterms,
+  //   required this.indexterm,
+  // });
+
   @override
   _CardListScreenState createState() => _CardListScreenState();
 }
 
 class _CardListScreenState extends State<CardListScreen> {
-  final List<Map<String, dynamic>> cards = [
+  final List<Map<String, dynamic>> cardterms = [
     {
-      "title": "Flutter",
-      "description":
-          "A UI toolkit for building natively compiled applications for mobile, web, and desktop from a single codebase."
+      'english': ['everyone', 'hello'],
+      'userEmail': 'an66528@gmail.com',
+      'vietnamese': ['mọi người', 'xin chào'],
+      'userName': 'an66528',
+      'title': 'LearnVocab'
     },
     {
-      "title": "Dart",
-      "description":
-          "A programming language optimized for building mobile, web, and server-side applications."
-    },
-    {
-      "title": "Widget",
-      "description": "A description of part of a user interface."
-    },
-    {
-      "title": "Animation",
-      "description":
-          "A visual effect that makes an element appear or disappear, change size or position, or otherwise change its appearance and behavior."
-    },
+      'english': ['welcome', 'sad'],
+      'userEmail': 'an66528@gmail.com',
+      'vietnamese': ['chào mừng', 'buồn'],
+      'userName': 'an66528',
+      'title': 'Day1'
+    }
   ];
 
   int currentPage = 0;
@@ -49,10 +52,10 @@ class _CardListScreenState extends State<CardListScreen> {
   }
 
   void onStudy() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => StudyCardScreen(cards : cards)),
-    );
+    // Navigator.push(
+    //   context,
+    //   MaterialPageRoute(builder: (context) => StudyCardtermscreen(cardterms : cardterms)),
+    // );
   }
 
   void onTest() {
@@ -76,7 +79,7 @@ class _CardListScreenState extends State<CardListScreen> {
             Container(
               height: 200,
               child: PageView.builder(
-                itemCount: cards.length,
+                itemCount: cardterms.length,
                 controller: PageController(
                   initialPage: currentPage,
                   viewportFraction: 0.8,
@@ -89,8 +92,10 @@ class _CardListScreenState extends State<CardListScreen> {
                 itemBuilder: (context, index) {
                   return Center(
                     child: FlipCard(
-                      frontChild: CardItem(cards[index]["title"]),
-                      backChild: CardItem(cards[index]["description"]),
+                      frontChild:
+                          CardItem(cardterms[index]["title"] ?? 'No title'),
+                      backChild:
+                          CardItem(cardterms[index]["userName"] ?? 'No name'),
                     ),
                   );
                 },
@@ -100,7 +105,7 @@ class _CardListScreenState extends State<CardListScreen> {
             Align(
               alignment: Alignment.center,
               child: Text(
-                '${currentPage + 1} of ${cards.length}',
+                '${currentPage + 1} of ${cardterms.length}',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
             ),
@@ -158,7 +163,7 @@ class _CardListScreenState extends State<CardListScreen> {
                 ],
               ),
             ),
-            for (int index = 0; index < cards.length; index++)
+            for (int index = 0; index < cardterms.length; index++)
               Card(
                 elevation: 5, // Độ nổi bật của thẻ
                 shape: RoundedRectangleBorder(
@@ -183,10 +188,14 @@ class _CardListScreenState extends State<CardListScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
                       ListTile(
-                        title: Text(cards[index]["title"],
-                            style: TextStyle(color: Colors.black)), // Chữ đen
-                        subtitle: Text(cards[index]["description"],
-                            style: TextStyle(color: Colors.black)), // Chữ đen
+                        title: Text(
+                          cardterms[index]["title"] ?? 'No title',
+                          style: TextStyle(color: Colors.black),
+                        ),
+                        subtitle: Text(
+                          cardterms[index]["description"] ?? '',
+                          style: TextStyle(color: Colors.black),
+                        ),
                       ),
                     ],
                   ),
@@ -273,10 +282,10 @@ class FlipCard extends StatefulWidget {
       : super(key: key);
 
   @override
-  _FlipCardState createState() => _FlipCardState();
+  _FlipCardtermstate createState() => _FlipCardtermstate();
 }
 
-class _FlipCardState extends State<FlipCard>
+class _FlipCardtermstate extends State<FlipCard>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _frontRotation;
