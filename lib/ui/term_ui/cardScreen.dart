@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:midtermm/ui/Service/studyCardScreen.dart';
 
 class CardListScreen extends StatefulWidget {
   @override
@@ -23,7 +24,10 @@ class _CardListScreenState extends State<CardListScreen> {
   }
 
   void onStudy() {
-    print('Luyện tập button pressed');
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => StudyCardScreen()),
+    );
   }
 
   void onTest() {

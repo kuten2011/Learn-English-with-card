@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:midtermm/ui/term_ui/termInLabrary.dart';
+import 'package:midtermm/ui/class_ui/classOfLibrary.dart';
+import 'package:midtermm/ui/folder_ui/folderOfLibrary.dart';
 
 class libraryScreen extends StatefulWidget {
   const libraryScreen({Key? key}) : super(key: key);
@@ -48,8 +50,8 @@ class _libraryScreenState extends State<libraryScreen>
         controller: _tabController,
         children: [
           TermListScreen(),
-          Center(child: Text('Nội dung Lớp học')),
-          Center(child: Text('Nội dung Thư mục')),
+          CourseList(),
+          FolderList(),
         ],
       ),
     );

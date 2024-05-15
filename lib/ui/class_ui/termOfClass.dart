@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../term_ui/cardScreen.dart';
 
-class TermListScreen extends StatelessWidget {
+class TermList extends StatelessWidget {
   final List<Term> terms = [
     Term("Flutter", 20, "John Doe"),
     Term("Dart", 15, "Jane Smith"),
