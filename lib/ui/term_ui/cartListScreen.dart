@@ -1,20 +1,45 @@
 import 'package:flutter/material.dart';
 import 'package:midtermm/ui/Service/studyCardScreen.dart';
 
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: CardListScreen(),
+    );
+  }
+}
+
 class CardListScreen extends StatefulWidget {
   @override
   _CardListScreenState createState() => _CardListScreenState();
 }
 
 class _CardListScreenState extends State<CardListScreen> {
-  final List<CardModel> cards = [
-    CardModel("Flutter",
-        "A UI toolkit for building natively compiled applications for mobile, web, and desktop from a single codebase."),
-    CardModel("Dart",
-        "A programming language optimized for building mobile, web, and server-side applications."),
-    CardModel("Widget", "A description of part of a user interface."),
-    CardModel("Animation",
-        "A visual effect that makes an element appear or disappear, change size or position, or otherwise change its appearance and behavior."),
+  final List<Map<String, dynamic>> cards = [
+    {
+      "title": "Flutter",
+      "description":
+          "A UI toolkit for building natively compiled applications for mobile, web, and desktop from a single codebase."
+    },
+    {
+      "title": "Dart",
+      "description":
+          "A programming language optimized for building mobile, web, and server-side applications."
+    },
+    {
+      "title": "Widget",
+      "description": "A description of part of a user interface."
+    },
+    {
+      "title": "Animation",
+      "description":
+          "A visual effect that makes an element appear or disappear, change size or position, or otherwise change its appearance and behavior."
+    },
   ];
 
   int currentPage = 0;
@@ -26,7 +51,7 @@ class _CardListScreenState extends State<CardListScreen> {
   void onStudy() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => StudyCardScreen()),
+      MaterialPageRoute(builder: (context) => StudyCardScreen(cards : cards)),
     );
   }
 
@@ -64,8 +89,8 @@ class _CardListScreenState extends State<CardListScreen> {
                 itemBuilder: (context, index) {
                   return Center(
                     child: FlipCard(
-                      frontChild: CardItem(cards[index].keyword),
-                      backChild: CardItem(cards[index].definition),
+                      frontChild: CardItem(cards[index]["title"]),
+                      backChild: CardItem(cards[index]["description"]),
                     ),
                   );
                 },
@@ -158,9 +183,9 @@ class _CardListScreenState extends State<CardListScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
                       ListTile(
-                        title: Text(cards[index].keyword,
+                        title: Text(cards[index]["title"],
                             style: TextStyle(color: Colors.black)), // Chữ đen
-                        subtitle: Text(cards[index].definition,
+                        subtitle: Text(cards[index]["description"],
                             style: TextStyle(color: Colors.black)), // Chữ đen
                       ),
                     ],
@@ -233,6 +258,7 @@ class CardItem extends StatelessWidget {
         child: Text(
           text,
           style: TextStyle(color: Colors.white, fontSize: 16),
+          textAlign: TextAlign.center,
         ),
       ),
     );
@@ -320,11 +346,4 @@ class _FlipCardState extends State<FlipCard>
     _controller.dispose();
     super.dispose();
   }
-}
-
-class CardModel {
-  String keyword;
-  String definition;
-
-  CardModel(this.keyword, this.definition);
 }

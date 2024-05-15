@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 
 class StudyCardScreen extends StatelessWidget {
-  final List<Map<String, String>> cards = [
-    {'title': 'Card 1', 'content': 'This is the content of card 1'},
-    {'title': 'Card 2', 'content': 'This is the content of card 2'},
-    {'title': 'Card 3', 'content': 'This is the content of card 3'},
-  ];
+  final List<Map<String, dynamic>> cards;
+
+  StudyCardScreen({required this.cards});
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +28,7 @@ class StudyCardScreen extends StatelessWidget {
               itemBuilder: (context, index) {
                 return CardItem(
                   title: cards[index]['title']!,
-                  content: cards[index]['content']!,
+                  content: cards[index]['description']!,
                 );
               },
             ),
