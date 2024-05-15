@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:midtermm/ui/auth_ui/welcomeScreen.dart';
+import 'package:midtermm/ui/auth_ui/ChangePasswordScreen.dart';
 
 class settingScreen extends StatefulWidget {
   const settingScreen({Key? key}) : super(key: key);
@@ -87,6 +88,17 @@ class _settingScreenState extends State<settingScreen> {
                 Padding(
                   padding: const EdgeInsets.all(0),
                   child: ListTile(
+                    title: const Text('Đổi mật khẩu'),
+                    trailing: const Icon(Icons.lock),
+                    onTap: () {
+                      changePassword();
+                    },
+                  ),
+                ),
+                const Divider(),
+                Padding(
+                  padding: const EdgeInsets.all(0),
+                  child: ListTile(
                     title: const Text('Lưu học phần để học ngoại tuyến'),
                     subtitle: const Text(
                       '8 học phần mới học gần đây nhất của bạn sẽ được tự động tải xuống',
@@ -153,6 +165,15 @@ class _settingScreenState extends State<settingScreen> {
       context,
       MaterialPageRoute(builder: (context) => const welcomeScreen()),
       (route) => false,
+    );
+  }
+
+  void changePassword() {
+    // Thực hiện các hành động để chuyển đến màn hình đổi mật khẩu
+    // Ví dụ:
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => ChangePasswordScreen()),
     );
   }
 }

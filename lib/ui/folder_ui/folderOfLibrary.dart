@@ -1,37 +1,26 @@
 import 'package:flutter/material.dart';
 import 'termOfFolderScreen.dart';
 
-class Folder {
-  final String title;
-  final String content;
-  final String name;
-  final String image;
-
-  Folder({
-    required this.title,
-    required this.content,
-    required this.name,
-    required this.image,
-  });
-}
-
 class FolderList extends StatelessWidget {
-  final List<Folder> folders = [
-    Folder(
-        title: 'Toán cao cấp',
-        content: '5',
-        name: 'khoavo006',
-        image: 'lib/assets/images/test.jpg'),
-    Folder(
-        title: 'Vật lý đại cương',
-        content: '4',
-        name: 'khoavone',
-        image: 'lib/assets/images/test.jpg'),
-    Folder(
-        title: 'Hóa học',
-        content: '3',
-        name: 'an3013',
-        image: 'lib/assets/images/test.jpg'),
+  final List<Map<String, dynamic>> folders = [
+    {
+      'title': 'Toán cao cấp',
+      'content': '5',
+      'name': 'khoavo006',
+      'image': 'lib/assets/images/test.jpg'
+    },
+    {
+      'title': 'Vật lý đại cương',
+      'content': '4',
+      'name': 'khoavone',
+      'image': 'lib/assets/images/test.jpg'
+    },
+    {
+      'title': 'Hóa học',
+      'content': '3',
+      'name': 'an3013',
+      'image': 'lib/assets/images/test.jpg'
+    },
     // Thêm nhiều học phần khác nếu cần
   ];
 
@@ -49,7 +38,7 @@ class FolderList extends StatelessWidget {
 }
 
 class FolderCard extends StatelessWidget {
-  final Folder folder;
+  final Map<String, dynamic> folder;
 
   FolderCard({required this.folder});
 
@@ -84,7 +73,7 @@ class FolderCard extends StatelessWidget {
                       SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          folder.title,
+                          folder["title"],
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -103,17 +92,17 @@ class FolderCard extends StatelessWidget {
                           color: const Color.fromARGB(255, 199, 212, 252),
                         ),
                         child: Text(
-                          '${folder.content} học phần',
+                          '${folder["content"]} học phần',
                           style: const TextStyle(fontSize: 15, color: Colors.black),
                         ),
                       ),
                       const SizedBox(width: 10),
                       CircleAvatar(
-                        backgroundImage: AssetImage(folder.image),
+                        backgroundImage: AssetImage(folder["image"]),
                       ),
                       const SizedBox(width: 10),
                       Text(
-                        folder.name,
+                        folder["name"],
                         style: const TextStyle(fontSize: 15, color: Colors.black),
                       ),
                     ],
