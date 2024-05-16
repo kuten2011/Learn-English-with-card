@@ -27,7 +27,7 @@ class _TermListScreenState extends State<TermListScreen> {
   Future<void> getUser() async {
     user = FirebaseAuth.instance.currentUser;
     userEmail = user?.email ?? 'No Email';
-    //print('Current User Email: $userEmail'); // Debug output
+    print('Current User Email: $userEmail'); // Debug output
   }
 
   Future<void> getTermsFromFirestore() async {
@@ -46,7 +46,7 @@ class _TermListScreenState extends State<TermListScreen> {
 
       userterms =
           terms.where((subject) => subject['userEmail'] == userEmail).toList();
-      //print('Filtered terms: $userterms'); // Debug output
+      print('Filtered terms: $userterms'); // Debug output
     });
   }
 
@@ -59,18 +59,6 @@ class _TermListScreenState extends State<TermListScreen> {
     setState(() {
       // Xóa mục khỏi danh sách userterms
       userterms.removeAt(index);
-    });
-  }
-
-  void _addNewTerm() async {
-    // Chờ cho trang AddTermScreen được đóng và cập nhật danh sách thuật ngữ sau khi quay lại
-    await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => AddTermScreen()),
-    );
-    setState(() {
-      // Tải lại danh sách thuật ngữ
-      getTermsFromFirestore();
     });
   }
 
@@ -100,7 +88,21 @@ class _TermListScreenState extends State<TermListScreen> {
                     child: Icon(Icons.delete, color: Colors.white), // Icon xóa
                   ),
                   child: InkWell(
-                    onTap: _addNewTerm, // Gọi hàm _addNewTerm khi nhấn vào một mục thuật ngữ
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CardListScreen(
+                            cardterms: userterms,
+                            indexterm: index,
+                          ),
+                        ),
+                      );
+                      setState(() {
+                        // Tải lại danh sách thuật ngữ
+                        getTermsFromFirestore();
+                      });
+                    },
                     child: Term(
                       title: userterms[index]['title'] ?? 'No Title',
                       name: userterms[index]['userName'] ?? 'No Name',
@@ -118,7 +120,17 @@ class _TermListScreenState extends State<TermListScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _addNewTerm, // Gọi hàm _addNewTerm khi nhấn vào nút floating action button
+        onPressed: () async {
+          // Chờ cho trang AddTermScreen được đóng và cập nhật danh sách thuật ngữ sau khi quay lại
+          await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => AddTermScreen()),
+          );
+          setState(() {
+            // Tải lại danh sách thuật ngữ
+            getTermsFromFirestore();
+          });
+        },
         child: Icon(Icons.add),
       ),
     );
