@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'cartListScreen.dart';
+import 'addTermScreen.dart'; // Import AddTermScreen
 
 class TermListScreen extends StatefulWidget {
   @override
@@ -61,6 +62,18 @@ class _TermListScreenState extends State<TermListScreen> {
     });
   }
 
+  void _addNewTerm() async {
+    // Chờ cho trang AddTermScreen được đóng và cập nhật danh sách thuật ngữ sau khi quay lại
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => AddTermScreen()),
+    );
+    setState(() {
+      // Tải lại danh sách thuật ngữ
+      getTermsFromFirestore();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     // Lấy kích thước chiều rộng của màn hình
@@ -74,28 +87,20 @@ class _TermListScreenState extends State<TermListScreen> {
               itemCount: userterms.length,
               itemBuilder: (BuildContext context, int index) {
                 return Dismissible(
-                  key: UniqueKey(), // Đảm bảo tính duy nhất của mỗi mục trong danh sách
-                  direction: DismissDirection.startToEnd, // Lướt từ trái sang phải để xóa
+                  key:
+                      UniqueKey(), // Đảm bảo tính duy nhất của mỗi mục trong danh sách
+                  direction: DismissDirection
+                      .endToStart, // Lướt từ phải sang trái để xóa
                   onDismissed: (direction) {
                     removeTerm(index);
                   },
                   background: Container(
-                    alignment: Alignment.centerLeft,
+                    alignment: Alignment.centerRight,
                     color: Colors.red, // Màu nền khi lướt để xóa
                     child: Icon(Icons.delete, color: Colors.white), // Icon xóa
                   ),
                   child: InkWell(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => CardListScreen(
-                            cardterms: userterms,
-                            indexterm: index,
-                          ),
-                        ),
-                      );
-                    },
+                    onTap: _addNewTerm, // Gọi hàm _addNewTerm khi nhấn vào một mục thuật ngữ
                     child: Term(
                       title: userterms[index]['title'] ?? 'No Title',
                       name: userterms[index]['userName'] ?? 'No Name',
@@ -111,6 +116,10 @@ class _TermListScreenState extends State<TermListScreen> {
             ),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _addNewTerm, // Gọi hàm _addNewTerm khi nhấn vào nút floating action button
+        child: Icon(Icons.add),
       ),
     );
   }
@@ -148,10 +157,8 @@ class Term extends StatelessWidget {
             children: [
               Text(
                 '$title ',
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20.0,
-                ),
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
               ),
               const SizedBox(height: 10),
               Container(

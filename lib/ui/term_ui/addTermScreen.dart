@@ -30,7 +30,6 @@ class _AddTermScreenState extends State<AddTermScreen> {
   }
 
   Future<void> getTermsFromFirestore() async {
-
     final CollectionReference usersCollection =
         FirebaseFirestore.instance.collection('users');
 
@@ -106,7 +105,7 @@ class _AddTermScreenState extends State<AddTermScreen> {
                 ),
               );
 
-              Navigator.pop(context, true);
+              Navigator.pop(context, true); // Truyền giá trị true khi quay lại trang trước đó
             },
           ),
         ],
