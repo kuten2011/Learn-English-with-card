@@ -13,10 +13,44 @@ class _AddTermScreenState extends State<AddTermScreen> {
   final TextEditingController _userNameController = TextEditingController();
   final List<TextEditingController> _englishTermController = [TextEditingController()];
   final List<TextEditingController> _vietnameseDefinitionController = [TextEditingController()];
+  late User? user;
+  late String userEmail = 'No Email';
+
+  List<Map<String, dynamic>> users = [];
+  List<Map<String, dynamic>> usercurrent = [];
 
   @override
   void initState() {
     super.initState();
+  }
+
+  Future<void> initializeData() async {
+    await getUser();
+    getUsersFromFirestore();
+  }
+
+  Future<void> getUser() async {
+    user = FirebaseAuth.instance.currentUser;
+    userEmail = user?.email ?? 'No Email';
+    print('Current User Email: $userEmail'); // Debug output
+  }
+
+  Future<void> getUsersFromFirestore() async {
+    final CollectionReference termsCollection =
+        FirebaseFirestore.instance.collection('users');
+
+    final QuerySnapshot querySnapshot = await termsCollection.get();
+
+    setState(() {
+      users = querySnapshot.docs
+          .map((doc) => doc.data() as Map<String, dynamic>)
+          .toList();
+
+      usercurrent = users
+          .where((subject) => subject['userEmail'] == userEmail)
+          .toList();
+      print('Filtered terms: $usercurrent'); // Debug output
+    });
   }
 
   void _addNewField() {
@@ -65,7 +99,7 @@ class _AddTermScreenState extends State<AddTermScreen> {
                   'english': _englishTermController[i].text,
                   'vietnamese': _vietnameseDefinitionController[i].text,
                   'userEmail': currentUser?.email,
-                  'userName': _userNameController.text,
+                  'userName': usercurrent['userName'],
                 };
                 terms.add(term);
               }
