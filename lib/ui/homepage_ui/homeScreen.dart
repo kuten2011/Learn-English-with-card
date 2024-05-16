@@ -19,8 +19,8 @@ class _HomeScreenState extends State<HomeScreen> {
   late String userEmail = 'No Email';
 
   List<Map<String, dynamic>> terms = [];
-  List<Map<String, dynamic>> userterms = [];
-  List<Map<String, dynamic>> similarterms = [];
+  List<Map<String, dynamic>> userTerms = [];
+  List<Map<String, dynamic>> similarTerms = [];
 
   @override
   void initState() {
@@ -30,7 +30,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> initializeData() async {
     await getUser();
-    getTermsFromFirestore();
+    await getTermsFromFirestore();
   }
 
   Future<void> getUser() async {
@@ -40,25 +40,15 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> getTermsFromFirestore() async {
-    final CollectionReference termsCollection =
-        FirebaseFirestore.instance.collection('terms');
-
+    final CollectionReference termsCollection = FirebaseFirestore.instance.collection('terms');
     final QuerySnapshot querySnapshot = await termsCollection.get();
 
     setState(() {
-      terms = querySnapshot.docs
-          .map((doc) => doc.data() as Map<String, dynamic>)
-          .toList();
-
-      userterms = terms
-          .where((subject) => subject['userEmail'] == userEmail)
-          .toList();
-      print('Filtered terms: $userterms'); // Debug output
-
-      similarterms = terms
-          .where((subject) => subject['userEmail'] != userEmail)
-          .toList();
-      print('Filtered similar terms: $similarterms'); // Debug output
+      terms = querySnapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
+      userTerms = terms.where((term) => term['userEmail'] == userEmail).toList();
+      similarTerms = terms.where((term) => term['userEmail'] != userEmail).toList();
+      print('Filtered user terms: $userTerms'); // Debug output
+      print('Filtered similar terms: $similarTerms'); // Debug output
     });
   }
 
@@ -77,8 +67,7 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               Container(
                 color: Color(0xFF4254FE),
-                padding: EdgeInsets.only(
-                    left: 8.0, right: 8.0, bottom: 8.0, top: 24.0),
+                padding: EdgeInsets.only(left: 8.0, right: 8.0, bottom: 8.0, top: 24.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -94,24 +83,18 @@ class _HomeScreenState extends State<HomeScreen> {
                             },
                             decoration: InputDecoration(
                               hintText: tt,
-                              hintStyle: TextStyle(
-                                  color: Color.fromARGB(255, 82, 82, 82)),
+                              hintStyle: TextStyle(color: Color.fromARGB(255, 82, 82, 82)),
                               border: OutlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: Color(0xFF4254FE)),
+                                borderSide: BorderSide(color: Color(0xFF4254FE)),
                                 borderRadius: BorderRadius.circular(25.0),
                               ),
                               focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                    color: Color.fromARGB(255, 82, 82, 82)),
+                                borderSide: BorderSide(color: Color.fromARGB(255, 82, 82, 82)),
                                 borderRadius: BorderRadius.circular(25.0),
                               ),
-                              prefixIcon: Icon(Icons.search,
-                                  color: const Color.fromARGB(255, 82, 82, 82)),
+                              prefixIcon: Icon(Icons.search, color: const Color.fromARGB(255, 82, 82, 82)),
                               suffixIcon: IconButton(
-                                icon: Icon(Icons.clear,
-                                    color:
-                                        const Color.fromARGB(255, 82, 82, 82)),
+                                icon: Icon(Icons.clear, color: const Color.fromARGB(255, 82, 82, 82)),
                                 onPressed: () {
                                   setState(() {
                                     searchText = '';
@@ -119,15 +102,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                   });
                                 },
                               ),
-                              contentPadding: EdgeInsets.symmetric(
-                                  vertical: 16.0, horizontal: 16.0),
+                              contentPadding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
                               filled: true,
-                              fillColor: Color.fromARGB(255, 255, 255, 255)
-                                  .withOpacity(0.8),
+                              fillColor: Color.fromARGB(255, 255, 255, 255).withOpacity(0.8),
                               isDense: true,
                             ),
-                            style: TextStyle(
-                                color: const Color.fromARGB(255, 0, 0, 0)),
+                            style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0)),
                           ),
                         ),
                       ],
@@ -141,11 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      'Học phần',
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
+                    Text('Học phần', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                     ElevatedButton(
                       onPressed: () {
                         _viewAllTerms(context);
@@ -160,15 +136,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 height: 170,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
-                  itemCount: userterms.length,
+                  itemCount: userTerms.length,
                   itemBuilder: (context, index) {
-                    final userterm = userterms[index];
+                    final userTerm = userTerms[index];
                     return EducationCard(
-                      title: userterm['title'],
-                      userName: userterm['userName'],
-                      count:  userterm['english'] != null
-                          ? userterm['english'].length
-                          : 0,
+                      title: userTerm['title'],
+                      userName: userTerm['userName'],
+                      count: userTerm['english'] != null ? userTerm['english'].length : 0,
                     );
                   },
                 ),
@@ -179,12 +153,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      'Gợi ý học phần',
-                      // 'Tương tự học phần của ${terms[0]['teacher']}',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
+                    Text('Gợi ý học phần', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),
@@ -193,15 +162,13 @@ class _HomeScreenState extends State<HomeScreen> {
                 height: 170,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
-                  itemCount: similarterms.length,
+                  itemCount: similarTerms.length,
                   itemBuilder: (context, index) {
-                    final similarterm = similarterms[index];
+                    final similarTerm = similarTerms[index];
                     return EducationCard(
-                      title: similarterm['title'] ?? 'No Title',
-                      userName: similarterm['userName'] ?? 'No Username',
-                      count: similarterm['english'] != null
-                          ? similarterm['english'].length
-                          : 0,
+                      title: similarTerm['title'] ?? 'No Title',
+                      userName: similarTerm['userName'] ?? 'No Username',
+                      count: similarTerm['english'] != null ? similarTerm['english'].length : 0,
                     );
                   },
                 ),
@@ -212,11 +179,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      'Thư mục',
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
+                    Text('Thư mục', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                     ElevatedButton(
                       onPressed: () {
                         // Handle "Xem tất cả" button tap
@@ -254,10 +217,10 @@ class EducationCard extends StatelessWidget {
       child: Card(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8.0),
-          side: BorderSide(color: Colors.grey[300]!), // Màu xám cho viền
+          side: BorderSide(color: Colors.grey[300]!),
         ),
         child: Container(
-          color: Colors.white, // Màu nền trắng cho nội dung
+          color: Colors.white,
           padding: EdgeInsets.all(16.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -271,9 +234,8 @@ class EducationCard extends StatelessWidget {
                 padding: EdgeInsets.all(3.0),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16.0),
-                  border: Border.all(color: Colors.grey[400]!), // Viền màu xám
-                  color: Color.fromARGB(
-                      255, 199, 212, 252), // Màu nền xám cho số thuật ngữ
+                  border: Border.all(color: Colors.grey[400]!),
+                  color: Color.fromARGB(255, 199, 212, 252),
                 ),
                 child: Text(
                   '$count thuật ngữ',
@@ -285,18 +247,14 @@ class EducationCard extends StatelessWidget {
                 children: [
                   Text(
                     '$userName   ',
-                    style: TextStyle(
-                        color: const Color.fromARGB(255, 0, 0, 0),
-                        fontSize: 16),
+                    style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0), fontSize: 16),
                   ),
                   Container(
                     padding: EdgeInsets.all(2.0),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16.0),
-                      border:
-                          Border.all(color: Colors.grey[400]!), // Viền màu xám
-                      color: Color.fromARGB(
-                          255, 210, 211, 212), // Màu nền xám cho số thuật ngữ
+                      border: Border.all(color: Colors.grey[400]!),
+                      color: Color.fromARGB(255, 210, 211, 212),
                     ),
                     child: Text(
                       'Giáo viên',
@@ -312,82 +270,3 @@ class EducationCard extends StatelessWidget {
     );
   }
 }
-
-// class EducationCard extends StatelessWidget {
-//   final String title;
-//   final int termsCount;
-//   final String teacherName;
-
-//   const EducationCard({
-//     Key? key,
-//     required this.title,
-//     required this.termsCount,
-//     required this.teacherName,
-//   }) : super(key: key);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//       width: 300,
-//       margin: EdgeInsets.symmetric(horizontal: 8.0),
-//       child: Card(
-//         shape: RoundedRectangleBorder(
-//           borderRadius: BorderRadius.circular(8.0),
-//           side: BorderSide(color: Colors.grey[300]!), // Màu xám cho viền
-//         ),
-//         child: Container(
-//           color: Colors.white, // Màu nền trắng cho nội dung
-//           padding: EdgeInsets.all(16.0),
-//           child: Column(
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               Text(
-//                 title,
-//                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
-//               ),
-//               SizedBox(height: 4),
-//               Container(
-//                 padding: EdgeInsets.all(3.0),
-//                 decoration: BoxDecoration(
-//                   borderRadius: BorderRadius.circular(16.0),
-//                   border: Border.all(color: Colors.grey[400]!), // Viền màu xám
-//                   color: Color.fromARGB(
-//                       255, 199, 212, 252), // Màu nền xám cho số thuật ngữ
-//                 ),
-//                 child: Text(
-//                   '$termsCount thuật ngữ',
-//                   style: TextStyle(fontSize: 15, color: Colors.black),
-//                 ),
-//               ),
-//               SizedBox(height: 30),
-//               Row(
-//                 children: [
-//                   Text(
-//                     '$teacherName   ',
-//                     style: TextStyle(
-//                         color: const Color.fromARGB(255, 0, 0, 0),
-//                         fontSize: 16),
-//                   ),
-//                   Container(
-//                     padding: EdgeInsets.all(2.0),
-//                     decoration: BoxDecoration(
-//                       borderRadius: BorderRadius.circular(16.0),
-//                       border:
-//                           Border.all(color: Colors.grey[400]!), // Viền màu xám
-//                       color: Color.fromARGB(
-//                           255, 210, 211, 212), // Màu nền xám cho số thuật ngữ
-//                     ),
-//                     child: Text(
-//                       'Giáo viên',
-//                       style: TextStyle(fontSize: 15, color: Colors.black),
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }

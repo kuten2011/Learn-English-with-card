@@ -10,47 +10,45 @@ class AddTermScreen extends StatefulWidget {
 
 class _AddTermScreenState extends State<AddTermScreen> {
   final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _userNameController = TextEditingController();
   final List<TextEditingController> _englishTermController = [TextEditingController()];
   final List<TextEditingController> _vietnameseDefinitionController = [TextEditingController()];
-  late User? user;
-  late String userEmail = 'No Email';
 
-  List<Map<String, dynamic>> users = [];
-  List<Map<String, dynamic>> usercurrent = [];
+  User? user;
+  String userEmail = 'No Email';
+  String userName = 'No Name';
 
   @override
   void initState() {
     super.initState();
+    getUser();
+    getTermsFromFirestore();
   }
 
-  Future<void> initializeData() async {
-    await getUser();
-    getUsersFromFirestore();
-  }
-
-  Future<void> getUser() async {
+  void getUser() {
     user = FirebaseAuth.instance.currentUser;
     userEmail = user?.email ?? 'No Email';
-    print('Current User Email: $userEmail'); // Debug output
   }
 
-  Future<void> getUsersFromFirestore() async {
-    final CollectionReference termsCollection =
+  Future<void> getTermsFromFirestore() async {
+
+    final CollectionReference usersCollection =
         FirebaseFirestore.instance.collection('users');
 
-    final QuerySnapshot querySnapshot = await termsCollection.get();
+    final QuerySnapshot querySnapshot = await usersCollection
+        .where('userEmail', isEqualTo: userEmail)
+        .limit(1)
+        .get();
 
-    setState(() {
-      users = querySnapshot.docs
-          .map((doc) => doc.data() as Map<String, dynamic>)
-          .toList();
-
-      usercurrent = users
-          .where((subject) => subject['userEmail'] == userEmail)
-          .toList();
-      print('Filtered terms: $usercurrent'); // Debug output
-    });
+    if (querySnapshot.docs.isNotEmpty) {
+      final DocumentSnapshot userDoc = querySnapshot.docs.first;
+      setState(() {
+        userName = userDoc['userName'] ?? 'No Username';
+      });
+    } else {
+      setState(() {
+        userName = 'No Username Found';
+      });
+    }
   }
 
   void _addNewField() {
@@ -89,22 +87,18 @@ class _AddTermScreenState extends State<AddTermScreen> {
               final CollectionReference termsCollection =
                   FirebaseFirestore.instance.collection('terms');
 
-              final User? currentUser = FirebaseAuth.instance.currentUser;
+              List<String> englishTerms = _englishTermController.map((controller) => controller.text).toList();
+              List<String> vietnameseDefinitions = _vietnameseDefinitionController.map((controller) => controller.text).toList();
 
-              List<Map<String, dynamic>> terms = [];
+              Map<String, dynamic> data = {
+                'title': _titleController.text,
+                'userEmail': userEmail,
+                'userName': userName,
+                'english': englishTerms,
+                'vietnamese': vietnameseDefinitions,
+              };
 
-              for (int i = 0; i < _englishTermController.length; i++) {
-                Map<String, dynamic> term = {
-                  'title': _titleController.text,
-                  'english': _englishTermController[i].text,
-                  'vietnamese': _vietnameseDefinitionController[i].text,
-                  'userEmail': currentUser?.email,
-                  'userName': usercurrent['userName'],
-                };
-                terms.add(term);
-              }
-
-              await termsCollection.add({'terms': terms});
+              await termsCollection.add(data);
 
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
@@ -196,7 +190,8 @@ class _AddTermScreenState extends State<AddTermScreen> {
                 icon: const Icon(Icons.camera_alt),
                 label: const Text('Quét Tài Liệu'),
                 style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white, backgroundColor: Colors.blueAccent,
+                  foregroundColor: Colors.white,
+                  backgroundColor: Colors.blueAccent,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 32.0,
                     vertical: 12.0,
