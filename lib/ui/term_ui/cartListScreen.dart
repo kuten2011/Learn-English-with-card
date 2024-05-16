@@ -58,7 +58,7 @@ class _CardListScreenState extends State<CardListScreen> {
                   });
                 },
                 itemBuilder: (context, indexterm) {
-                  int englishCount = cardterms[indexterm]["english"].length;
+                  int englishCount = cardterms[widget.indexterm]["english"].length;
                   return PageView.builder(
                     itemCount: englishCount,
                     controller: PageController(
@@ -90,7 +90,7 @@ class _CardListScreenState extends State<CardListScreen> {
             Align(
               alignment: Alignment.center,
               child: Text(
-                '${currentPage + 1} of ${cardterms.length}',
+                '${currentPage + 1} of ${cardterms[widget.indexterm]["english"].length}',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
             ),
