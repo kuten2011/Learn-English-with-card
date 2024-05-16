@@ -11,27 +11,37 @@ class AddTermScreen extends StatefulWidget {
 class _AddTermScreenState extends State<AddTermScreen> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _userNameController = TextEditingController();
-  final List<TextEditingController> _englishTermController = [];
-  final List<TextEditingController> _vietnameseDefinitionController = [];
+  final List<TextEditingController> _englishTermController = [TextEditingController()];
+  final List<TextEditingController> _vietnameseDefinitionController = [TextEditingController()];
 
   @override
   void initState() {
     super.initState();
-    for (int i = 0; i < 3; i++) {
-      _englishTermController.add(TextEditingController());
-      _vietnameseDefinitionController.add(TextEditingController());
-    }
   }
 
-  //AddTermScreen({required this.onTermAdded});
+  void _addNewField() {
+    setState(() {
+      _englishTermController.add(TextEditingController());
+      _vietnameseDefinitionController.add(TextEditingController());
+    });
+  }
+
+  void _removeField(int index) {
+    setState(() {
+      _englishTermController.removeAt(index);
+      _vietnameseDefinitionController.removeAt(index);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Thêm Học Phần'),
+        title: const Text('Thêm Học Phần'),
+        backgroundColor: Colors.blueAccent,
         actions: <Widget>[
           IconButton(
-            icon: Icon(Icons.settings),
+            icon: const Icon(Icons.settings),
             onPressed: () {
               Navigator.push(
                 context,
@@ -40,7 +50,7 @@ class _AddTermScreenState extends State<AddTermScreen> {
             },
           ),
           IconButton(
-            icon: Icon(Icons.done),
+            icon: const Icon(Icons.done),
             onPressed: () async {
               final CollectionReference termsCollection =
                   FirebaseFirestore.instance.collection('terms');
@@ -49,7 +59,7 @@ class _AddTermScreenState extends State<AddTermScreen> {
 
               List<Map<String, dynamic>> terms = [];
 
-              for (int i = 0; i < 3; i++) {
+              for (int i = 0; i < _englishTermController.length; i++) {
                 Map<String, dynamic> term = {
                   'title': _titleController.text,
                   'english': _englishTermController[i].text,
@@ -60,10 +70,10 @@ class _AddTermScreenState extends State<AddTermScreen> {
                 terms.add(term);
               }
 
-              await termsCollection.add(terms);
+              await termsCollection.add({'terms': terms});
 
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
+                const SnackBar(
                   content: Text('Term has been added successfully.'),
                 ),
               );
@@ -74,64 +84,101 @@ class _AddTermScreenState extends State<AddTermScreen> {
         ],
       ),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              TextField(
-                controller: _titleController,
-                decoration: InputDecoration(
-                  labelText: 'Tiêu đề',
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            TextField(
+              controller: _titleController,
+              decoration: InputDecoration(
+                labelText: 'Tiêu đề',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12.0),
                 ),
+                filled: true,
+                fillColor: Colors.grey[200],
               ),
-              SizedBox(height: 8.0),
-              ..._buildTermFields(),
-              SizedBox(height: 24.0),
-              Center(
-                child: ElevatedButton.icon(
-                  icon: Icon(Icons.camera_alt),
-                  label: Text('Quét Tài Liệu'),
-                  onPressed: () {
-                    // Xử lý khi nhấn "Quét Tài Liệu"
-                  },
+            ),
+            const SizedBox(height: 16.0),
+            ListView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: _englishTermController.length,
+              itemBuilder: (context, index) {
+                return Column(
+                  children: [
+                    Dismissible(
+                      key: Key('$index'),
+                      direction: DismissDirection.endToStart,
+                      background: Container(
+                        color: Colors.red,
+                        alignment: Alignment.centerRight,
+                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                        child: const Icon(Icons.delete, color: Colors.white),
+                      ),
+                      onDismissed: (direction) {
+                        _removeField(index);
+                      },
+                      child: Column(
+                        children: [
+                          TextField(
+                            controller: _englishTermController[index],
+                            decoration: InputDecoration(
+                              labelText: 'Thuật ngữ',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12.0),
+                              ),
+                              filled: true,
+                              fillColor: Colors.grey[200],
+                              suffixIcon: IconButton(
+                                icon: const Icon(Icons.add),
+                                onPressed: _addNewField,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16.0),
+                          TextField(
+                            controller: _vietnameseDefinitionController[index],
+                            decoration: InputDecoration(
+                              labelText: 'Định nghĩa',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12.0),
+                              ),
+                              filled: true,
+                              fillColor: Colors.grey[200],
+                            ),
+                          ),
+                          const SizedBox(height: 16.0),
+                        ],
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+            const SizedBox(height: 24.0),
+            Center(
+              child: ElevatedButton.icon(
+                icon: const Icon(Icons.camera_alt),
+                label: const Text('Quét Tài Liệu'),
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.white, backgroundColor: Colors.blueAccent,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 32.0,
+                    vertical: 12.0,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12.0),
+                  ),
                 ),
+                onPressed: () {
+                  // Xử lý khi nhấn "Quét Tài Liệu"
+                },
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
-  }
-
-  List<Widget> _buildTermFields() {
-    List<Widget> termFields = [];
-
-    for (int i = 0; i < 3; i++) {
-      termFields.addAll([
-        SizedBox(height: 8.0),
-        TextField(
-          controller: _englishTermController[i],
-          decoration: InputDecoration(
-            labelText: 'Thuật ngữ',
-            suffixIcon: IconButton(
-              icon: Icon(Icons.add),
-              onPressed: () {
-                // Xử lý khi nhấn thêm "Thuật ngữ"
-              },
-            ),
-          ),
-        ),
-        SizedBox(height: 8.0),
-        TextField(
-          controller: _vietnameseDefinitionController[i],
-          decoration: InputDecoration(
-            labelText: 'Định nghĩa',
-          ),
-        ),
-      ]);
-    }
-
-    return termFields;
   }
 }

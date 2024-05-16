@@ -180,7 +180,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Các học phần',
+                      'Gợi ý học phần',
                       // 'Tương tự học phần của ${terms[0]['teacher']}',
                       style:
                           TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -197,8 +197,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   itemBuilder: (context, index) {
                     final similarterm = similarterms[index];
                     return EducationCard(
-                      title: similarterm['title'],
-                      userName: similarterm['userName'],
+                      title: similarterm['title'] ?? 'No Title',
+                      userName: similarterm['userName'] ?? 'No Username',
                       count: similarterm['english'] != null
                           ? similarterm['english'].length
                           : 0,

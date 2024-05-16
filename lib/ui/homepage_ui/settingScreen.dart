@@ -8,10 +8,10 @@ class settingScreen extends StatefulWidget {
   const settingScreen({Key? key}) : super(key: key);
 
   @override
-  State<settingScreen> createState() => _settingScreenState();
+  State<settingScreen> createState() => _SettingScreenState();
 }
 
-class _settingScreenState extends State<settingScreen> {
+class _SettingScreenState extends State<settingScreen> {
   late User? user;
   late String userEmail = 'No Email';
   String userName = 'No Username';
@@ -66,95 +66,96 @@ class _settingScreenState extends State<settingScreen> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: const Text('Cài đặt'),
+        title: const Text('Settings'),
+        backgroundColor: Colors.blueAccent,
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
-          : ListView(
-              children: <Widget>[
-                UserAccountsDrawerHeader(
-                  accountName: Text(
-                    userName,
-                    style: TextStyle(color: Colors.black),
+          : SingleChildScrollView(
+              child: Column(
+                children: <Widget>[
+                  UserAccountsDrawerHeader(
+                    accountName: Text(
+                      userName,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    accountEmail: Text(
+                      userEmail,
+                      style: const TextStyle(color: Colors.white70),
+                    ),
+                    currentAccountPicture: CircleAvatar(
+                      backgroundColor: Colors.white,
+                      child: Text(
+                        userName.isNotEmpty ? userName[0].toUpperCase() : '',
+                        style: TextStyle(
+                          fontSize: 40.0,
+                          color: Colors.blueAccent,
+                        ),
+                      ),
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.blueAccent,
+                    ),
                   ),
-                  accountEmail: Text(
-                    userEmail,
-                    style: const TextStyle(color: Colors.black),
-                  ),
-                  decoration: const BoxDecoration(
-                    color: Color.fromARGB(255, 255, 255, 255),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(0),
-                  child: ListTile(
-                    title: const Text('Đổi mật khẩu'),
-                    trailing: const Icon(Icons.lock),
+                  ListTile(
+                    leading: Icon(Icons.lock, color: Colors.blueAccent),
+                    title: const Text('Change Password'),
                     onTap: () {
                       changePassword();
                     },
                   ),
-                ),
-                const Divider(),
-                Padding(
-                  padding: const EdgeInsets.all(0),
-                  child: ListTile(
-                    title: const Text('Lưu học phần để học ngoại tuyến'),
+                  const Divider(),
+                  ListTile(
+                    leading: Icon(Icons.download_rounded, color: Colors.blueAccent),
+                    title: const Text('Download Courses for Offline'),
                     subtitle: const Text(
-                      '8 học phần mới học gần đây nhất của bạn sẽ được tự động tải xuống',
+                      'Your 8 most recently accessed courses will be automatically downloaded',
                     ),
-                    trailing: const Icon(Icons.download_rounded),
                     onTap: () {
                       // Navigate to offline learning screen
                     },
                   ),
-                ),
-                const Divider(),
-                Padding(
-                  padding: const EdgeInsets.all(0),
-                  child: ListTile(
-                    title: const Text('Quản lý dung lượng lưu trữ'),
-                    trailing: const Icon(Icons.storage),
+                  const Divider(),
+                  ListTile(
+                    leading: Icon(Icons.storage, color: Colors.blueAccent),
+                    title: const Text('Manage Storage'),
                     onTap: () {
                       // Navigate to storage management screen
                     },
                   ),
-                ),
-                const Divider(),
-                SwitchListTile(
-                  title: const Text('Thông báo đẩy'),
-                  value: false,
-                  activeColor: Colors.white,
-                  activeTrackColor: const Color(0xFF4254FE),
-                  inactiveTrackColor: const Color.fromARGB(255, 178, 178, 178),
-                  inactiveThumbColor: const Color.fromARGB(255, 255, 255, 255),
-                  onChanged: (bool value) {
-                    // Handle push notification toggle
-                  },
-                ),
-                SwitchListTile(
-                  title: const Text('Hiệu ứng âm thanh'),
-                  value: true,
-                  activeColor: Colors.white,
-                  activeTrackColor: const Color(0xFF4254FE),
-                  inactiveTrackColor: const Color.fromARGB(255, 178, 178, 178),
-                  inactiveThumbColor: const Color.fromARGB(255, 255, 255, 255),
-                  onChanged: (bool value) {
-                    // Handle push notification toggle
-                  },
-                ),
-                const Divider(),
-                Padding(
-                  padding: const EdgeInsets.all(0),
-                  child: ListTile(
-                    title: const Text('Đăng xuất'),
-                    trailing: const Icon(Icons.logout),
+                  const Divider(),
+                  SwitchListTile(
+                    activeColor: Colors.blueAccent,
+                    contentPadding: const EdgeInsets.all(8.0),
+                    title: const Text('Push Notifications'),
+                    value: false,
+                    onChanged: (bool value) {
+                      // Handle push notification toggle
+                    },
+                  ),
+                  const Divider(),
+                  SwitchListTile(
+                    activeColor: Colors.blueAccent,
+                    contentPadding: const EdgeInsets.all(8.0),
+                    title: const Text('Sound Effects'),
+                    value: true,
+                    onChanged: (bool value) {
+                      // Handle sound effects toggle
+                    },
+                  ),
+                  const Divider(),
+                  ListTile(
+                    leading: Icon(Icons.logout, color: Colors.redAccent),
+                    title: const Text('Logout'),
                     onTap: () {
                       signOut();
                     },
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
     );
   }
@@ -169,8 +170,6 @@ class _settingScreenState extends State<settingScreen> {
   }
 
   void changePassword() {
-    // Thực hiện các hành động để chuyển đến màn hình đổi mật khẩu
-    // Ví dụ:
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => ChangePasswordScreen()),
