@@ -37,7 +37,10 @@ class _TermListScreenState extends State<TermListScreen> {
 
     setState(() {
       terms = querySnapshot.docs
-          .map((doc) => doc.data() as Map<String, dynamic>)
+          .map((doc) => {
+                ...doc.data() as Map<String, dynamic>,
+                'id': doc.id, // Thêm ID cho mỗi mục
+              })
           .toList();
 
       userterms =
@@ -46,8 +49,23 @@ class _TermListScreenState extends State<TermListScreen> {
     });
   }
 
+  void removeTerm(int index) async {
+    // Xử lý khi mục bị xóa
+    await FirebaseFirestore.instance
+        .collection('terms')
+        .doc(userterms[index]['id'])
+        .delete();
+    setState(() {
+      // Xóa mục khỏi danh sách userterms
+      userterms.removeAt(index);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Lấy kích thước chiều rộng của màn hình
+    double screenWidth = MediaQuery.of(context).size.width;
+
     return Scaffold(
       body: Column(
         children: [
@@ -55,24 +73,38 @@ class _TermListScreenState extends State<TermListScreen> {
             child: ListView.builder(
               itemCount: userterms.length,
               itemBuilder: (BuildContext context, int index) {
-                return InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => CardListScreen(
-                          cardterms: userterms,
-                          indexterm: index,
-                        ),
-                      ),
-                    );
+                return Dismissible(
+                  key: UniqueKey(), // Đảm bảo tính duy nhất của mỗi mục trong danh sách
+                  direction: DismissDirection.startToEnd, // Lướt từ trái sang phải để xóa
+                  onDismissed: (direction) {
+                    removeTerm(index);
                   },
-                  child: Term(
-                    title: userterms[index]['title'] ?? 'No Title',
-                    name: userterms[index]['userName'] ?? 'No Name',
-                    count: userterms[index]['english'] != null
-                        ? userterms[index]['english'].length
-                        : 0,
+                  background: Container(
+                    alignment: Alignment.centerLeft,
+                    color: Colors.red, // Màu nền khi lướt để xóa
+                    child: Icon(Icons.delete, color: Colors.white), // Icon xóa
+                  ),
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => CardListScreen(
+                            cardterms: userterms,
+                            indexterm: index,
+                          ),
+                        ),
+                      );
+                    },
+                    child: Term(
+                      title: userterms[index]['title'] ?? 'No Title',
+                      name: userterms[index]['userName'] ?? 'No Name',
+                      count: userterms[index]['english'] != null
+                          ? userterms[index]['english'].length
+                          : 0,
+                      // Gán chiều rộng của thẻ bằng kích thước chiều rộng của màn hình
+                      width: screenWidth,
+                    ),
                   ),
                 );
               },
@@ -88,17 +120,20 @@ class Term extends StatelessWidget {
   final String title;
   final int count;
   final String name;
+  final double? width; // Thêm thuộc tính width
 
   const Term({
     Key? key,
     required this.title,
     required this.count,
     required this.name,
+    this.width, // Cập nhật constructor để chấp nhận width
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: width, // Sử dụng width được cung cấp
       margin: const EdgeInsets.only(left: 9, right: 9, top: 9),
       child: Card(
         shape: RoundedRectangleBorder(
