@@ -41,18 +41,18 @@ class AddMenuPopup extends StatelessWidget {
               );
             },
           ),
-          Divider(),
-          ListTile(
-            leading: Icon(Icons.group_outlined, color: Color(0xFF4254FE)),
-            title: Text('Lớp', style: TextStyle(color: Colors.grey)),
-            onTap: () {
-              // Xử lý khi nhấn "Thư mục"
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => AddClassScreen()),
-              );
-            },
-          ),
+          // Divider(),
+          // ListTile(
+          //   leading: Icon(Icons.group_outlined, color: Color(0xFF4254FE)),
+          //   title: Text('Lớp', style: TextStyle(color: Colors.grey)),
+          //   onTap: () {
+          //     // Xử lý khi nhấn "Thư mục"
+          //     Navigator.push(
+          //       context,
+          //       MaterialPageRoute(builder: (context) => AddClassScreen()),
+          //     );
+          //   },
+          // ),
         ],
       ),
     );

@@ -38,7 +38,7 @@ class _CardListScreenState extends State<CardListScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Horizontal Card Demo'),
+        title: Text(cardterms[widget.indexterm]["title"] ?? 'No Title'),
         backgroundColor: Color(0xFF4254FE),
         foregroundColor: Colors.white,
       ),
@@ -60,7 +60,8 @@ class _CardListScreenState extends State<CardListScreen> {
                   });
                 },
                 itemBuilder: (context, indexterm) {
-                  int englishCount = cardterms[widget.indexterm]["english"].length;
+                  int englishCount =
+                      cardterms[widget.indexterm]["english"].length;
                   return PageView.builder(
                     itemCount: englishCount,
                     controller: PageController(
@@ -75,11 +76,11 @@ class _CardListScreenState extends State<CardListScreen> {
                     itemBuilder: (context, arrayindex) {
                       return Center(
                         child: FlipCard(
-                          frontChild: CardItem(cardterms[widget.indexterm]["english"]
-                                  [arrayindex] ??
+                          frontChild: CardItem(cardterms[widget.indexterm]
+                                  ["english"][arrayindex] ??
                               'No English'),
-                          backChild: CardItem(cardterms[widget.indexterm]["vietnamese"]
-                                  [arrayindex] ??
+                          backChild: CardItem(cardterms[widget.indexterm]
+                                  ["vietnamese"][arrayindex] ??
                               'No Vietnamese'),
                         ),
                       );
@@ -124,8 +125,8 @@ class _CardListScreenState extends State<CardListScreen> {
             SizedBox(height: 5),
             buildCustomCard('Kiểm tra nhanh', Icons.flash_on, onTest),
             SizedBox(height: 5),
-            buildCustomCard('Ghép từ', Icons.merge_type, onMerge),
-            SizedBox(height: 10),
+            // buildCustomCard('Ghép từ', Icons.merge_type, onMerge),
+            // SizedBox(height: 10),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Row(
@@ -148,7 +149,9 @@ class _CardListScreenState extends State<CardListScreen> {
                 ],
               ),
             ),
-            for (int index = 0; index < cardterms[widget.indexterm]['english'].length; index++)
+            for (int index = 0;
+                index < cardterms[widget.indexterm]['english'].length;
+                index++)
               Card(
                 elevation: 5,
                 shape: RoundedRectangleBorder(
@@ -173,11 +176,13 @@ class _CardListScreenState extends State<CardListScreen> {
                     children: <Widget>[
                       ListTile(
                         title: Text(
-                          cardterms[widget.indexterm]["english"][index] ?? 'No English',
+                          cardterms[widget.indexterm]["english"][index] ??
+                              'No English',
                           style: TextStyle(color: Colors.black),
                         ),
                         subtitle: Text(
-                          cardterms[widget.indexterm]["vietnamese"][index] ?? 'No Vietnamese',
+                          cardterms[widget.indexterm]["vietnamese"][index] ??
+                              'No Vietnamese',
                           style: TextStyle(color: Colors.black),
                         ),
                       ),
@@ -193,31 +198,34 @@ class _CardListScreenState extends State<CardListScreen> {
 
   Widget buildCustomCard(String text, IconData icon, VoidCallback onPressed) {
     return Card(
+      elevation: 5,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16.0),
-        side: BorderSide(color: Colors.grey[400]!),
+        side: BorderSide(color: Colors.grey[400]!, width: 1),
       ),
-      color: Colors.white,
       child: Container(
-        width: double.infinity,
-        padding: EdgeInsets.symmetric(vertical: 10),
-        child: ElevatedButton.icon(
-          style: ElevatedButton.styleFrom(
-            foregroundColor: Colors.black,
-            backgroundColor: Colors.white,
-            elevation: 0,
-            padding: EdgeInsets.only(left: 16),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16.0),
-              side: BorderSide(color: Colors.transparent),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16.0),
+          onTap: onPressed,
+          child: Container(
+            height: 60, // Đặt chiều cao tùy ý
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Icon(icon, color: Colors.black),
+                SizedBox(width: 10.0),
+                Text(
+                  text,
+                  style: TextStyle(fontSize: 16, color: Colors.black),
+                ),
+              ],
             ),
           ),
-          icon: Icon(icon, color: Colors.black),
-          label: Align(
-            alignment: Alignment.centerLeft,
-            child: Text(text),
-          ),
-          onPressed: onPressed,
         ),
       ),
     );

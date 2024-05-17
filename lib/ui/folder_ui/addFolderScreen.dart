@@ -53,6 +53,8 @@ class _AddFolderScreenState extends State<AddFolderScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Color(0xFF4254FE),
+        foregroundColor: Colors.white,
         leading: IconButton(
           icon: Icon(Icons.close),
           onPressed: () {

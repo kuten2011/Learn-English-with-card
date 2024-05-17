@@ -1,18 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:midtermm/ui/class_ui/memberOfClass.dart';
-import 'package:midtermm/ui/class_ui/termOfClass.dart';
-
-void main() => runApp(MyApp());
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Title Class',
-      home: TermListScreen(),
-    );
-  }
-}
 
 class TermListScreen extends StatefulWidget {
   @override
@@ -20,20 +6,12 @@ class TermListScreen extends StatefulWidget {
 }
 
 class _TermListScreenState extends State<TermListScreen> {
-  final List<Term> terms = [
-    Term("Flutter", 20, "John Doe"),
-    Term("Dart", 15, "Jane Smith"),
-    Term("Widget", 25, "Alex Johnson"),
+  final List<Map<String, dynamic>> terms = [
+    {'title': "Flutter", 'count': 20, 'name': "John Doe"},
+    {'title': "Dart", 'count': 15, 'name': "Jane Smith"},
+    {'title': "Widget", 'count': 25, 'name': "Alex Johnson"},
     // Add more terms as needed
   ];
-
-  int _selectedIndex = 0;
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
 
   void _showPopupMenu(BuildContext context) {
     showModalBottomSheet(
@@ -44,30 +22,30 @@ class _TermListScreenState extends State<TermListScreen> {
           margin: const EdgeInsets.all(10.0),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(10.0),
+            borderRadius: BorderRadius.circular(16.0),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                leading: Icon(Icons.folder_shared),
-                title: Text('Sửa thư mục'),
+                leading: const Icon(Icons.folder_shared),
+                title: const Text('Sửa thư mục'),
                 onTap: () {
                   Navigator.pop(context);
                   // Handle action for 'Sửa thư mục'
                 },
               ),
               ListTile(
-                leading: Icon(Icons.plus_one_rounded),
-                title: Text('Thêm học phần'),
+                leading: const Icon(Icons.plus_one_rounded),
+                title: const Text('Thêm học phần'),
                 onTap: () {
                   Navigator.pop(context);
                   // Handle action for 'Thêm học phần'
                 },
               ),
               ListTile(
-                leading: Icon(Icons.cancel),
-                title: Text('Hủy'),
+                leading: const Icon(Icons.cancel),
+                title: const Text('Hủy'),
                 onTap: () {
                   Navigator.pop(context);
                   // Handle action for 'Hủy'
@@ -84,10 +62,12 @@ class _TermListScreenState extends State<TermListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Title Class - 5 học phần'),
+        title: const Text('Title of Folder'),
+        backgroundColor: const Color(0xFF4254FE),
+        foregroundColor: Colors.white,
         actions: [
           IconButton(
-            icon: Icon(Icons.more_vert),
+            icon: const Icon(Icons.more_vert),
             onPressed: () {
               _showPopupMenu(context);
             },
@@ -96,28 +76,10 @@ class _TermListScreenState extends State<TermListScreen> {
       ),
       body: Column(
         children: <Widget>[
-          const Row(
-            children: <Widget>[
-              Padding(
-                padding: EdgeInsets.all(10.0),
-              ),
-              // CircleAvatar(
-              //   backgroundImage: AssetImage('lib/assets/images/test.jpg'),
-              // ),
-              // const SizedBox(width: 10),
-              Text(
-                'khoavone',
-                style: TextStyle(fontSize: 15, color: Colors.black),
-              ),
-            ],
-          ),
           Container(
             margin: const EdgeInsets.all(10.0),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(4.0),
-            ),
             child: Card(
-              color: Colors.blue, // Card's background color
+              color: const Color(0xFF4254FE), // Card's background color
               child: ListTile(
                 title: const Text(
                   'Học thư mục này',
@@ -131,7 +93,16 @@ class _TermListScreenState extends State<TermListScreen> {
             ),
           ),
           Expanded(
-            child: TermList(),
+            child: ListView.builder(
+              itemCount: terms.length,
+              itemBuilder: (BuildContext context, int index) {
+                return TermList(
+                  title: terms[index]['title'] ?? 'No Title',
+                  name: terms[index]['name'] ?? 'No Name',
+                  count: terms[index]['count'] ?? 0,
+                );
+              },
+            ),
           ),
         ],
       ),
@@ -139,10 +110,59 @@ class _TermListScreenState extends State<TermListScreen> {
   }
 }
 
-class Term {
+class TermList extends StatelessWidget {
   final String title;
   final int count;
   final String name;
 
-  Term(this.title, this.count, this.name);
+  const TermList({
+    Key? key,
+    required this.title,
+    required this.count,
+    required this.name,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.only(left: 9, right: 9, top: 9),
+      child: Card(
+        shape: RoundedRectangleBorder(
+          side: BorderSide(color: Colors.grey[400]!, width: 1),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        color: Colors.white,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                '$title',
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20.0,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.all(3.0),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16.0),
+                  border: Border.all(color: Colors.grey[400]!),
+                  color: const Color.fromARGB(255, 199, 212, 252),
+                ),
+                child: Text(
+                  '$count thuật ngữ',
+                  style: const TextStyle(fontSize: 15, color: Colors.black),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text('Name: $name'),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }

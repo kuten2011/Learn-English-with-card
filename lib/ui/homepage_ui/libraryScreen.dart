@@ -20,7 +20,7 @@ class _libraryScreenState extends State<libraryScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(() {
       setState(() {});
     });
@@ -33,12 +33,12 @@ class _libraryScreenState extends State<libraryScreen>
         context,
         MaterialPageRoute(builder: (context) => AddTermScreen()),
       );
-    } else if (_tabController.index == 1) {
-      // Check if the current tab is 'Lớp học'
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => AddClassScreen()),
-      );
+    // } else if (_tabController.index == 1) {
+    //   // Check if the current tab is 'Lớp học'
+    //   Navigator.push(
+    //     context,
+    //     MaterialPageRoute(builder: (context) => AddClassScreen()),
+    //   );
     }else {
       // Check if the current tab is 'Thư mục'
       Navigator.push(
@@ -71,7 +71,7 @@ class _libraryScreenState extends State<libraryScreen>
           controller: _tabController,
           tabs: [
             Tab(text: 'Học phần'),
-            Tab(text: 'Lớp học'),
+            //Tab(text: 'Lớp học'),
             Tab(text: 'Thư mục'),
           ],
         ),
@@ -80,7 +80,7 @@ class _libraryScreenState extends State<libraryScreen>
         controller: _tabController,
         children: [
           TermListScreen(),
-          CourseList(),
+          //CourseList(),
           FolderList(),
         ],
       ),
