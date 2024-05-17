@@ -96,18 +96,18 @@ class _TermListScreenState extends State<TermListScreen> {
       ),
       body: Column(
         children: <Widget>[
-          Row(
+          const Row(
             children: <Widget>[
               Padding(
-                padding: const EdgeInsets.all(10.0),
+                padding: EdgeInsets.all(10.0),
               ),
-              CircleAvatar(
-                backgroundImage: AssetImage('lib/assets/images/test.jpg'),
-              ),
-              const SizedBox(width: 10),
+              // CircleAvatar(
+              //   backgroundImage: AssetImage('lib/assets/images/test.jpg'),
+              // ),
+              // const SizedBox(width: 10),
               Text(
                 'khoavone',
-                style: const TextStyle(fontSize: 15, color: Colors.black),
+                style: TextStyle(fontSize: 15, color: Colors.black),
               ),
             ],
           ),

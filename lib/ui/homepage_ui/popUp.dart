@@ -19,7 +19,7 @@ class AddMenuPopup extends StatelessWidget {
       child: Wrap(
         children: <Widget>[
           ListTile(
-            leading: Icon(Icons.book_outlined, color: Colors.blue),
+            leading: Icon(Icons.book_outlined, color: Color(0xFF4254FE)),
             title: Text('Học phần', style: TextStyle(color: Colors.grey)),
             onTap: () {
               // Xử lý khi nhấn "Học phần"
@@ -31,7 +31,7 @@ class AddMenuPopup extends StatelessWidget {
           ),
           Divider(),
           ListTile(
-            leading: Icon(Icons.folder_outlined, color: Colors.blue),
+            leading: Icon(Icons.folder_outlined, color: Color(0xFF4254FE)),
             title: Text('Thư mục', style: TextStyle(color: Colors.grey)),
             onTap: () {
               // Xử lý khi nhấn "Thư mục"
@@ -43,7 +43,7 @@ class AddMenuPopup extends StatelessWidget {
           ),
           Divider(),
           ListTile(
-            leading: Icon(Icons.group_outlined, color: Colors.blue),
+            leading: Icon(Icons.group_outlined, color: Color(0xFF4254FE)),
             title: Text('Lớp', style: TextStyle(color: Colors.grey)),
             onTap: () {
               // Xử lý khi nhấn "Thư mục"

@@ -40,15 +40,23 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> getTermsFromFirestore() async {
-    final CollectionReference termsCollection = FirebaseFirestore.instance.collection('terms');
+    final CollectionReference termsCollection =
+        FirebaseFirestore.instance.collection('terms');
     final QuerySnapshot querySnapshot = await termsCollection.get();
 
     setState(() {
-      terms = querySnapshot.docs.map((doc) => doc.data() as Map<String, dynamic>).toList();
-      userTerms = terms.where((term) => term['userEmail'] == userEmail).toList();
-      similarTerms = terms.where((term) => term['userEmail'] != userEmail).toList();
-      print('Filtered user terms: $userTerms'); // Debug output
-      print('Filtered similar terms: $similarTerms'); // Debug output
+      terms = querySnapshot.docs
+          .map((doc) => doc.data() as Map<String, dynamic>)
+          .toList();
+      userTerms =
+          terms.where((term) => term['userEmail'] == userEmail).toList();
+      similarTerms = terms
+          .where((term) =>
+              term['userEmail'] != userEmail &&
+              term['visibility'] == 'Mọi người')
+          .toList();
+      // print('Filtered user terms: $userTerms'); // Debug output
+      // print('Filtered similar terms: $similarTerms'); // Debug output
     });
   }
 
@@ -66,8 +74,15 @@ class _HomeScreenState extends State<HomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
-                color: Color(0xFF4254FE),
-                padding: EdgeInsets.only(left: 8.0, right: 8.0, bottom: 8.0, top: 24.0),
+                decoration: BoxDecoration(
+                  color: Color(0xFF4254FE),
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(25.0),
+                    bottomRight: Radius.circular(25.0),
+                  ),
+                ),
+                padding: EdgeInsets.only(
+                    left: 8.0, right: 8.0, bottom: 8.0, top: 24.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -83,18 +98,24 @@ class _HomeScreenState extends State<HomeScreen> {
                             },
                             decoration: InputDecoration(
                               hintText: tt,
-                              hintStyle: TextStyle(color: Color.fromARGB(255, 82, 82, 82)),
+                              hintStyle: TextStyle(
+                                  color: Color.fromARGB(255, 82, 82, 82)),
                               border: OutlineInputBorder(
-                                borderSide: BorderSide(color: Color(0xFF4254FE)),
+                                borderSide:
+                                    BorderSide(color: Color(0xFF4254FE)),
                                 borderRadius: BorderRadius.circular(25.0),
                               ),
                               focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(color: Color.fromARGB(255, 82, 82, 82)),
+                                borderSide: BorderSide(
+                                    color: Color.fromARGB(255, 82, 82, 82)),
                                 borderRadius: BorderRadius.circular(25.0),
                               ),
-                              prefixIcon: Icon(Icons.search, color: const Color.fromARGB(255, 82, 82, 82)),
+                              prefixIcon: Icon(Icons.search,
+                                  color: const Color.fromARGB(255, 82, 82, 82)),
                               suffixIcon: IconButton(
-                                icon: Icon(Icons.clear, color: const Color.fromARGB(255, 82, 82, 82)),
+                                icon: Icon(Icons.clear,
+                                    color:
+                                        const Color.fromARGB(255, 82, 82, 82)),
                                 onPressed: () {
                                   setState(() {
                                     searchText = '';
@@ -102,12 +123,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                   });
                                 },
                               ),
-                              contentPadding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+                              contentPadding: EdgeInsets.symmetric(
+                                  vertical: 16.0, horizontal: 16.0),
                               filled: true,
-                              fillColor: Color.fromARGB(255, 255, 255, 255).withOpacity(0.8),
+                              fillColor: Color.fromARGB(255, 255, 255, 255)
+                                  .withOpacity(0.8),
                               isDense: true,
                             ),
-                            style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0)),
+                            style: TextStyle(
+                                color: const Color.fromARGB(255, 0, 0, 0)),
                           ),
                         ),
                       ],
@@ -121,12 +145,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Học phần', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    Text('Học phần',
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold)),
                     ElevatedButton(
                       onPressed: () {
                         _viewAllTerms(context);
                       },
-                      child: Text('Xem tất cả'),
+                      child: Text('Xem tất cả', style: TextStyle(color: Color(0xFF4254FE))),
                     ),
                   ],
                 ),
@@ -142,7 +168,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     return EducationCard(
                       title: userTerm['title'],
                       userName: userTerm['userName'],
-                      count: userTerm['english'] != null ? userTerm['english'].length : 0,
+                      count: userTerm['english'] != null
+                          ? userTerm['english'].length
+                          : 0,
                     );
                   },
                 ),
@@ -153,7 +181,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Gợi ý học phần', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                    Text('Gợi ý học phần',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold)),
                   ],
                 ),
               ),
@@ -168,7 +198,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     return EducationCard(
                       title: similarTerm['title'] ?? 'No Title',
                       userName: similarTerm['userName'] ?? 'No Username',
-                      count: similarTerm['english'] != null ? similarTerm['english'].length : 0,
+                      count: similarTerm['english'] != null
+                          ? similarTerm['english'].length
+                          : 0,
                     );
                   },
                 ),
@@ -179,12 +211,14 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Thư mục', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                    Text('Thư mục',
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold)),
                     ElevatedButton(
                       onPressed: () {
                         // Handle "Xem tất cả" button tap
                       },
-                      child: Text('Xem tất cả'),
+                      child: Text('Xem tất cả', style: TextStyle(color: Color(0xFF4254FE))),
                     ),
                   ],
                 ),
@@ -216,7 +250,7 @@ class EducationCard extends StatelessWidget {
       margin: EdgeInsets.symmetric(horizontal: 8.0),
       child: Card(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.0),
+          borderRadius: BorderRadius.circular(16.0),
           side: BorderSide(color: Colors.grey[300]!),
         ),
         child: Container(
@@ -247,7 +281,9 @@ class EducationCard extends StatelessWidget {
                 children: [
                   Text(
                     '$userName   ',
-                    style: TextStyle(color: const Color.fromARGB(255, 0, 0, 0), fontSize: 16),
+                    style: TextStyle(
+                        color: const Color.fromARGB(255, 0, 0, 0),
+                        fontSize: 16),
                   ),
                   Container(
                     padding: EdgeInsets.all(2.0),

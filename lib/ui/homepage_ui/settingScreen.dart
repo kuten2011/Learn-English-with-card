@@ -67,7 +67,8 @@ class _SettingScreenState extends State<settingScreen> {
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: const Text('Settings'),
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: Color(0xFF4254FE),
+        foregroundColor: Colors.white,
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -92,16 +93,16 @@ class _SettingScreenState extends State<settingScreen> {
                         userName.isNotEmpty ? userName[0].toUpperCase() : '',
                         style: TextStyle(
                           fontSize: 40.0,
-                          color: Colors.blueAccent,
+                          color: Color(0xFF4254FE),
                         ),
                       ),
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.blueAccent,
+                      color: Color(0xFF4254FE),
                     ),
                   ),
                   ListTile(
-                    leading: Icon(Icons.lock, color: Colors.blueAccent),
+                    leading: Icon(Icons.lock, color: Color(0xFF4254FE)),
                     title: const Text('Change Password'),
                     onTap: () {
                       changePassword();
@@ -109,7 +110,7 @@ class _SettingScreenState extends State<settingScreen> {
                   ),
                   const Divider(),
                   ListTile(
-                    leading: Icon(Icons.download_rounded, color: Colors.blueAccent),
+                    leading: Icon(Icons.download_rounded, color: Color(0xFF4254FE)),
                     title: const Text('Download Courses for Offline'),
                     subtitle: const Text(
                       'Your 8 most recently accessed courses will be automatically downloaded',
@@ -120,7 +121,7 @@ class _SettingScreenState extends State<settingScreen> {
                   ),
                   const Divider(),
                   ListTile(
-                    leading: Icon(Icons.storage, color: Colors.blueAccent),
+                    leading: Icon(Icons.storage, color: Color(0xFF4254FE)),
                     title: const Text('Manage Storage'),
                     onTap: () {
                       // Navigate to storage management screen
@@ -128,7 +129,7 @@ class _SettingScreenState extends State<settingScreen> {
                   ),
                   const Divider(),
                   SwitchListTile(
-                    activeColor: Colors.blueAccent,
+                    activeColor: Color(0xFF4254FE),
                     contentPadding: const EdgeInsets.all(8.0),
                     title: const Text('Push Notifications'),
                     value: false,
@@ -138,7 +139,7 @@ class _SettingScreenState extends State<settingScreen> {
                   ),
                   const Divider(),
                   SwitchListTile(
-                    activeColor: Colors.blueAccent,
+                    activeColor: Color(0xFF4254FE),
                     contentPadding: const EdgeInsets.all(8.0),
                     title: const Text('Sound Effects'),
                     value: true,

@@ -55,6 +55,8 @@ class _libraryScreenState extends State<libraryScreen>
       appBar: AppBar(
         automaticallyImplyLeading: false,
         title: Text('Thư viện'),
+        backgroundColor: Color(0xFF4254FE),
+        foregroundColor: Colors.white,
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.add),
@@ -64,6 +66,8 @@ class _libraryScreenState extends State<libraryScreen>
           ),
         ],
         bottom: TabBar(
+          labelColor: Colors.white,
+          unselectedLabelColor: Colors.grey[400],
           controller: _tabController,
           tabs: [
             Tab(text: 'Học phần'),

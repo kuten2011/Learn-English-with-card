@@ -120,6 +120,8 @@ class _TermListScreenState extends State<TermListScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: Color(0xFF4254FE),
+        foregroundColor: Colors.white,
         onPressed: () async {
           // Chờ cho trang AddTermScreen được đóng và cập nhật danh sách thuật ngữ sau khi quay lại
           await Navigator.push(
@@ -158,8 +160,8 @@ class Term extends StatelessWidget {
       margin: const EdgeInsets.only(left: 9, right: 9, top: 9),
       child: Card(
         shape: RoundedRectangleBorder(
-          side: const BorderSide(color: Colors.black, width: 1),
-          borderRadius: BorderRadius.circular(10),
+          side: BorderSide(color: Colors.grey[400]!, width: 1),
+          borderRadius: BorderRadius.circular(16),
         ),
         color: Colors.white,
         child: Padding(

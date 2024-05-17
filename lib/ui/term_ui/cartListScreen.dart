@@ -39,6 +39,8 @@ class _CardListScreenState extends State<CardListScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Horizontal Card Demo'),
+        backgroundColor: Color(0xFF4254FE),
+        foregroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -150,13 +152,13 @@ class _CardListScreenState extends State<CardListScreen> {
               Card(
                 elevation: 5,
                 shape: RoundedRectangleBorder(
-                  side: BorderSide(color: Colors.black, width: 1),
-                  borderRadius: BorderRadius.circular(10),
+                  side: BorderSide(color: Colors.grey[400]!, width: 1),
+                  borderRadius: BorderRadius.circular(16),
                 ),
                 child: Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withOpacity(0.2),
@@ -192,8 +194,8 @@ class _CardListScreenState extends State<CardListScreen> {
   Widget buildCustomCard(String text, IconData icon, VoidCallback onPressed) {
     return Card(
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10.0),
-        side: BorderSide(color: Colors.grey),
+        borderRadius: BorderRadius.circular(16.0),
+        side: BorderSide(color: Colors.grey[400]!),
       ),
       color: Colors.white,
       child: Container(
@@ -206,7 +208,7 @@ class _CardListScreenState extends State<CardListScreen> {
             elevation: 0,
             padding: EdgeInsets.only(left: 16),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(10.0),
+              borderRadius: BorderRadius.circular(16.0),
               side: BorderSide(color: Colors.transparent),
             ),
           ),
@@ -234,8 +236,8 @@ class CardItem extends StatelessWidget {
       height: 200,
       margin: EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: Colors.blue,
-        borderRadius: BorderRadius.circular(8),
+        color: Color(0xFF4254FE),
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
             color: Colors.grey.withOpacity(0.5),

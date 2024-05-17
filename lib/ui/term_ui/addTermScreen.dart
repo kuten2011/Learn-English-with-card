@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'settingTermScreen.dart';
@@ -10,8 +11,13 @@ class AddTermScreen extends StatefulWidget {
 
 class _AddTermScreenState extends State<AddTermScreen> {
   final TextEditingController _titleController = TextEditingController();
-  final List<TextEditingController> _englishTermController = [TextEditingController()];
-  final List<TextEditingController> _vietnameseDefinitionController = [TextEditingController()];
+  final List<TextEditingController> _englishTermController = [
+    TextEditingController()
+  ];
+  final List<TextEditingController> _vietnameseDefinitionController = [
+    TextEditingController()
+  ];
+  String _visibility = 'Mọi người';
 
   User? user;
   String userEmail = 'No Email';
@@ -69,7 +75,8 @@ class _AddTermScreenState extends State<AddTermScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Thêm Học Phần'),
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: Color(0xFF4254FE),
+        foregroundColor: Colors.white,
         actions: <Widget>[
           IconButton(
             icon: const Icon(Icons.settings),
@@ -86,8 +93,13 @@ class _AddTermScreenState extends State<AddTermScreen> {
               final CollectionReference termsCollection =
                   FirebaseFirestore.instance.collection('terms');
 
-              List<String> englishTerms = _englishTermController.map((controller) => controller.text).toList();
-              List<String> vietnameseDefinitions = _vietnameseDefinitionController.map((controller) => controller.text).toList();
+              List<String> englishTerms = _englishTermController
+                  .map((controller) => controller.text)
+                  .toList();
+              List<String> vietnameseDefinitions =
+                  _vietnameseDefinitionController
+                      .map((controller) => controller.text)
+                      .toList();
 
               Map<String, dynamic> data = {
                 'title': _titleController.text,
@@ -95,6 +107,7 @@ class _AddTermScreenState extends State<AddTermScreen> {
                 'userName': userName,
                 'english': englishTerms,
                 'vietnamese': vietnameseDefinitions,
+                'visibility': _visibility,
               };
 
               await termsCollection.add(data);
@@ -105,7 +118,8 @@ class _AddTermScreenState extends State<AddTermScreen> {
                 ),
               );
 
-              Navigator.pop(context, true); // Truyền giá trị true khi quay lại trang trước đó
+              Navigator.pop(context,
+                  true); // Truyền giá trị true khi quay lại trang trước đó
             },
           ),
         ],
@@ -115,6 +129,41 @@ class _AddTermScreenState extends State<AddTermScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.only(left: 5.0, right: 5.0),
+              child: Row(
+                children: [
+                  Text(
+                    'Chế độ xem:', // Display the current visibility
+                    style: TextStyle(fontSize: 12, color: Colors.grey[700]),
+                  ),
+                  DropdownButton2<String>(
+                    value: _visibility,
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        _visibility = newValue!;
+                      });
+                    },
+                    items: <String>['Mọi người', 'Chỉ mình tôi']
+                        .map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(value),
+                      );
+                    }).toList(),
+                    dropdownDecoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: Colors.grey,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(
+                      height:
+                          5.0),
             TextField(
               controller: _titleController,
               decoration: InputDecoration(
@@ -190,7 +239,7 @@ class _AddTermScreenState extends State<AddTermScreen> {
                 label: const Text('Quét Tài Liệu'),
                 style: ElevatedButton.styleFrom(
                   foregroundColor: Colors.white,
-                  backgroundColor: Colors.blueAccent,
+                  backgroundColor: Color(0xFF4254FE),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 32.0,
                     vertical: 12.0,

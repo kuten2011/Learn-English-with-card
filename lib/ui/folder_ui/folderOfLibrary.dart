@@ -92,8 +92,8 @@ class FolderCard extends StatelessWidget {
         padding: const EdgeInsets.all(8.0),
         child: Card(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10.0),
-            side: BorderSide(color: Colors.black), // Viền đen
+            borderRadius: BorderRadius.circular(16.0),
+            side: BorderSide(color: Colors.grey[400]!), // Viền đen
           ),
           color: Colors.white, // Màu nền trắng tinh
           margin: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),

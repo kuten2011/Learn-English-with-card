@@ -23,6 +23,7 @@ class _forgetPasswordState extends State<forgetPasswordScreen> {
       child: Scaffold(
         appBar: AppBar(
           backgroundColor: Color(0xFF4254FE),
+          foregroundColor: Colors.white,
           elevation: 0,
         ),
         body: SingleChildScrollView(
