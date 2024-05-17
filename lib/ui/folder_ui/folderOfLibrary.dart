@@ -36,12 +36,28 @@ class _FolderListState extends State<FolderList> {
 
     setState(() {
       folders = querySnapshot.docs
-          .map((doc) => doc.data() as Map<String, dynamic>)
+          .map((doc) => {
+                ...doc.data() as Map<String, dynamic>,
+                'id': doc.id, // Thêm ID cho mỗi mục
+              })
           .toList();
 
       userfolders = folders
           .where((folder) => folder['userEmail'] == userEmail)
           .toList();
+    });
+  }
+
+  void removeFolder(int index) async {
+    // Xóa thư mục khỏi Firestore
+    await FirebaseFirestore.instance
+        .collection('folders')
+        .doc(userfolders[index]['id'])
+        .delete();
+    
+    setState(() {
+      // Xóa thư mục khỏi danh sách userfolders
+      userfolders.removeAt(index);
     });
   }
 
@@ -54,20 +70,37 @@ class _FolderListState extends State<FolderList> {
             child: ListView.builder(
               itemCount: userfolders.length,
               itemBuilder: (BuildContext context, int index) {
-                return InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => TermListScreen(),
-                      ),
-                    );
+                final folder = userfolders[index];
+                return Dismissible(
+                  key: Key(folder['id']),
+                  direction: DismissDirection.endToStart,
+                  onDismissed: (direction) {
+                    removeFolder(index);
                   },
-                  child: FolderCard(
-                    folder: userfolders[index],
-                    count: userfolders[index]['termIDs'] != null
-                        ? userfolders[index]['termIDs'].length
-                        : 0,
+                  background: Container(
+                    color: Colors.red,
+                    alignment: Alignment.centerRight,
+                    padding: EdgeInsets.symmetric(horizontal: 20),
+                    child: Icon(
+                      Icons.delete,
+                      color: Colors.white,
+                    ),
+                  ),
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => FolderListScreen(folderId: folder['id']),
+                        ),
+                      );
+                    },
+                    child: FolderCard(
+                      folder: folder,
+                      count: folder['termIDs'] != null
+                          ? folder['termIDs'].length
+                          : 0,
+                    ),
                   ),
                 );
               },

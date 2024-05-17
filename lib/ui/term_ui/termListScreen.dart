@@ -98,10 +98,6 @@ class _TermListScreenState extends State<TermListScreen> {
                           ),
                         ),
                       );
-                      setState(() {
-                        // Tải lại danh sách thuật ngữ
-                        getTermsFromFirestore();
-                      });
                     },
                     child: Term(
                       title: userterms[index]['title'] ?? 'No Title',

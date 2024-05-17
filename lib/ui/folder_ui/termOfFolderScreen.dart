@@ -1,17 +1,56 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'AddTermIntoFolder.dart';
 
-class TermListScreen extends StatefulWidget {
+class FolderListScreen extends StatefulWidget {
+  final String folderId;
+
+  FolderListScreen({required this.folderId});
+
   @override
-  _TermListScreenState createState() => _TermListScreenState();
+  _FolderListScreenState createState() => _FolderListScreenState();
 }
 
-class _TermListScreenState extends State<TermListScreen> {
-  final List<Map<String, dynamic>> terms = [
-    {'title': "Flutter", 'count': 20, 'name': "John Doe"},
-    {'title': "Dart", 'count': 15, 'name': "Jane Smith"},
-    {'title': "Widget", 'count': 25, 'name': "Alex Johnson"},
-    // Add more terms as needed
-  ];
+class _FolderListScreenState extends State<FolderListScreen> {
+  List<Map<String, dynamic>> terms = [];
+
+  @override
+  void initState() {
+    super.initState();
+    fetchTerms();
+  }
+
+  Future<void> fetchTerms() async {
+    final folderDoc = await FirebaseFirestore.instance
+        .collection('folders')
+        .doc(widget.folderId)
+        .get();
+
+    if (folderDoc.exists) {
+      final List<dynamic> termIDs = folderDoc['termIDs'] ?? [];
+      final List<Map<String, dynamic>> fetchedTerms = [];
+
+      for (var termID in termIDs) {
+        final termDoc = await FirebaseFirestore.instance
+            .collection('terms')
+            .doc(termID)
+            .get();
+        if (termDoc.exists) {
+          fetchedTerms.add({
+            'id': termDoc.id, // Add term document ID
+            'title': termDoc['title'],
+            'english': termDoc['english'],
+            'vietnamese': termDoc['vietnamese'],
+            'userName': termDoc['userName'],
+          });
+        }
+      }
+
+      setState(() {
+        terms = fetchedTerms;
+      });
+    }
+  }
 
   void _showPopupMenu(BuildContext context) {
     showModalBottomSheet(
@@ -40,7 +79,13 @@ class _TermListScreenState extends State<TermListScreen> {
                 title: const Text('Thêm học phần'),
                 onTap: () {
                   Navigator.pop(context);
-                  // Handle action for 'Thêm học phần'
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          AddTermIntoFolder(folderId: widget.folderId),
+                    ),
+                  );
                 },
               ),
               ListTile(
@@ -56,6 +101,28 @@ class _TermListScreenState extends State<TermListScreen> {
         );
       },
     );
+  }
+
+  void _deleteTerm(String termId) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('folders')
+          .doc(widget.folderId)
+          .update({
+        'termIDs': FieldValue.arrayRemove([termId]),
+      });
+      setState(() {
+        terms.removeWhere((term) => term['id'] == termId);
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Học phần đã được xóa')),
+      );
+    } catch (error) {
+      print('Đã xảy ra lỗi khi xóa học phần: $error');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Xóa học phần không thành công')),
+      );
+    }
   }
 
   @override
@@ -96,10 +163,24 @@ class _TermListScreenState extends State<TermListScreen> {
             child: ListView.builder(
               itemCount: terms.length,
               itemBuilder: (BuildContext context, int index) {
-                return TermList(
-                  title: terms[index]['title'] ?? 'No Title',
-                  name: terms[index]['name'] ?? 'No Name',
-                  count: terms[index]['count'] ?? 0,
+                return Dismissible(
+                  key: Key(terms[index]['id']),
+                  direction: DismissDirection.endToStart,
+                  onDismissed: (direction) {
+                    _deleteTerm(terms[index]['id']);
+                  },
+                  background: Container(
+                    alignment: Alignment.centerRight,
+                    padding: EdgeInsets.only(right: 20.0),
+                    color: Colors.red,
+                    child: Icon(Icons.delete, color: Colors.white),
+                  ),
+                  child: TermList(
+                    title: terms[index]['title'] ?? 'No Title',
+                    english: terms[index]['english'] ?? [],
+                    vietnamese: terms[index]['vietnamese'] ?? [],
+                    userName: terms[index]['userName'] ?? 'No Name',
+                  ),
                 );
               },
             ),
@@ -112,19 +193,25 @@ class _TermListScreenState extends State<TermListScreen> {
 
 class TermList extends StatelessWidget {
   final String title;
-  final int count;
-  final String name;
+  final List<dynamic> english;
+  final List<dynamic> vietnamese;
+  final String userName;
 
   const TermList({
     Key? key,
     required this.title,
-    required this.count,
-    required this.name,
+    required this.english,
+    required this.vietnamese,
+    required this.userName,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    // Lấy kích thước chiều rộng của màn hình
+    double screenWidth = MediaQuery.of(context).size.width;
+
     return Container(
+      width: screenWidth, // Sử dụng chiều rộng của màn hình cho mỗi mục term
       margin: const EdgeInsets.only(left: 9, right: 9, top: 9),
       child: Card(
         shape: RoundedRectangleBorder(
@@ -138,7 +225,7 @@ class TermList extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '$title',
+                title,
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 20.0,
@@ -153,12 +240,12 @@ class TermList extends StatelessWidget {
                   color: const Color.fromARGB(255, 199, 212, 252),
                 ),
                 child: Text(
-                  '$count thuật ngữ',
+                  '${english.length} thuật ngữ',
                   style: const TextStyle(fontSize: 15, color: Colors.black),
                 ),
               ),
               const SizedBox(height: 8),
-              Text('Name: $name'),
+              Text('$userName'),
             ],
           ),
         ),
