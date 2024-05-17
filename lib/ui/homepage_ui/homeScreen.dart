@@ -58,8 +58,6 @@ class _HomeScreenState extends State<HomeScreen> {
               term['userEmail'] != userEmail &&
               term['visibility'] == 'Mọi người')
           .toList();
-      // print('Filtered user terms: $userTerms'); // Debug output
-      // print('Filtered similar terms: $similarTerms'); // Debug output
     });
   }
 
@@ -74,7 +72,6 @@ class _HomeScreenState extends State<HomeScreen> {
           .toList();
       userFolders =
           folders.where((folder) => folder['userEmail'] == userEmail).toList();
-      // print('Filtered user folders: $userFolders'); // Debug output
     });
   }
 
@@ -87,180 +84,209 @@ class _HomeScreenState extends State<HomeScreen> {
     return DefaultTabController(
       length: 4,
       child: Scaffold(
-        body: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  color: Color(0xFF4254FE),
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(25.0),
-                    bottomRight: Radius.circular(25.0),
-                  ),
+        body: Column(
+          children: [
+            // Thanh tìm kiếm cố định
+            Container(
+              decoration: BoxDecoration(
+                color: Color(0xFF4254FE),
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(25.0),
+                  bottomRight: Radius.circular(25.0),
                 ),
-                padding: EdgeInsets.only(
-                    left: 8.0, right: 8.0, bottom: 8.0, top: 24.0),
+              ),
+              padding: EdgeInsets.only(
+                left: 8.0,
+                right: 8.0,
+                bottom: 8.0,
+                top: 24.0,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          onChanged: (value) {
+                            setState(() {
+                              searchText = value;
+                            });
+                          },
+                          decoration: InputDecoration(
+                            hintText: tt,
+                            hintStyle: TextStyle(
+                              color: Color.fromARGB(255, 82, 82, 82),
+                            ),
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide(color: Color(0xFF4254FE)),
+                              borderRadius: BorderRadius.circular(25.0),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Color.fromARGB(255, 82, 82, 82),
+                              ),
+                              borderRadius: BorderRadius.circular(25.0),
+                            ),
+                            prefixIcon: Icon(
+                              Icons.search,
+                              color: const Color.fromARGB(255, 82, 82, 82),
+                            ),
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                Icons.clear,
+                                color: const Color.fromARGB(255, 82, 82, 82),
+                              ),
+                              onPressed: () {
+                                setState(() {
+                                  searchText = '';
+                                  tt = '';
+                                });
+                              },
+                            ),
+                            contentPadding: EdgeInsets.symmetric(
+                              vertical: 16.0,
+                              horizontal: 16.0,
+                            ),
+                            filled: true,
+                            fillColor: Color.fromARGB(255, 255, 255, 255)
+                                .withOpacity(0.8),
+                            isDense: true,
+                          ),
+                          style: TextStyle(
+                            color: const Color.fromARGB(255, 0, 0, 0),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            onChanged: (value) {
-                              setState(() {
-                                searchText = value;
-                              });
-                            },
-                            decoration: InputDecoration(
-                              hintText: tt,
-                              hintStyle: TextStyle(
-                                  color: Color.fromARGB(255, 82, 82, 82)),
-                              border: OutlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: Color(0xFF4254FE)),
-                                borderRadius: BorderRadius.circular(25.0),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide: BorderSide(
-                                    color: Color.fromARGB(255, 82, 82, 82)),
-                                borderRadius: BorderRadius.circular(25.0),
-                              ),
-                              prefixIcon: Icon(Icons.search,
-                                  color: const Color.fromARGB(255, 82, 82, 82)),
-                              suffixIcon: IconButton(
-                                icon: Icon(Icons.clear,
-                                    color:
-                                        const Color.fromARGB(255, 82, 82, 82)),
-                                onPressed: () {
-                                  setState(() {
-                                    searchText = '';
-                                    tt = '';
-                                  });
-                                },
-                              ),
-                              contentPadding: EdgeInsets.symmetric(
-                                  vertical: 16.0, horizontal: 16.0),
-                              filled: true,
-                              fillColor: Color.fromARGB(255, 255, 255, 255)
-                                  .withOpacity(0.8),
-                              isDense: true,
-                            ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Học phần',
                             style: TextStyle(
-                                color: const Color.fromARGB(255, 0, 0, 0)),
+                                fontSize: 16, fontWeight: FontWeight.bold),
                           ),
-                        ),
-                      ],
+                          ElevatedButton(
+                            onPressed: () {
+                              _viewAllTerms(context);
+                            },
+                            child: Text(
+                              'Xem tất cả',
+                              style: TextStyle(color: Color(0xFF4254FE)),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Container(
+                      height: 170,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: userTerms.length,
+                        itemBuilder: (context, index) {
+                          final userTerm = userTerms[index];
+                          return EducationCard(
+                            title: userTerm['title'],
+                            userName: userTerm['userName'],
+                            count: userTerm['english'] != null
+                                ? userTerm['english'].length
+                                : 0,
+                          );
+                        },
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Gợi ý học phần',
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Container(
+                      height: 170,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: similarTerms.length,
+                        itemBuilder: (context, index) {
+                          final similarTerm = similarTerms[index];
+                          return EducationCard(
+                            title: similarTerm['title'] ?? 'No Title',
+                            userName: similarTerm['userName'] ?? 'No Username',
+                            count: similarTerm['english'] != null
+                                ? similarTerm['english'].length
+                                : 0,
+                          );
+                        },
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Thư mục',
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              // Handle "Xem tất cả" button tap
+                            },
+                            child: Text(
+                              'Xem tất cả',
+                              style: TextStyle(color: Color(0xFF4254FE)),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Container(
+                      height: 150,
+                      child: ListView.builder(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: userFolders.length,
+                        itemBuilder: (context, index) {
+                          final userFolder = userFolders[index];
+                          return FolderCard(
+                            title: userFolder['title'],
+                            userName: userFolder['userName'],
+                            count: userFolder['termIDs'] != null
+                                ? userFolder['termIDs'].length
+                                : 0,
+                          );
+                        },
+                      ),
                     ),
                   ],
                 ),
               ),
-              SizedBox(height: 8),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Học phần',
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold)),
-                    ElevatedButton(
-                      onPressed: () {
-                        _viewAllTerms(context);
-                      },
-                      child: Text('Xem tất cả', style: TextStyle(color: Color(0xFF4254FE))),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 8),
-              Container(
-                height: 170,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: userTerms.length,
-                  itemBuilder: (context, index) {
-                    final userTerm = userTerms[index];
-                    return EducationCard(
-                      title: userTerm['title'],
-                      userName: userTerm['userName'],
-                      count: userTerm['english'] != null
-                          ? userTerm['english'].length
-                          : 0,
-                    );
-                  },
-                ),
-              ),
-              SizedBox(height: 8),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Gợi ý học phần',
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold)),
-                  ],
-                ),
-              ),
-              SizedBox(height: 8),
-              Container(
-                height: 170,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: similarTerms.length,
-                  itemBuilder: (context, index) {
-                    final similarTerm = similarTerms[index];
-                    return EducationCard(
-                      title: similarTerm['title'] ?? 'No Title',
-                      userName: similarTerm['userName'] ?? 'No Username',
-                      count: similarTerm['english'] != null
-                          ? similarTerm['english'].length
-                          : 0,
-                    );
-                  },
-                ),
-              ),
-              SizedBox(height: 8),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Thư mục',
-                        style: TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.bold)),
-                    ElevatedButton(
-                      onPressed: () {
-                        // Handle "Xem tất cả" button tap
-                      },
-                      child: Text('Xem tất cả', style: TextStyle(color: Color(0xFF4254FE))),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 8),
-              Container(
-                height: 150,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: userFolders.length,
-                  itemBuilder: (context, index) {
-                    final userFolder = userFolders[index];
-                    return FolderCard(
-                      title: userFolder['title'],
-                      userName: userFolder['userName'],
-                      count: userFolder['termIDs'] != null
-                          ? userFolder['termIDs'].length
-                          : 0,
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -372,25 +398,21 @@ class FolderCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    Icon(Icons.folder, size: 30),
-                    SizedBox(width: 10),
-                    Expanded(
-                      child: Text(
-                        title,
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Icon(Icons.folder, size: 30),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                  ],
-                ),
-              // Text(
-              //   title,
-              //   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
-              // ),
+                  ),
+                ],
+              ),
               SizedBox(height: 10),
               Container(
                 padding: EdgeInsets.all(3.0),
@@ -413,18 +435,6 @@ class FolderCard extends StatelessWidget {
                         color: const Color.fromARGB(255, 0, 0, 0),
                         fontSize: 16),
                   ),
-                  // Container(
-                  //   padding: EdgeInsets.all(2.0),
-                  //   decoration: BoxDecoration(
-                  //     borderRadius: BorderRadius.circular(16.0),
-                  //     border: Border.all(color: Colors.grey[400]!),
-                  //     color: Color.fromARGB(255, 210, 211, 212),
-                  //   ),
-                  //   child: Text(
-                  //     'Giáo viên',
-                  //     style: TextStyle(fontSize: 15, color: Colors.black),
-                  //   ),
-                  // ),
                 ],
               ),
             ],
