@@ -80,6 +80,8 @@ class _AddTermIntoFolderState extends State<AddTermIntoFolder> {
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: const Color(0xFF4254FE),
+        foregroundColor: Colors.white,
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
@@ -92,11 +94,12 @@ class _AddTermIntoFolderState extends State<AddTermIntoFolder> {
             onPressed: () async {
               // Handle done button press
               await updateFolderWithTerms();
-              Navigator.pop(context); // Example: simply go back to the previous screen
+              Navigator.pop(
+                  context); // Example: simply go back to the previous screen
             },
             child: Row(
               children: [
-                Icon(Icons.done, color: Colors.black),
+                Icon(Icons.done, color: Colors.white),
                 SizedBox(width: 5),
               ],
             ),
@@ -126,8 +129,8 @@ class _AddTermIntoFolderState extends State<AddTermIntoFolder> {
                   ),
                   child: Term(
                     title: term['title'] ?? 'No Title',
-                    count: term['termIDs']?.length ?? 0,
-                    name: 'an66528' ?? 'No Name',
+                    count: term['english']?.length ?? 0, // Fix count property
+                    name: term['userName'] ?? 'No Name', // Fix name property
                     width: screenWidth,
                     onSelected: (isSelected) {
                       setState(() {

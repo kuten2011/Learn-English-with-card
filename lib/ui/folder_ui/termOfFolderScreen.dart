@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'AddTermIntoFolder.dart';
+import '../term_ui/cartListScreen.dart';
 
 class FolderListScreen extends StatefulWidget {
   final String folderId;
@@ -13,11 +14,13 @@ class FolderListScreen extends StatefulWidget {
 
 class _FolderListScreenState extends State<FolderListScreen> {
   List<Map<String, dynamic>> terms = [];
+  String folderTitle = ''; // Biến để lưu trữ title của folder
 
   @override
   void initState() {
     super.initState();
     fetchTerms();
+    fetchFolderTitle(); // Gọi hàm để lấy title từ Firestore khi widget được khởi tạo
   }
 
   Future<void> fetchTerms() async {
@@ -48,6 +51,19 @@ class _FolderListScreenState extends State<FolderListScreen> {
 
       setState(() {
         terms = fetchedTerms;
+      });
+    }
+  }
+
+  Future<void> fetchFolderTitle() async {
+    final folderDoc = await FirebaseFirestore.instance
+        .collection('folders')
+        .doc(widget.folderId)
+        .get();
+
+    if (folderDoc.exists) {
+      setState(() {
+        folderTitle = folderDoc['title']; // Lấy title từ Firestore
       });
     }
   }
@@ -104,32 +120,33 @@ class _FolderListScreenState extends State<FolderListScreen> {
   }
 
   void _deleteTerm(String termId) async {
-    try {
-      await FirebaseFirestore.instance
-          .collection('folders')
-          .doc(widget.folderId)
-          .update({
-        'termIDs': FieldValue.arrayRemove([termId]),
-      });
-      setState(() {
-        terms.removeWhere((term) => term['id'] == termId);
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Học phần đã được xóa')),
-      );
-    } catch (error) {
-      print('Đã xảy ra lỗi khi xóa học phần: $error');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Xóa học phần không thành công')),
-      );
-    }
+  try {
+    await FirebaseFirestore.instance
+        .collection('folders')
+        .doc(widget.folderId)
+        .update({
+      'termIDs': FieldValue.arrayRemove([termId]),
+    });
+    setState(() {
+      terms.removeWhere((term) => term['id'] == termId);
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Học phần đã được xóa')),
+    );
+  } catch (error) {
+    print('Đã xảy ra lỗi khi xóa học phần: $error');
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Xóa học phần không thành công')),
+    );
   }
+}
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Title of Folder'),
+        title: Text(folderTitle), // Sử dụng title từ Firestore cho AppBar
         backgroundColor: const Color(0xFF4254FE),
         foregroundColor: Colors.white,
         actions: [
@@ -163,23 +180,36 @@ class _FolderListScreenState extends State<FolderListScreen> {
             child: ListView.builder(
               itemCount: terms.length,
               itemBuilder: (BuildContext context, int index) {
-                return Dismissible(
-                  key: Key(terms[index]['id']),
-                  direction: DismissDirection.endToStart,
-                  onDismissed: (direction) {
-                    _deleteTerm(terms[index]['id']);
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CardListScreen(
+                          cardterms: terms,
+                          indexterm: index,
+                        ),
+                      ),
+                    );
                   },
-                  background: Container(
-                    alignment: Alignment.centerRight,
-                    padding: EdgeInsets.only(right: 20.0),
-                    color: Colors.red,
-                    child: Icon(Icons.delete, color: Colors.white),
-                  ),
-                  child: TermList(
-                    title: terms[index]['title'] ?? 'No Title',
-                    english: terms[index]['english'] ?? [],
-                    vietnamese: terms[index]['vietnamese'] ?? [],
-                    userName: terms[index]['userName'] ?? 'No Name',
+                  child: Dismissible(
+                    key: Key(terms[index]['id']),
+                    direction: DismissDirection.endToStart,
+                    onDismissed: (direction) {
+                      _deleteTerm(terms[index]['id']);
+                    },
+                    background: Container(
+                      alignment: Alignment.centerRight,
+                      padding: EdgeInsets.only(right: 20.0),
+                      color: Colors.red,
+                      child: Icon(Icons.delete, color: Colors.white),
+                    ),
+                    child: TermList(
+                      title: terms[index]['title'] ?? 'No Title',
+                      english: terms[index]['english'] ?? [],
+                      vietnamese: terms[index]['vietnamese'] ?? [],
+                      userName: terms[index]['userName'] ?? 'No Name',
+                    ),
                   ),
                 );
               },
