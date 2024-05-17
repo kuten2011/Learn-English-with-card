@@ -21,6 +21,8 @@ class _HomeScreenState extends State<HomeScreen> {
   List<Map<String, dynamic>> terms = [];
   List<Map<String, dynamic>> userTerms = [];
   List<Map<String, dynamic>> similarTerms = [];
+  List<Map<String, dynamic>> folders = [];
+  List<Map<String, dynamic>> userFolders = [];
 
   @override
   void initState() {
@@ -31,6 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> initializeData() async {
     await getUser();
     await getTermsFromFirestore();
+    await getFoldersFromFirestore();
   }
 
   Future<void> getUser() async {
@@ -57,6 +60,21 @@ class _HomeScreenState extends State<HomeScreen> {
           .toList();
       // print('Filtered user terms: $userTerms'); // Debug output
       // print('Filtered similar terms: $similarTerms'); // Debug output
+    });
+  }
+
+  Future<void> getFoldersFromFirestore() async {
+    final CollectionReference foldersCollection =
+        FirebaseFirestore.instance.collection('folders');
+    final QuerySnapshot querySnapshotFolder = await foldersCollection.get();
+
+    setState(() {
+      folders = querySnapshotFolder.docs
+          .map((doc) => doc.data() as Map<String, dynamic>)
+          .toList();
+      userFolders =
+          folders.where((folder) => folder['userEmail'] == userEmail).toList();
+      // print('Filtered user folders: $userFolders'); // Debug output
     });
   }
 
@@ -223,6 +241,24 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
               ),
+              SizedBox(height: 8),
+              Container(
+                height: 150,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  itemCount: userFolders.length,
+                  itemBuilder: (context, index) {
+                    final userFolder = userFolders[index];
+                    return FolderCard(
+                      title: userFolder['title'],
+                      userName: userFolder['userName'],
+                      count: userFolder['termIDs'] != null
+                          ? userFolder['termIDs'].length
+                          : 0,
+                    );
+                  },
+                ),
+              ),
             ],
           ),
         ),
@@ -297,6 +333,98 @@ class EducationCard extends StatelessWidget {
                       style: TextStyle(fontSize: 15, color: Colors.black),
                     ),
                   ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class FolderCard extends StatelessWidget {
+  final String title;
+  final String userName;
+  final int count;
+
+  const FolderCard({
+    Key? key,
+    required this.title,
+    required this.count,
+    required this.userName,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 300,
+      margin: EdgeInsets.symmetric(horizontal: 8.0),
+      child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.0),
+          side: BorderSide(color: Colors.grey[300]!),
+        ),
+        child: Container(
+          color: Colors.white,
+          padding: EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    Icon(Icons.folder, size: 30),
+                    SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              // Text(
+              //   title,
+              //   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
+              // ),
+              SizedBox(height: 10),
+              Container(
+                padding: EdgeInsets.all(3.0),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16.0),
+                  border: Border.all(color: Colors.grey[400]!),
+                  color: Color.fromARGB(255, 199, 212, 252),
+                ),
+                child: Text(
+                  '$count học phần',
+                  style: TextStyle(fontSize: 15, color: Colors.black),
+                ),
+              ),
+              SizedBox(height: 10),
+              Row(
+                children: [
+                  Text(
+                    '$userName   ',
+                    style: TextStyle(
+                        color: const Color.fromARGB(255, 0, 0, 0),
+                        fontSize: 16),
+                  ),
+                  // Container(
+                  //   padding: EdgeInsets.all(2.0),
+                  //   decoration: BoxDecoration(
+                  //     borderRadius: BorderRadius.circular(16.0),
+                  //     border: Border.all(color: Colors.grey[400]!),
+                  //     color: Color.fromARGB(255, 210, 211, 212),
+                  //   ),
+                  //   child: Text(
+                  //     'Giáo viên',
+                  //     style: TextStyle(fontSize: 15, color: Colors.black),
+                  //   ),
+                  // ),
                 ],
               ),
             ],
