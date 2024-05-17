@@ -25,6 +25,8 @@ class _AddTermIntoFolderState extends State<AddTermIntoFolder> {
   List<Map<String, dynamic>> terms = [];
   List<Map<String, dynamic>> userTerms = [];
   List<String> selectedTermIds = [];
+  List<String> termsInFolder =
+      []; // Danh sách ID của các học phần đã được thêm vào thư mục
 
   Future<void> getUser() async {
     user = FirebaseAuth.instance.currentUser;
@@ -49,6 +51,15 @@ class _AddTermIntoFolderState extends State<AddTermIntoFolder> {
       userTerms =
           terms.where((term) => term['userEmail'] == userEmail).toList();
       print('Filtered terms: $userTerms'); // Debug output
+    });
+
+    // Lấy danh sách ID của các học phần đã được thêm vào thư mục
+    final folderDocument =
+        FirebaseFirestore.instance.collection('folders').doc(widget.folderId);
+    final folderSnapshot = await folderDocument.get();
+    setState(() {
+      termsInFolder =
+          List<String>.from(folderSnapshot.data()?['termIDs'] ?? []);
     });
   }
 
@@ -113,9 +124,11 @@ class _AddTermIntoFolderState extends State<AddTermIntoFolder> {
               itemCount: userTerms.length,
               itemBuilder: (BuildContext context, int index) {
                 final term = userTerms[index];
+                final isInFolder = termsInFolder.contains(term[
+                    'id']); // Kiểm tra xem học phần đã được thêm vào thư mục hay chưa
                 return Dismissible(
                   key: Key(term['id']),
-                  direction: DismissDirection.endToStart,
+                  direction: DismissDirection.none,
                   onDismissed: (direction) {
                     removeTerm(index);
                   },
@@ -129,8 +142,8 @@ class _AddTermIntoFolderState extends State<AddTermIntoFolder> {
                   ),
                   child: Term(
                     title: term['title'] ?? 'No Title',
-                    count: term['english']?.length ?? 0, // Fix count property
-                    name: term['userName'] ?? 'No Name', // Fix name property
+                    count: term['english']?.length ?? 0,
+                    name: term['userName'] ?? 'No Name',
                     width: screenWidth,
                     onSelected: (isSelected) {
                       setState(() {
@@ -141,6 +154,8 @@ class _AddTermIntoFolderState extends State<AddTermIntoFolder> {
                         }
                       });
                     },
+                    isInFolder:
+                        isInFolder, // Truyền giá trị isInFolder cho Term
                   ),
                 );
               },
@@ -156,16 +171,18 @@ class Term extends StatefulWidget {
   final String title;
   final int count;
   final String name;
-  final double? width; // Add width property
-  final ValueChanged<bool> onSelected; // Add callback for selection
+  final double? width;
+  final ValueChanged<bool> onSelected;
+  final bool isInFolder;
 
   const Term({
     Key? key,
     required this.title,
     required this.count,
     required this.name,
-    this.width, // Update constructor to accept width
-    required this.onSelected, // Update constructor to accept callback
+    this.width,
+    required this.onSelected,
+    required this.isInFolder,
   }) : super(key: key);
 
   @override
@@ -179,23 +196,29 @@ class _TermState extends State<Term> {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        setState(() {
-          _isSelected = !_isSelected;
-        });
-        widget.onSelected(_isSelected);
+        if (!widget.isInFolder) {
+          setState(() {
+            _isSelected = !_isSelected;
+          });
+          widget.onSelected(_isSelected);
+        }
       },
       child: Container(
-        width: widget.width, // Use provided width
+        width: widget.width,
         margin: const EdgeInsets.only(left: 9, right: 9, top: 9),
         child: Card(
           shape: RoundedRectangleBorder(
             side: BorderSide(
-              color: _isSelected ? Colors.blue : Colors.grey[400]!,
+              color: widget.isInFolder
+                  ? Colors.grey[400]!
+                  : (_isSelected ? Colors.blue : Colors.grey[400]!),
               width: 1,
             ),
             borderRadius: BorderRadius.circular(16),
           ),
-          color: _isSelected ? Colors.blue[50] : Colors.white,
+          color: widget.isInFolder
+              ? Colors.grey[200]
+              : (_isSelected ? Colors.blue[50] : Colors.white),
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
