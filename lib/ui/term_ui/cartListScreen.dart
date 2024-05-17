@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_tts/flutter_tts.dart';
+import 'package:midtermm/ui/term_ui/testScreen.dart';
 
 class CardListScreen extends StatefulWidget {
   final List<Map<String, dynamic>> cardterms;
@@ -15,6 +17,16 @@ class CardListScreen extends StatefulWidget {
 
 class _CardListScreenState extends State<CardListScreen> {
   int currentPage = 0;
+  final FlutterTts flutterTts = FlutterTts();
+
+  Future<void> speakWord(String? word) async {
+    if (word != null) {
+      await flutterTts.setLanguage('en-US');
+      await flutterTts.setPitch(1);
+      await flutterTts.setSpeechRate(0.5);
+      await flutterTts.speak(word);
+    }
+  }
 
   void onReview() {
     print('Ghi nhớ button pressed');
@@ -25,7 +37,12 @@ class _CardListScreenState extends State<CardListScreen> {
   }
 
   void onTest() {
-    print('Kiểm tra nhanh button pressed');
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TestScreen(),
+      ),
+    );
   }
 
   void onMerge() {
@@ -171,20 +188,37 @@ class _CardListScreenState extends State<CardListScreen> {
                       ),
                     ],
                   ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      ListTile(
-                        title: Text(
-                          cardterms[widget.indexterm]["english"][index] ??
-                              'No English',
-                          style: TextStyle(color: Colors.black),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment
+                        .end, // Đưa biểu tượng loa về phía bên phải
+                    children: [
+                      Expanded(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            ListTile(
+                              title: Text(
+                                cardterms[widget.indexterm]["english"][index] ??
+                                    'No English',
+                                style: TextStyle(color: Colors.black),
+                              ),
+                              subtitle: Text(
+                                cardterms[widget.indexterm]["vietnamese"]
+                                        [index] ??
+                                    'No Vietnamese',
+                                style: TextStyle(color: Colors.black),
+                              ),
+                            ),
+                          ],
                         ),
-                        subtitle: Text(
-                          cardterms[widget.indexterm]["vietnamese"][index] ??
-                              'No Vietnamese',
-                          style: TextStyle(color: Colors.black),
-                        ),
+                      ),
+                      IconButton(
+                        icon: Icon(Icons.volume_up), // Icon loa
+                        onPressed: () {
+                          // Gọi hàm để đọc từ tiếng Anh khi người dùng nhấn vào nút nghe
+                          speakWord(
+                              cardterms[widget.indexterm]["english"][index]);
+                        },
                       ),
                     ],
                   ),
