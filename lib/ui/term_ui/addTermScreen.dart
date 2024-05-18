@@ -105,8 +105,8 @@ class _AddTermScreenState extends State<AddTermScreen> {
                 'title': _titleController.text,
                 'userEmail': userEmail,
                 'userName': userName,
-                'english': englishTerms,
-                'vietnamese': vietnameseDefinitions,
+                'english': englishTerms.map((term) => term.trim()).toList(),
+                'vietnamese': vietnameseDefinitions.map((definition) => definition.trim()).toList(),
                 'visibility': _visibility,
               };
 
