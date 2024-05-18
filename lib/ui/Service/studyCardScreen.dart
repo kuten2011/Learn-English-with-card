@@ -19,7 +19,8 @@ class StudyCardScreen extends StatelessWidget {
             Navigator.of(context).pop();
           },
         ),
-        title: Text('Study Cards'),
+        title: Text('Ghi nhớ'),
+        centerTitle: true,
         backgroundColor: Color(0xFF4254FE),
         foregroundColor: Colors.white,
       ),

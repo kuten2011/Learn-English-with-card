@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:midtermm/ui/Service/studyCardScreen.dart';
 import 'package:midtermm/ui/Service/testCardScreen.dart';
-import 'package:midtermm/ui/term_ui/testScreen.dart';
+import 'package:midtermm/ui/Service/testScreen.dart';
 
 class CardListScreen extends StatefulWidget {
   final List<Map<String, dynamic>> cardterms;
@@ -41,11 +41,10 @@ class _CardListScreenState extends State<CardListScreen> {
   }
 
   void onStudy() {
-    // Navigate to study screen
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => TestCardScreen(cards: widget.cardterms, indexterm: widget.indexterm),
+        builder: (context) => TestScreen(),
       ),
     );
   }
@@ -54,7 +53,8 @@ class _CardListScreenState extends State<CardListScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => TestScreen(),
+        builder: (context) => TestCardScreen(
+            cards: widget.cardterms, indexterm: widget.indexterm),
       ),
     );
   }

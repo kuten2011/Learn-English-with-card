@@ -52,7 +52,9 @@ class _TestScreenState extends State<TestScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Lượt 2'),
+        backgroundColor: Color(0xFF4254FE),
+        foregroundColor: Colors.white,
+        title: Text('Luyện tập'),
         centerTitle: true,
       ),
       body: SingleChildScrollView(

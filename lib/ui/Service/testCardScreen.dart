@@ -11,26 +11,81 @@ class TestCardScreen extends StatefulWidget {
   _TestCardScreenState createState() => _TestCardScreenState();
 }
 
-class _TestCardScreenState extends State<TestCardScreen> {
+class _TestCardScreenState extends State<TestCardScreen>
+    with SingleTickerProviderStateMixin {
   late Map<String, dynamic> card;
-  int _currentIndex = 0; // Initialize index variable
-  int _randomIndexCards = 0; // Initialize random index variable
-  int _randomIndexCardofCards = 0; // Initialize random index variable
-  int body = 0;
+  int _currentIndex = 0;
+  int correctAnswerIndex = 0;
   String msg = '';
+  List<String> answers = [];
+  late AnimationController _animationController;
+  late Animation<Color?> _colorTween;
+  int? _wrongAnswerIndex;
 
   @override
   void initState() {
     super.initState();
-    _updateCard(); // Initialize card
+    _updateCard();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
   }
 
   void _updateCard() {
     setState(() {
       card = widget.cards[widget.indexterm];
-      _generateRandomIndexCards();
-      _generateRandomIndexCardofCards();
-      _generateRandomBody();
+      _generateRandomAnswers();
+    });
+  }
+
+  void _checkAnswer(bool isCorrect, int index) {
+    if (isCorrect) {
+      setState(() {
+        msg = 'Chính xác!';
+        _animationController.forward(from: 0.0);
+        _colorTween = ColorTween(begin: Colors.white, end: Colors.green)
+            .animate(_animationController);
+        _wrongAnswerIndex = index; // Đặt lại _wrongAnswerIndex
+      });
+      _delayAndMoveToNextCard();
+    } else {
+      setState(() {
+        msg = 'Hãy thử lại lần nữa';
+        _wrongAnswerIndex = index;
+        _animationController.forward(from: 0.0);
+        _colorTween = ColorTween(begin: Colors.white, end: Colors.red)
+            .animate(_animationController);
+        _colorTween = ColorTween(begin: Colors.red, end: Colors.white)
+            .animate(_animationController);
+      });
+    }
+  }
+
+  void _delayAndMoveToNextCard() {
+    Future.delayed(Duration(seconds: 1), () {
+      setState(() {
+        if (_currentIndex ==
+            widget.cards[widget.indexterm]['english'].length - 1) {
+          Navigator.of(context).pop();
+        } else {
+          _currentIndex = (_currentIndex + 1) %
+              widget.cards[widget.indexterm]['english'].length as int;
+          _generateRandomAnswers();
+          msg = '';
+        }
+        // Đặt lại màu sau khi di chuyển đến thẻ tiếp theo
+        _colorTween = ColorTween(
+                begin: Colors.white,
+                end: const Color.fromARGB(255, 255, 255, 255))
+            .animate(_animationController);
+      });
     });
   }
 
@@ -69,258 +124,69 @@ class _TestCardScreenState extends State<TestCardScreen> {
               ),
             ),
             Spacer(),
-            Container(
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.black, width: 2.0),
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-                elevation: 4,
-                child: ListTile(
-                  title: Text(
-                    body == 0
-                        ? card['english'][_currentIndex] ?? 'No English'
-                        : widget.cards[_randomIndexCards]['english']
-                                    [_randomIndexCardofCards] ==
-                                card['english'][_currentIndex]
-                            ? 'apologize'
-                            : widget.cards[_randomIndexCards]['english']
-                                    [_randomIndexCardofCards] ??
-                                'No English',
-                    style: TextStyle(
-                      fontSize: 18,
+            for (int i = 0; i < answers.length; i++)
+              AnimatedBuilder(
+                animation: _animationController,
+                builder: (context, child) {
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 16),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.black, width: 2.0),
+                      borderRadius: BorderRadius.circular(10.0),
+                      color: _wrongAnswerIndex == i
+                          ? _colorTween.value
+                          : Colors.white,
                     ),
-                  ),
-                  onTap: () {
-                    //do {
-                      if ((body == 0
-                              ? card['english'][_currentIndex] ?? 'No English'
-                              : widget.cards[_randomIndexCards]['english']
-                                          [_randomIndexCardofCards] ==
-                                      card['english'][_currentIndex]
-                                  ? 'apologize'
-                                  : widget.cards[_randomIndexCards]['english']
-                                          [_randomIndexCardofCards] ??
-                                      'No English') ==
-                          card['english'][_currentIndex])
-                        setState(() {
-                          // Increment index when button is pressed
-                          _currentIndex =
-                              (_currentIndex + 1) % (card['english'].length)
-                                  as int; // Generate new random index
-                          _generateRandomIndexCards(); // Generate new random card index
-                          _generateRandomIndexCardofCards(); // Generate new random card index
-                          _generateRandomBody();
-                          msg = '';
-                        });
-                      else {
-                        setState(() {
-                          msg = 'Hãy thử lại lần nữa';
-                        });
-                      }
-                    /* } while (_currentIndex < card['english'].length - 1);
-                    Navigator.of(context).pop(); */
-                  },
-                ),
-              ),
-            ),
-            SizedBox(height: 16),
-            Container(
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.black, width: 2.0),
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-                elevation: 4,
-                child: ListTile(
-                  title: Text(
-                    body == 1
-                        ? card['english'][_currentIndex] ?? 'No English'
-                        : widget.cards[_randomIndexCards]['english']
-                                    [_randomIndexCardofCards] ==
-                                card['english'][_currentIndex]
-                            ? 'apologize'
-                            : widget.cards[_randomIndexCards]['english']
-                                    [_randomIndexCardofCards] ??
-                                'No English',
-                    style: TextStyle(
-                      fontSize: 18,
+                    child: Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      elevation: 4,
+                      child: ListTile(
+                        title: Text(
+                          answers[i],
+                          style: TextStyle(
+                            fontSize: 18,
+                          ),
+                        ),
+                        onTap: () {
+                          bool isCorrect = i == correctAnswerIndex;
+                          _checkAnswer(isCorrect, i);
+                        },
+                      ),
                     ),
-                  ),
-                  onTap: () {
-                    //do {
-                      if ((body == 1
-                              ? card['english'][_currentIndex] ?? 'No English'
-                              : widget.cards[_randomIndexCards]['english']
-                                          [_randomIndexCardofCards] ==
-                                      card['english'][_currentIndex]
-                                  ? 'apologize'
-                                  : widget.cards[_randomIndexCards]['english']
-                                          [_randomIndexCardofCards] ??
-                                      'No English') ==
-                          card['english'][_currentIndex])
-                        setState(() {
-                          // Increment index when button is pressed
-                          _currentIndex =
-                              (_currentIndex + 1) % (card['english'].length)
-                                  as int; // Generate new random index
-                          _generateRandomIndexCards(); // Generate new random card index
-                          _generateRandomIndexCardofCards(); // Generate new random card index
-                          _generateRandomBody();
-                          msg = '';
-                        });
-                      else {
-                        setState(() {
-                          msg = 'Hãy thử lại lần nữa';
-                        });
-                      }
-                    /* } while (_currentIndex < card['english'].length -1);
-                    Navigator.of(context).pop(); */
-                  },
-                ),
+                  );
+                },
               ),
-            ),
-            SizedBox(height: 16),
-            Container(
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.black, width: 2.0),
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-                elevation: 4,
-                child: ListTile(
-                  title: Text(
-                    body == 1
-                        ? card['english'][_currentIndex] ?? 'No English'
-                        : widget.cards[_randomIndexCards]['english']
-                                    [_randomIndexCardofCards] ==
-                                card['english'][_currentIndex]
-                            ? 'apologize'
-                            : widget.cards[_randomIndexCards]['english']
-                                    [_randomIndexCardofCards] ??
-                                'No English',
-                    style: TextStyle(
-                      fontSize: 18,
-                    ),
-                  ),
-                  onTap: () {
-                    //do {
-                      if ((body == 1
-                              ? card['english'][_currentIndex] ?? 'No English'
-                              : widget.cards[_randomIndexCards]['english']
-                                          [_randomIndexCardofCards] ==
-                                      card['english'][_currentIndex]
-                                  ? 'apologize'
-                                  : widget.cards[_randomIndexCards]['english']
-                                          [_randomIndexCardofCards] ??
-                                      'No English') ==
-                          card['english'][_currentIndex])
-                        setState(() {
-                          // Increment index when button is pressed
-                          _currentIndex =
-                              (_currentIndex + 1) % (card['english'].length)
-                                  as int; // Generate new random index
-                          _generateRandomIndexCards(); // Generate new random card index
-                          _generateRandomIndexCardofCards(); // Generate new random card index
-                          _generateRandomBody();
-                          msg = '';
-                        });
-                      else {
-                        setState(() {
-                          msg = 'Hãy thử lại lần nữa';
-                        });
-                      }
-                    /* } while (_currentIndex < card['english'].length -1);
-                    Navigator.of(context).pop(); */
-                  },
-                ),
-              ),
-            ),
-            SizedBox(height: 16),
-            Container(
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.black, width: 2.0),
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: Card(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
-                ),
-                elevation: 4,
-                child: ListTile(
-                  title: Text(
-                    body == 1
-                        ? card['english'][_currentIndex] ?? 'No English'
-                        : widget.cards[_randomIndexCards]['english']
-                                    [_randomIndexCardofCards] ==
-                                card['english'][_currentIndex]
-                            ? 'apologize'
-                            : widget.cards[_randomIndexCards]['english']
-                                    [_randomIndexCardofCards] ??
-                                'No English',
-                    style: TextStyle(
-                      fontSize: 18,
-                    ),
-                  ),
-                  onTap: () {
-                    //do {
-                      if ((body == 1
-                              ? card['english'][_currentIndex] ?? 'No English'
-                              : widget.cards[_randomIndexCards]['english']
-                                          [_randomIndexCardofCards] ==
-                                      card['english'][_currentIndex]
-                                  ? 'apologize'
-                                  : widget.cards[_randomIndexCards]['english']
-                                          [_randomIndexCardofCards] ??
-                                      'No English') ==
-                          card['english'][_currentIndex])
-                        setState(() {
-                          // Increment index when button is pressed
-                          _currentIndex =
-                              (_currentIndex + 1) % (card['english'].length)
-                                  as int; // Generate new random index
-                          _generateRandomIndexCards(); // Generate new random card index
-                          _generateRandomIndexCardofCards(); // Generate new random card index
-                          _generateRandomBody();
-                          msg = '';
-                        });
-                      else {
-                        setState(() {
-                          msg = 'Hãy thử lại lần nữa';
-                        });
-                      }
-                    /* } while (_currentIndex < card['english'].length -1);
-                    Navigator.of(context).pop(); */
-                  },
-                ),
-              ),
-            ),
           ],
         ),
       ),
     );
   }
 
-  void _generateRandomIndexCards() {
-    _randomIndexCards = Random().nextInt(widget.cards.length);
-  }
+  void _generateRandomAnswers() {
+    int answerCount = card['english'].length;
+    int displayCount = min(answerCount, 4);
 
-  void _generateRandomIndexCardofCards() {
-    _randomIndexCardofCards =
-        Random().nextInt(widget.cards[_randomIndexCards]['english'].length);
-  }
+    correctAnswerIndex = Random().nextInt(displayCount);
+    answers = List<String>.filled(displayCount, '', growable: false);
 
-  void _generateRandomBody() {
-    // Generate random index for the selected random card
-    body = Random().nextInt(2);
+    Set<int> usedIndices = {_currentIndex};
+
+    // Place the correct answer at the correctAnswerIndex
+    answers[correctAnswerIndex] = card['english'][_currentIndex];
+
+    // Fill other positions with random incorrect answers
+    for (int i = 0; i < answers.length; i++) {
+      if (i == correctAnswerIndex) continue;
+
+      int randomIndex;
+      do {
+        randomIndex = Random().nextInt(card['english'].length);
+      } while (usedIndices.contains(randomIndex));
+
+      answers[i] = card['english'][randomIndex];
+      usedIndices.add(randomIndex);
+    }
   }
 }
