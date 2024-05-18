@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:midtermm/ui/Service/studyCardScreen.dart';
+import 'package:midtermm/ui/Service/testCardScreen.dart';
 import 'package:midtermm/ui/term_ui/testScreen.dart';
 
 class CardListScreen extends StatefulWidget {
@@ -29,11 +31,23 @@ class _CardListScreenState extends State<CardListScreen> {
   }
 
   void onReview() {
-    print('Ghi nhớ button pressed');
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => StudyCardScreen(
+            cards: widget.cardterms, indexterm: widget.indexterm),
+      ),
+    );
   }
 
   void onStudy() {
     // Navigate to study screen
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TestCardScreen(cards: widget.cardterms, indexterm: widget.indexterm),
+      ),
+    );
   }
 
   void onTest() {
@@ -52,6 +66,15 @@ class _CardListScreenState extends State<CardListScreen> {
   @override
   Widget build(BuildContext context) {
     List<Map<String, dynamic>> cardterms = widget.cardterms;
+
+    // Check if indexterm is within bounds
+    if (widget.indexterm < 0 || widget.indexterm >= cardterms.length) {
+      return Scaffold(
+        body: Center(
+          child: Text('Index out of bounds'),
+        ),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -213,7 +236,7 @@ class _CardListScreenState extends State<CardListScreen> {
                         ),
                       ),
                       IconButton(
-                        icon: Icon(Icons.volume_up), // Icon loa
+                        icon: Icon(Icons.volume_up), //
                         onPressed: () {
                           // Gọi hàm để đọc từ tiếng Anh khi người dùng nhấn vào nút nghe
                           speakWord(

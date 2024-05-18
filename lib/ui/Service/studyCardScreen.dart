@@ -2,33 +2,36 @@ import 'package:flutter/material.dart';
 
 class StudyCardScreen extends StatelessWidget {
   final List<Map<String, dynamic>> cards;
+  final int indexterm;
 
-  StudyCardScreen({required this.cards});
+  StudyCardScreen({required this.cards, required this.indexterm});
 
   @override
   Widget build(BuildContext context) {
+    // Accessing card list inside the build method
+    Map card = cards[indexterm];
+
     return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+        title: Text('Study Cards'),
+        backgroundColor: Color(0xFF4254FE),
+        foregroundColor: Colors.white,
+      ),
       body: Column(
         children: [
-          SizedBox(
-            height: 50, // Đảm bảo nút quay lại cố định ở trên cùng
-            child: AppBar(
-              leading: IconButton(
-                icon: Icon(Icons.arrow_back),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-              title: Text('Card Flip Example'),
-            ),
-          ),
           Expanded(
             child: PageView.builder(
-              itemCount: cards.length,
+              itemCount: card['english'].length, // Adjusted itemCount
               itemBuilder: (context, index) {
                 return CardItem(
-                  title: cards[index]['title']!,
-                  content: cards[index]['description']!,
+                  title: card['english'][index] ?? 'No english',
+                  content: card['vietnamese'][index] ?? 'No vietnamese',
                 );
               },
             ),
@@ -114,9 +117,10 @@ class _CardItemState extends State<CardItem> with SingleTickerProviderStateMixin
               child: Card(
                 elevation: 4.0,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10.0),
+                  borderRadius: BorderRadius.circular(16.0),
+                  side: BorderSide(color: Colors.grey[400]!, width: 1),
                 ),
-                color: _isFrontVisible ? Colors.blue : Colors.green,
+                color: _isFrontVisible ? Color(0xFF4254FE) : Colors.green,
                 child: Container(
                   width: double.infinity,
                   height: double.infinity,
