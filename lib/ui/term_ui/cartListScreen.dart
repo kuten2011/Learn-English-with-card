@@ -88,6 +88,12 @@ class _CardListScreenState extends State<CardListScreen> {
         title: Text(cardterms[widget.indexterm]["title"] ?? 'No Title'),
         backgroundColor: Color(0xFF4254FE),
         foregroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(25),
+            bottomRight: Radius.circular(25),
+          ),
+        ),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -230,7 +236,7 @@ class _CardListScreenState extends State<CardListScreen> {
                   child: Icon(Icons.delete),
                 ),
                 child: Card(
-                  elevation: 5,
+                  elevation: 1,
                   shape: RoundedRectangleBorder(
                     side: BorderSide(color: Colors.grey[400]!, width: 1),
                     borderRadius: BorderRadius.circular(16),
@@ -292,7 +298,7 @@ class _CardListScreenState extends State<CardListScreen> {
 
   Widget buildCustomCard(String text, IconData icon, VoidCallback onPressed) {
     return Card(
-      elevation: 5,
+      elevation: 3,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16.0),
         side: BorderSide(color: Colors.grey[400]!, width: 1),

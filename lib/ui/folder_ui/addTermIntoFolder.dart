@@ -91,6 +91,12 @@ class _AddTermIntoFolderState extends State<AddTermIntoFolder> {
 
     return Scaffold(
       appBar: AppBar(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(25),
+            bottomRight: Radius.circular(25),
+          ),
+        ),
         backgroundColor: const Color(0xFF4254FE),
         foregroundColor: Colors.white,
         leading: IconButton(

@@ -77,7 +77,7 @@ class _FolderListScreenState extends State<FolderListScreen> {
           margin: const EdgeInsets.all(10.0),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(16.0),
+            borderRadius: BorderRadius.circular(25.0),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -156,6 +156,12 @@ class _FolderListScreenState extends State<FolderListScreen> {
             },
           ),
         ],
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(25),
+            bottomRight: Radius.circular(25),
+          ),
+        ),
       ),
       body: Column(
         children: <Widget>[

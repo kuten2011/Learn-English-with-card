@@ -101,6 +101,12 @@ class _TestCardScreenState extends State<TestCardScreen>
             Navigator.of(context).pop();
           },
         ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(25),
+            bottomRight: Radius.circular(25),
+          ),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -110,7 +116,7 @@ class _TestCardScreenState extends State<TestCardScreen>
             Text(
               msg,
               style: TextStyle(
-                color: Colors.orange,
+                color: msg == 'Chính xác!' ? Colors.green : Colors.red,
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
@@ -131,8 +137,8 @@ class _TestCardScreenState extends State<TestCardScreen>
                   return Container(
                     margin: const EdgeInsets.only(bottom: 16),
                     decoration: BoxDecoration(
-                      border: Border.all(color: Colors.black, width: 2.0),
-                      borderRadius: BorderRadius.circular(10.0),
+                      border: Border.all(color: Colors.grey[400]!, width: 2.0),
+                      borderRadius: BorderRadius.circular(16.0),
                       color: _wrongAnswerIndex == i
                           ? _colorTween.value
                           : Colors.white,
@@ -142,6 +148,7 @@ class _TestCardScreenState extends State<TestCardScreen>
                         borderRadius: BorderRadius.circular(10.0),
                       ),
                       elevation: 4,
+                      color: Colors.white,
                       child: ListTile(
                         title: Text(
                           answers[i],

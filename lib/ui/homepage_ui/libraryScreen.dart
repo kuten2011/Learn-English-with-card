@@ -7,7 +7,8 @@ import 'package:midtermm/ui/folder_ui/folderOfLibrary.dart';
 class libraryScreen extends StatefulWidget {
   final int initialTabIndex; // Thêm tham số này
 
-  const libraryScreen({Key? key, this.initialTabIndex = 0}) : super(key: key); // Sửa đổi constructor
+  const libraryScreen({Key? key, this.initialTabIndex = 0})
+      : super(key: key); // Sửa đổi constructor
 
   @override
   _libraryScreenState createState() => _libraryScreenState();
@@ -20,7 +21,10 @@ class _libraryScreenState extends State<libraryScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this, initialIndex: widget.initialTabIndex); // Sử dụng initialTabIndex
+    _tabController = TabController(
+        length: 2,
+        vsync: this,
+        initialIndex: widget.initialTabIndex); // Sử dụng initialTabIndex
     _tabController.addListener(() {
       setState(() {});
     });
@@ -64,6 +68,12 @@ class _libraryScreenState extends State<libraryScreen>
             Tab(text: 'Học phần'),
             Tab(text: 'Thư mục'),
           ],
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(30),
+            bottomRight: Radius.circular(30),
+          ),
         ),
       ),
       body: TabBarView(

@@ -42,6 +42,12 @@ class _PracticeScreenState extends State<PracticeScreen> {
         foregroundColor: Colors.white,
         title: Text('Luyện tập'),
         centerTitle: true,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(25),
+            bottomRight: Radius.circular(25),
+          ),
+        ),
       ),
       body: Center(
         child: SingleChildScrollView(

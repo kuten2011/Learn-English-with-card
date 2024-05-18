@@ -23,6 +23,12 @@ class StudyCardScreen extends StatelessWidget {
         centerTitle: true,
         backgroundColor: Color(0xFF4254FE),
         foregroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(30),
+            bottomRight: Radius.circular(30),
+          ),
+        ),
       ),
       body: Column(
         children: [

@@ -53,6 +53,12 @@ class _AddFolderScreenState extends State<AddFolderScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(25),
+            bottomRight: Radius.circular(25),
+          ),
+        ),
         backgroundColor: Color(0xFF4254FE),
         foregroundColor: Colors.white,
         leading: IconButton(
