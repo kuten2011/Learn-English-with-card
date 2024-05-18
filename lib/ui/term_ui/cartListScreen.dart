@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:midtermm/ui/Service/studyCardScreen.dart';
 import 'package:midtermm/ui/Service/testCardScreen.dart';
-import 'package:midtermm/ui/Service/testScreen.dart';
+import 'package:midtermm/ui/Service/practiceScreen.dart';
 
 class CardListScreen extends StatefulWidget {
   final List<Map<String, dynamic>> cardterms;
@@ -44,7 +44,12 @@ class _CardListScreenState extends State<CardListScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => TestScreen(),
+        builder: (context) => Material(
+          child: PracticeScreen(
+            cardterms: widget.cardterms,
+            indexterm: widget.indexterm,
+          ),
+        ),
       ),
     );
   }
