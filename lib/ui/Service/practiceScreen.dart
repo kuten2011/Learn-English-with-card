@@ -85,17 +85,18 @@ class _PracticeScreenState extends State<PracticeScreen> {
                                       .length -
                                   1) {
                             Navigator.of(context).pop();
+                          } else {
+                            _textEditingController.clear();
+                            setState(() {
+                              _currentIndex = ((_currentIndex + 1) %
+                                      widget
+                                          .cardterms[widget.indexterm]
+                                              ['vietnamese']
+                                          .length)
+                                  .toInt();
+                              _countWord++;
+                            });
                           }
-                          _textEditingController.clear();
-                          setState(() {
-                            _currentIndex = ((_currentIndex + 1) %
-                                    widget
-                                        .cardterms[widget.indexterm]
-                                            ['vietnamese']
-                                        .length)
-                                .toInt();
-                            _countWord++;
-                          });
                         },
                       ),
                       IconButton(
