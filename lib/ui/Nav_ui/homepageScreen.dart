@@ -11,7 +11,8 @@ class homepageScreen extends StatefulWidget {
 
 class _MyHomePageState extends State<homepageScreen> {
   int _selectedIndex = 0;
-  bool _showAppBar = true; // Biến để kiểm tra hiển thị AppBar
+  bool _showAppBar = true;
+  int initialTabIndex = 0;
 
   late final List<Widget> _widgetOptions = <Widget>[
     HomeScreen(
@@ -19,36 +20,40 @@ class _MyHomePageState extends State<homepageScreen> {
     ),
     Text('Lời Giải'),
     Text('Thêm'),
-    libraryScreen(),
-    settingScreen(), // Thêm widget SettingsScreen vào danh sách widget
+    libraryScreen(initialTabIndex: initialTabIndex),
+    settingScreen(),
   ];
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-      _showAppBar = true; // Hiển thị AppBar khi chuyển đổi các tab khác
-    });
+  void _onItemTapped(int index, {int? initialTabIndex}) {
+    if (index == 3 && initialTabIndex != null) {
+      setState(() {
+        _selectedIndex = index;
+        _showAppBar = false;
+        this.initialTabIndex = initialTabIndex;
+        _widgetOptions[3] = libraryScreen(initialTabIndex: this.initialTabIndex);
+      });
+    } else {
+      setState(() {
+        _selectedIndex = index;
+        _showAppBar = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: _showAppBar
-      //     ? AppBar(
-      //       automaticallyImplyLeading: false,
-      //       title: const Text('Quizlet'))
-      //     : null, // Kiểm tra và hiển thị AppBar
       body: Center(
         child: _widgetOptions.elementAt(_selectedIndex),
       ),
       bottomNavigationBar: ClipRRect(
         borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(25.0), // Bo tròn góc trên bên trái
-          topRight: Radius.circular(25.0), // Bo tròn góc trên bên phải
+          topLeft: Radius.circular(25.0),
+          topRight: Radius.circular(25.0),
         ),
         child: Container(
           decoration: BoxDecoration(
-            color: Color(0xFF4254FE), // Màu nền của BottomNavigationBar
+            color: Color(0xFF4254FE),
           ),
           child: BottomNavigationBar(
             items: const <BottomNavigationBarItem>[
@@ -79,46 +84,16 @@ class _MyHomePageState extends State<homepageScreen> {
               ),
             ],
             currentIndex: _selectedIndex,
-            selectedItemColor:
-                Color.fromARGB(255, 255, 255, 255), // Màu khi được chọn
-            unselectedItemColor: Colors.white, // Màu khi không được chọn
+            selectedItemColor: Color.fromARGB(255, 255, 255, 255),
+            unselectedItemColor: Colors.white,
             onTap: (index) {
               if (index == 2) {
-                // Index 2 tương ứng với mục "Thêm"
                 showModalBottomSheet(
                   context: context,
-                  builder: (BuildContext context) =>
-                      AddMenuPopup(), // Gọi pop-up từ AddMenuPopup
+                  builder: (BuildContext context) => AddMenuPopup(),
                 );
-              } else if (index == 0) {
-                // Nếu chọn "Hồ Sơ", chỉ cập nhật index mà không chuyển hướng ngay lập tức
-                setState(() {
-                  _selectedIndex = index;
-                  _showAppBar = false; // Ẩn AppBar khi chọn "Hồ Sơ"
-                });
-              } else if (index == 1) {
-                // Nếu chọn "Hồ Sơ", chỉ cập nhật index mà không chuyển hướng ngay lập tức
-                setState(() {
-                  _selectedIndex = index;
-                  _showAppBar = false; // Ẩn AppBar khi chọn "Hồ Sơ"
-                });
-              } else if (index == 3) {
-                // Nếu chọn "Hồ Sơ", chỉ cập nhật index mà không chuyển hướng ngay lập tức
-                setState(() {
-                  _selectedIndex = index;
-                  _showAppBar = false; // Ẩn AppBar khi chọn "Hồ Sơ"
-                });
-              } else if (index == 4) {
-                // Nếu chọn "Hồ Sơ", chỉ cập nhật index mà không chuyển hướng ngay lập tức
-                setState(() {
-                  _selectedIndex = index;
-                  _showAppBar = false; // Ẩn AppBar khi chọn "Hồ Sơ"
-                });
               } else {
-                // Nếu chọn các mục khác, chuyển hướng ngay lập tức
                 _onItemTapped(index);
-                _showAppBar =
-                    true; // Hiển thị AppBar khi chuyển đổi các tab khác
               }
             },
           ),
