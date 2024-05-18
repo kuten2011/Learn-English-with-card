@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:midtermm/ui/Service/studyCardScreen.dart';
 import 'package:midtermm/ui/Service/testCardScreen.dart';
 import 'package:midtermm/ui/Service/practiceScreen.dart';
@@ -170,8 +172,6 @@ class _CardListScreenState extends State<CardListScreen> {
             SizedBox(height: 5),
             buildCustomCard('Kiểm tra nhanh', Icons.flash_on, onTest),
             SizedBox(height: 5),
-            // buildCustomCard('Ghép từ', Icons.merge_type, onMerge),
-            // SizedBox(height: 10),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Row(
@@ -197,58 +197,90 @@ class _CardListScreenState extends State<CardListScreen> {
             for (int index = 0;
                 index < cardterms[widget.indexterm]['english'].length;
                 index++)
-              Card(
-                elevation: 5,
-                shape: RoundedRectangleBorder(
-                  side: BorderSide(color: Colors.grey[400]!, width: 1),
-                  borderRadius: BorderRadius.circular(16),
+              Dismissible(
+                key: UniqueKey(),
+                onDismissed: (direction) {
+                  setState(() {
+                    // Xác định term cần xóa từ
+                    Map<String, dynamic> term = cardterms[widget.indexterm];
+                    // Xóa từ tiếng Anh và tiếng Việt tương ứng với chỉ mục index
+                    String deletedEnglishWord =
+                        cardterms[widget.indexterm]["english"][index];
+                    String deletedVietnameseWord =
+                        cardterms[widget.indexterm]["vietnamese"][index];
+                    cardterms[widget.indexterm]["english"].removeAt(index);
+                    cardterms[widget.indexterm]["vietnamese"].removeAt(index);
+                    // Xóa từ khỏi Firestore
+                    FirebaseFirestore.instance
+                        .collection('terms')
+                        .doc(term['id'])
+                        .update({
+                          "english":
+                              FieldValue.arrayRemove([deletedEnglishWord]),
+                          "vietnamese":
+                              FieldValue.arrayRemove([deletedVietnameseWord])
+                        })
+                        .then((_) => print("Xóa từ thành công!"))
+                        .catchError((error) => print("Lỗi khi xóa từ: $error"));
+                  });
+                },
+                direction: DismissDirection.endToStart, // Kéo từ phải sang trái
+                background: Container(
+                  color: Colors.red,
+                  child: Icon(Icons.delete),
                 ),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
+                child: Card(
+                  elevation: 5,
+                  shape: RoundedRectangleBorder(
+                    side: BorderSide(color: Colors.grey[400]!, width: 1),
                     borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
-                        spreadRadius: 3,
-                        blurRadius: 5,
-                        offset: Offset(0, 3),
-                      ),
-                    ],
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment
-                        .end, // Đưa biểu tượng loa về phía bên phải
-                    children: [
-                      Expanded(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: <Widget>[
-                            ListTile(
-                              title: Text(
-                                cardterms[widget.indexterm]["english"][index] ??
-                                    'No English',
-                                style: TextStyle(color: Colors.black),
-                              ),
-                              subtitle: Text(
-                                cardterms[widget.indexterm]["vietnamese"]
-                                        [index] ??
-                                    'No Vietnamese',
-                                style: TextStyle(color: Colors.black),
-                              ),
-                            ),
-                          ],
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.2),
+                          spreadRadius: 3,
+                          blurRadius: 5,
+                          offset: Offset(0, 3),
                         ),
-                      ),
-                      IconButton(
-                        icon: Icon(Icons.volume_up), //
-                        onPressed: () {
-                          // Gọi hàm để đọc từ tiếng Anh khi người dùng nhấn vào nút nghe
-                          speakWord(
-                              cardterms[widget.indexterm]["english"][index]);
-                        },
-                      ),
-                    ],
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: <Widget>[
+                              ListTile(
+                                title: Text(
+                                  cardterms[widget.indexterm]["english"]
+                                          [index] ??
+                                      'No English',
+                                  style: TextStyle(color: Colors.black),
+                                ),
+                                subtitle: Text(
+                                  cardterms[widget.indexterm]["vietnamese"]
+                                          [index] ??
+                                      'No Vietnamese',
+                                  style: TextStyle(color: Colors.black),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.volume_up),
+                          onPressed: () {
+                            speakWord(
+                                cardterms[widget.indexterm]["english"][index]);
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -277,7 +309,6 @@ class _CardListScreenState extends State<CardListScreen> {
             height: 60, // Đặt chiều cao tùy ý
             padding: EdgeInsets.symmetric(horizontal: 16),
             child: Row(
-              // mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Icon(icon, color: Colors.black),
                 SizedBox(width: 10.0),
@@ -336,10 +367,10 @@ class FlipCard extends StatefulWidget {
       : super(key: key);
 
   @override
-  _FlipCardtermstate createState() => _FlipCardtermstate();
+  _FlipCardState createState() => _FlipCardState();
 }
 
-class _FlipCardtermstate extends State<FlipCard>
+class _FlipCardState extends State<FlipCard>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _frontRotation;
@@ -354,7 +385,6 @@ class _FlipCardtermstate extends State<FlipCard>
       vsync: this,
       duration: Duration(milliseconds: 500),
     );
-
     _frontRotation = Tween<double>(
       begin: 0,
       end: 180,
@@ -364,7 +394,6 @@ class _FlipCardtermstate extends State<FlipCard>
         curve: Interval(0.0, 0.5, curve: Curves.linear),
       ),
     );
-
     _backRotation = Tween<double>(
       begin: -180,
       end: 0,

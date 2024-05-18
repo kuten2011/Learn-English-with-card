@@ -2,11 +2,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:midtermm/ui/folder_ui/termOfFolderScreen.dart';
-import 'package:midtermm/ui/homepage_ui/libraryScreen.dart';
 import 'package:midtermm/ui/term_ui/cartListScreen.dart';
 
 class HomeScreen extends StatefulWidget {
-  final Function(int) onTabTapped;
+  final Function(int, {int? initialTabIndex}) onTabTapped;
 
   const HomeScreen({Key? key, required this.onTabTapped}) : super(key: key);
 
@@ -41,7 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> getUser() async {
     user = FirebaseAuth.instance.currentUser;
     userEmail = user?.email ?? 'No Email';
-    print('Current User Email: $userEmail'); // Debug output
+    print('Current User Email: $userEmail');
   }
 
   Future<void> getTermsFromFirestore() async {
@@ -73,7 +72,7 @@ class _HomeScreenState extends State<HomeScreen> {
       folders = querySnapshot.docs
           .map((doc) => {
                 ...doc.data() as Map<String, dynamic>,
-                'id': doc.id, // Thêm ID cho mỗi mục
+                'id': doc.id,
               })
           .toList();
 
@@ -83,12 +82,15 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _viewAllTerms(BuildContext context) {
-    widget.onTabTapped(3);
+    widget.onTabTapped(3, initialTabIndex: 0);
+  }
+
+  void _viewAllFolder(BuildContext context) {
+    widget.onTabTapped(3, initialTabIndex: 1);
   }
 
   void _viewFolderDetails(BuildContext context, Map<String, dynamic> folder) {
     if (folder['id'] != null) {
-      // Ensure folder id is not null
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -96,7 +98,6 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       );
     } else {
-      // Handle the case where folder id is null
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Invalid folder ID')),
       );
@@ -304,7 +305,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                           ElevatedButton(
                             onPressed: () {
-                              // Handle "Xem tất cả" button tap
+                              _viewAllFolder(context);
                             },
                             child: Text(
                               'Xem tất cả',
