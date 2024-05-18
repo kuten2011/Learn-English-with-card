@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:midtermm/ui/folder_ui/termOfFolderScreen.dart';
 import 'package:midtermm/ui/homepage_ui/libraryScreen.dart';
+import 'package:midtermm/ui/term_ui/cartListScreen.dart';
 
 class HomeScreen extends StatefulWidget {
   final Function(int) onTabTapped;
@@ -64,12 +66,17 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> getFoldersFromFirestore() async {
     final CollectionReference foldersCollection =
         FirebaseFirestore.instance.collection('folders');
-    final QuerySnapshot querySnapshotFolder = await foldersCollection.get();
+
+    final QuerySnapshot querySnapshot = await foldersCollection.get();
 
     setState(() {
-      folders = querySnapshotFolder.docs
-          .map((doc) => doc.data() as Map<String, dynamic>)
+      folders = querySnapshot.docs
+          .map((doc) => {
+                ...doc.data() as Map<String, dynamic>,
+                'id': doc.id, // Thêm ID cho mỗi mục
+              })
           .toList();
+
       userFolders =
           folders.where((folder) => folder['userEmail'] == userEmail).toList();
     });
@@ -79,6 +86,23 @@ class _HomeScreenState extends State<HomeScreen> {
     widget.onTabTapped(3);
   }
 
+  void _viewFolderDetails(BuildContext context, Map<String, dynamic> folder) {
+    if (folder['id'] != null) {
+      // Ensure folder id is not null
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => FolderListScreen(folderId: folder['id']),
+        ),
+      );
+    } else {
+      // Handle the case where folder id is null
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Invalid folder ID')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -86,7 +110,6 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Scaffold(
         body: Column(
           children: [
-            // Thanh tìm kiếm cố định
             Container(
               decoration: BoxDecoration(
                 color: Color(0xFF4254FE),
@@ -199,12 +222,25 @@ class _HomeScreenState extends State<HomeScreen> {
                         itemCount: userTerms.length,
                         itemBuilder: (context, index) {
                           final userTerm = userTerms[index];
-                          return EducationCard(
-                            title: userTerm['title'],
-                            userName: userTerm['userName'],
-                            count: userTerm['english'] != null
-                                ? userTerm['english'].length
-                                : 0,
+                          return InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => CardListScreen(
+                                    cardterms: userTerms,
+                                    indexterm: index,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: EducationCard(
+                              title: userTerm['title'] ?? 'No Title',
+                              userName: userTerm['userName'] ?? 'No Username',
+                              count: userTerm['english'] != null
+                                  ? userTerm['english'].length
+                                  : 0,
+                            ),
                           );
                         },
                       ),
@@ -231,12 +267,26 @@ class _HomeScreenState extends State<HomeScreen> {
                         itemCount: similarTerms.length,
                         itemBuilder: (context, index) {
                           final similarTerm = similarTerms[index];
-                          return EducationCard(
-                            title: similarTerm['title'] ?? 'No Title',
-                            userName: similarTerm['userName'] ?? 'No Username',
-                            count: similarTerm['english'] != null
-                                ? similarTerm['english'].length
-                                : 0,
+                          return InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => CardListScreen(
+                                    cardterms: similarTerms,
+                                    indexterm: index,
+                                  ),
+                                ),
+                              );
+                            },
+                            child: EducationCard(
+                              title: similarTerm['title'] ?? 'No Title',
+                              userName:
+                                  similarTerm['userName'] ?? 'No Username',
+                              count: similarTerm['english'] != null
+                                  ? similarTerm['english'].length
+                                  : 0,
+                            ),
                           );
                         },
                       ),
@@ -272,12 +322,17 @@ class _HomeScreenState extends State<HomeScreen> {
                         itemCount: userFolders.length,
                         itemBuilder: (context, index) {
                           final userFolder = userFolders[index];
-                          return FolderCard(
-                            title: userFolder['title'],
-                            userName: userFolder['userName'],
-                            count: userFolder['termIDs'] != null
-                                ? userFolder['termIDs'].length
-                                : 0,
+                          return InkWell(
+                            onTap: () {
+                              _viewFolderDetails(context, userFolder);
+                            },
+                            child: FolderCard(
+                              title: userFolder['title'] ?? 'No Title',
+                              userName: userFolder['userName'] ?? 'No Username',
+                              count: userFolder['termIDs'] != null
+                                  ? userFolder['termIDs'].length
+                                  : 0,
+                            ),
                           );
                         },
                       ),

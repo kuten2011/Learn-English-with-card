@@ -40,11 +40,11 @@ class _FolderListScreenState extends State<FolderListScreen> {
             .get();
         if (termDoc.exists) {
           fetchedTerms.add({
-            'id': termDoc.id, // Add term document ID
-            'title': termDoc['title'],
-            'english': termDoc['english'],
-            'vietnamese': termDoc['vietnamese'],
-            'userName': termDoc['userName'],
+            'id': termDoc.id,
+            'title': termDoc['title'] ?? 'No Title',
+            'english': termDoc['english'] ?? [],
+            'vietnamese': termDoc['vietnamese'] ?? [],
+            'userName': termDoc['userName'] ?? 'No Name',
           });
         }
       }
@@ -63,7 +63,7 @@ class _FolderListScreenState extends State<FolderListScreen> {
 
     if (folderDoc.exists) {
       setState(() {
-        folderTitle = folderDoc['title']; // Lấy title từ Firestore
+        folderTitle = folderDoc['title'] ?? 'No Title';
       });
     }
   }
@@ -120,27 +120,26 @@ class _FolderListScreenState extends State<FolderListScreen> {
   }
 
   void _deleteTerm(String termId) async {
-  try {
-    await FirebaseFirestore.instance
-        .collection('folders')
-        .doc(widget.folderId)
-        .update({
-      'termIDs': FieldValue.arrayRemove([termId]),
-    });
-    setState(() {
-      terms.removeWhere((term) => term['id'] == termId);
-    });
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Học phần đã được xóa')),
-    );
-  } catch (error) {
-    print('Đã xảy ra lỗi khi xóa học phần: $error');
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Xóa học phần không thành công')),
-    );
+    try {
+      await FirebaseFirestore.instance
+          .collection('folders')
+          .doc(widget.folderId)
+          .update({
+        'termIDs': FieldValue.arrayRemove([termId]),
+      });
+      setState(() {
+        terms.removeWhere((term) => term['id'] == termId);
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Học phần đã được xóa')),
+      );
+    } catch (error) {
+      print('Đã xảy ra lỗi khi xóa học phần: $error');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Xóa học phần không thành công')),
+      );
+    }
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -275,7 +274,7 @@ class TermList extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              Text('$userName'),
+              Text(userName),
             ],
           ),
         ),
