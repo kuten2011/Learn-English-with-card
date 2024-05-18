@@ -125,23 +125,29 @@ class _PracticeScreenState extends State<PracticeScreen> {
                             return;
                           }
 
-                          Future.delayed(Duration(milliseconds: 1000), () {
-                            setState(() {
-                              if (_countWord ==
-                                  widget.cardterms[widget.indexterm]['english']
-                                          .length -
-                                      1) {
-                                Navigator.of(context).pop();
-                              }
-                              _currentIndex = ((_currentIndex + 1) %
-                                      widget
-                                          .cardterms[widget.indexterm]
-                                              ['english']
-                                          .length)
-                                  .toInt();
-                              _countWord++;
-                            });
-                          });
+                          Future.delayed(
+                            Duration(milliseconds: 1000),
+                            () {
+                              setState(() {
+                                if (_countWord ==
+                                    widget
+                                            .cardterms[widget.indexterm]
+                                                ['english']
+                                            .length -
+                                        1) {
+                                  Navigator.of(context).pop();
+                                } else {
+                                  _currentIndex = ((_currentIndex + 1) %
+                                          widget
+                                              .cardterms[widget.indexterm]
+                                                  ['english']
+                                              .length)
+                                      .toInt();
+                                  _countWord++;
+                                }
+                              });
+                            },
+                          );
                         },
                       ),
                     ],
