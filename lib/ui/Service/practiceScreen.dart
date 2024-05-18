@@ -18,6 +18,16 @@ class _PracticeScreenState extends State<PracticeScreen> {
   late TextEditingController _textEditingController;
   int _currentIndex = 0;
   int _countWord = 0;
+  String msg = '';
+  Color msgColor = Colors.black;
+
+  void _delayAndMoveToNextCard() {
+    Future.delayed(Duration(seconds: 1), () {
+      setState(() {
+        msg = '';
+      });
+    });
+  }
 
   @override
   void initState() {
@@ -32,6 +42,42 @@ class _PracticeScreenState extends State<PracticeScreen> {
     _focusNode.dispose();
     _textEditingController.dispose();
     super.dispose();
+  }
+
+  void _handleNextCard() {
+    _textEditingController.clear();
+    if (_countWord ==
+        widget.cardterms[widget.indexterm]['vietnamese'].length - 1) {
+      Navigator.of(context).pop();
+    } else {
+      setState(() {
+        _currentIndex = (_currentIndex + 1) %
+            widget.cardterms[widget.indexterm]['vietnamese'].length as int;
+        _countWord++;
+      });
+    }
+  }
+
+  void _checkAnswer() {
+    String input = _textEditingController.text.trim().toLowerCase();
+    if (input ==
+        widget.cardterms[widget.indexterm]['english'][_currentIndex]
+            .toLowerCase()) {
+      setState(() {
+        msg = 'Chính xác!';
+        msgColor = Colors.green;
+      });
+      Future.delayed(Duration(milliseconds: 1000), () {
+        _handleNextCard();
+      });
+    } else {
+      setState(() {
+        msg = 'Sai rồi! Hãy thử lại.';
+        msgColor = Colors.red;
+      });
+    }
+    _textEditingController.clear();
+    _delayAndMoveToNextCard();
   }
 
   @override
@@ -50,6 +96,15 @@ class _PracticeScreenState extends State<PracticeScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
+                Text(
+                  msg,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: msgColor,
+                  ),
+                ),
+                SizedBox(height: 16.0),
                 Text(
                   widget.cardterms[widget.indexterm]['vietnamese']
                       [_currentIndex],
@@ -71,85 +126,18 @@ class _PracticeScreenState extends State<PracticeScreen> {
                           decoration: const InputDecoration(
                             hintText: 'Nhập bằng tiếng Anh',
                             border: InputBorder.none,
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 10.0,
-                            ),
+                            contentPadding:
+                                EdgeInsets.symmetric(horizontal: 10.0),
                           ),
                         ),
                       ),
                       IconButton(
                         icon: Icon(Icons.skip_next),
-                        onPressed: () {
-                          if (_countWord ==
-                              widget.cardterms[widget.indexterm]['vietnamese']
-                                      .length -
-                                  1) {
-                            Navigator.of(context).pop();
-                          } else {
-                            _textEditingController.clear();
-                            setState(() {
-                              _currentIndex = ((_currentIndex + 1) %
-                                      widget
-                                          .cardterms[widget.indexterm]
-                                              ['vietnamese']
-                                          .length)
-                                  .toInt();
-                              _countWord++;
-                            });
-                          }
-                        },
+                        onPressed: _handleNextCard,
                       ),
                       IconButton(
                         icon: Icon(Icons.send),
-                        onPressed: () {
-                          String input =
-                              _textEditingController.text.trim().toLowerCase();
-                          if (input ==
-                              widget.cardterms[widget.indexterm]['english']
-                                      [_currentIndex]
-                                  .toLowerCase()) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Chính xác!'),
-                                duration: Duration(milliseconds: 800),
-                              ),
-                            );
-                            _textEditingController.clear();
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Không chính xác. Thử lại!'),
-                                duration: Duration(milliseconds: 800),
-                              ),
-                            );
-                            _textEditingController.clear();
-                            return;
-                          }
-
-                          Future.delayed(
-                            Duration(milliseconds: 1000),
-                            () {
-                              setState(() {
-                                if (_countWord ==
-                                    widget
-                                            .cardterms[widget.indexterm]
-                                                ['english']
-                                            .length -
-                                        1) {
-                                  Navigator.of(context).pop();
-                                } else {
-                                  _currentIndex = ((_currentIndex + 1) %
-                                          widget
-                                              .cardterms[widget.indexterm]
-                                                  ['english']
-                                              .length)
-                                      .toInt();
-                                  _countWord++;
-                                }
-                              });
-                            },
-                          );
-                        },
+                        onPressed: _checkAnswer,
                       ),
                     ],
                   ),

@@ -93,8 +93,10 @@ class _TestCardScreenState extends State<TestCardScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Lượt 2'),
+        title: Text('Kiểm tra'),
         centerTitle: true,
+        backgroundColor: Color(0xFF4254FE),
+        foregroundColor: Colors.white,
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
