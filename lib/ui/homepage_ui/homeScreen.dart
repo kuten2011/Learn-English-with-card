@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:midtermm/ui/folder_ui/termOfFolderScreen.dart';  // Ensure this import is correct for your project structure
+import 'package:midtermm/ui/folder_ui/termOfFolderScreen.dart'; // Ensure this import is correct for your project structure
 import 'package:midtermm/ui/term_ui/cartListScreen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -16,8 +16,8 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   String searchText = '';
   String tt = 'Học phần, Sách giáo khoa, Học phần, ...';
-  late User? user;
-  late String userEmail = 'No Email';
+  User? user;
+  String userEmail = 'No Email';
 
   List<Map<String, dynamic>> terms = [];
   List<Map<String, dynamic>> userTerms = [];
@@ -31,18 +31,6 @@ class _HomeScreenState extends State<HomeScreen> {
     initializeData();
   }
 
-  void toggleFavorite(int index) async {
-    String termId = userTerms[index]['id'];
-    bool isFavorite = userTerms[index]['favorite'] ?? false;
-
-    // Update favorite status in Firestore
-    await FirebaseFirestore.instance.collection('terms').doc(termId).update({'favorite': !isFavorite});
-
-    setState(() {
-      userTerms[index]['favorite'] = !isFavorite;
-    });
-  }
-
   Future<void> initializeData() async {
     await getUser();
     await getTermsFromFirestore();
@@ -51,29 +39,36 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> getUser() async {
     user = FirebaseAuth.instance.currentUser;
-    userEmail = user?.email ?? 'No Email';
-    print('Current User Email: $userEmail');
+    setState(() {
+      userEmail = user?.email ?? 'No Email';
+    });
   }
 
   Future<void> getTermsFromFirestore() async {
-    final CollectionReference termsCollection = FirebaseFirestore.instance.collection('terms');
+    final CollectionReference termsCollection =
+        FirebaseFirestore.instance.collection('terms');
     final QuerySnapshot querySnapshot = await termsCollection.get();
 
     setState(() {
       terms = querySnapshot.docs
           .map((doc) => {
                 ...doc.data() as Map<String, dynamic>,
-                'id': doc.id, // Include the id
+                'id': doc.id,
               })
           .toList();
-      userTerms = terms.where((term) => term['userEmail'] == userEmail).toList();
-      similarTerms = terms.where((term) => term['userEmail'] != userEmail && term['visibility'] == 'Mọi người').toList();
+      userTerms =
+          terms.where((term) => term['userEmail'] == userEmail).toList();
+      similarTerms = terms
+          .where((term) =>
+              term['userEmail'] != userEmail &&
+              term['visibility'] == 'Mọi người')
+          .toList();
     });
   }
 
   Future<void> getFoldersFromFirestore() async {
-    final CollectionReference foldersCollection = FirebaseFirestore.instance.collection('folders');
-
+    final CollectionReference foldersCollection =
+        FirebaseFirestore.instance.collection('folders');
     final QuerySnapshot querySnapshot = await foldersCollection.get();
 
     setState(() {
@@ -83,8 +78,21 @@ class _HomeScreenState extends State<HomeScreen> {
                 'id': doc.id,
               })
           .toList();
+      userFolders =
+          folders.where((folder) => folder['userEmail'] == userEmail).toList();
+    });
+  }
 
-      userFolders = folders.where((folder) => folder['userEmail'] == userEmail).toList();
+  void toggleFavorite(int index) async {
+    String termId = userTerms[index]['id'];
+    bool isFavorite = userTerms[index]['favorite'] ?? false;
+
+    await FirebaseFirestore.instance
+        .collection('terms')
+        .doc(termId)
+        .update({'favorite': !isFavorite});
+    setState(() {
+      userTerms[index]['favorite'] = !isFavorite;
     });
   }
 
@@ -92,7 +100,7 @@ class _HomeScreenState extends State<HomeScreen> {
     widget.onTabTapped(3, initialTabIndex: 0);
   }
 
-  void _viewAllFolder(BuildContext context) {
+  void _viewAllFolders(BuildContext context) {
     widget.onTabTapped(3, initialTabIndex: 1);
   }
 
@@ -181,7 +189,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               horizontal: 16.0,
                             ),
                             filled: true,
-                            fillColor: Color.fromARGB(255, 255, 255, 255).withOpacity(0.8),
+                            fillColor: Color.fromARGB(255, 255, 255, 255)
+                                .withOpacity(0.8),
                             isDense: true,
                           ),
                           style: TextStyle(
@@ -206,7 +215,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           Text(
                             'Học phần',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold),
                           ),
                           ElevatedButton(
                             onPressed: () {
@@ -244,7 +254,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: EducationCard(
                               title: userTerm['title'] ?? 'No Title',
                               userName: userTerm['userName'] ?? 'No Username',
-                              count: userTerm['english'] != null ? userTerm['english'].length : 0,
+                              count: userTerm['english'] != null
+                                  ? userTerm['english'].length
+                                  : 0,
                               isFavorite: userTerm['favorite'] ?? false,
                               onFavoriteTap: () => toggleFavorite(index),
                             ),
@@ -260,7 +272,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           Text(
                             'Gợi ý học phần',
-                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),
@@ -286,12 +299,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               );
                             },
-                            child: EducationCard(
+                            child: EducationCardd(
                               title: similarTerm['title'] ?? 'No Title',
-                              userName: similarTerm['userName'] ?? 'No Username',
-                              count: similarTerm['english'] != null ? similarTerm['english'].length : 0,
+                              userName:
+                                  similarTerm['userName'] ?? 'No Username',
+                              count: similarTerm['english'] != null
+                                  ? similarTerm['english'].length
+                                  : 0,
                               isFavorite: similarTerm['favorite'] ?? false,
-                              onFavoriteTap: () {}, // Similar terms might not have the same favorite mechanism
+                              onFavoriteTap:
+                                  () {}, // Similar terms might not have the same favorite mechanism
                             ),
                           );
                         },
@@ -305,11 +322,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           Text(
                             'Thư mục',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold),
                           ),
                           ElevatedButton(
                             onPressed: () {
-                              _viewAllFolder(context);
+                              _viewAllFolders(context);
                             },
                             child: Text(
                               'Xem tất cả',
@@ -334,7 +352,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: FolderCard(
                               title: userFolder['title'] ?? 'No Title',
                               userName: userFolder['userName'] ?? 'No Username',
-                              count: userFolder['termIDs'] != null ? userFolder['termIDs'].length : 0,
+                              count: userFolder['termIDs'] != null
+                                  ? userFolder['termIDs'].length
+                                  : 0,
                             ),
                           );
                         },
@@ -388,7 +408,8 @@ class EducationCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       title,
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 20.0),
                     ),
                   ),
                   IconButton(
@@ -419,7 +440,97 @@ class EducationCard extends StatelessWidget {
                   Text(
                     '$userName   ',
                     style: TextStyle(
-                        color: const Color.fromARGB(255, 0, 0, 0), fontSize: 16),
+                      color: const Color.fromARGB(255, 0, 0, 0),
+                      fontSize: 16,
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.all(2.0),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16.0),
+                      border: Border.all(color: Colors.grey[400]!),
+                      color: Color.fromARGB(255, 210, 211, 212),
+                    ),
+                    child: Text(
+                      'Giáo viên',
+                      style: TextStyle(fontSize: 15, color: Colors.black),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class EducationCardd extends StatelessWidget {
+  final String title;
+  final String userName;
+  final int count;
+  final bool isFavorite;
+  final VoidCallback onFavoriteTap;
+
+  const EducationCardd({
+    Key? key,
+    required this.title,
+    required this.count,
+    required this.userName,
+    required this.isFavorite,
+    required this.onFavoriteTap,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 300,
+      margin: EdgeInsets.symmetric(horizontal: 8.0),
+      child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16.0),
+          side: BorderSide(color: Colors.grey[300]!),
+        ),
+        child: Container(
+          color: Colors.white,
+          padding: EdgeInsets.all(8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold, fontSize: 20.0),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 4),
+              Container(
+                padding: EdgeInsets.all(3.0),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16.0),
+                  border: Border.all(color: Colors.grey[400]!),
+                  color: Color.fromARGB(255, 199, 212, 252),
+                ),
+                child: Text(
+                  '$count thuật ngữ',
+                  style: TextStyle(fontSize: 15, color: Colors.black),
+                ),
+              ),
+              SizedBox(height: 30),
+              Row(
+                children: [
+                  Text(
+                    '$userName   ',
+                    style: TextStyle(
+                      color: const Color.fromARGB(255, 0, 0, 0),
+                      fontSize: 16,
+                    ),
                   ),
                   Container(
                     padding: EdgeInsets.all(2.0),
@@ -506,7 +617,9 @@ class FolderCard extends StatelessWidget {
                   Text(
                     '$userName   ',
                     style: TextStyle(
-                        color: const Color.fromARGB(255, 0, 0, 0), fontSize: 16),
+                      color: const Color.fromARGB(255, 0, 0, 0),
+                      fontSize: 16,
+                    ),
                   ),
                 ],
               ),
