@@ -79,6 +79,10 @@ class _AddTermScreenState extends State<AddTermScreen> {
         foregroundColor: Colors.white,
         actions: <Widget>[
           IconButton(
+            icon: Icon(Icons.add),
+            onPressed: _addNewField,
+          ),
+          IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
               Navigator.push(
@@ -106,7 +110,9 @@ class _AddTermScreenState extends State<AddTermScreen> {
                 'userEmail': userEmail,
                 'userName': userName,
                 'english': englishTerms.map((term) => term.trim()).toList(),
-                'vietnamese': vietnameseDefinitions.map((definition) => definition.trim()).toList(),
+                'vietnamese': vietnameseDefinitions
+                    .map((definition) => definition.trim())
+                    .toList(),
                 'visibility': _visibility,
               };
 
@@ -167,9 +173,7 @@ class _AddTermScreenState extends State<AddTermScreen> {
                 ],
               ),
             ),
-            const SizedBox(
-                      height:
-                          5.0),
+            const SizedBox(height: 5.0),
             TextField(
               controller: _titleController,
               decoration: InputDecoration(
@@ -212,9 +216,20 @@ class _AddTermScreenState extends State<AddTermScreen> {
                               ),
                               filled: true,
                               fillColor: Colors.grey[200],
-                              suffixIcon: IconButton(
-                                icon: const Icon(Icons.add),
-                                onPressed: _addNewField,
+                              suffixIcon: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    icon: Icon(Icons.delete),
+                                    onPressed: () {
+                                      _removeField(index);
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: Icon(Icons.add),
+                                    onPressed: _addNewField,
+                                  ),
+                                ],
                               ),
                             ),
                           ),

@@ -95,6 +95,7 @@ class _TermListScreenState extends State<TermListScreen> {
                           builder: (context) => CardListScreen(
                             cardterms: userterms,
                             indexterm: index,
+                            id: userterms[index]['id'],
                           ),
                         ),
                       );

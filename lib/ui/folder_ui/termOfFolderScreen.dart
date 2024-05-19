@@ -165,6 +165,7 @@ class _FolderListScreenState extends State<FolderListScreen> {
                         builder: (context) => CardListScreen(
                           cardterms: terms,
                           indexterm: index,
+                          id: terms[index]['id'],
                         ),
                       ),
                     );
