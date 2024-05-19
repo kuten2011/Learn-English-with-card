@@ -1,5 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:midtermm/ui/Service/settingTestScreen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class TestCardScreen extends StatefulWidget {
   final Map<String, dynamic> cards;
@@ -17,9 +19,12 @@ class _TestCardScreenState extends State<TestCardScreen>
   int correctAnswerIndex = 0;
   String msg = '';
   List<String> answers = [];
+  List<int> questionOrder = [];
   late AnimationController _animationController;
   late Animation<Color?> _colorTween;
   int? _wrongAnswerIndex;
+  bool _useVietnamese = false;
+  bool _shuffleQuestions = false;
 
   @override
   void initState() {
@@ -29,6 +34,16 @@ class _TestCardScreenState extends State<TestCardScreen>
       duration: const Duration(milliseconds: 300),
       vsync: this,
     );
+    _loadPreferences();
+  }
+
+  Future<void> _loadPreferences() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _useVietnamese = prefs.getBool('useVietnamese') ?? false;
+      _shuffleQuestions = prefs.getBool('shuffleQuestions') ?? false;
+      _updateCard();  // Update card when preferences change
+    });
   }
 
   @override
@@ -40,23 +55,33 @@ class _TestCardScreenState extends State<TestCardScreen>
   void _updateCard() {
     setState(() {
       card = widget.cards;
+      if (_shuffleQuestions) {
+        _shuffleQuestionOrder();
+      } else {
+        questionOrder = List<int>.generate(card['english'].length, (i) => i);
+      }
       _generateRandomAnswers();
     });
+  }
+
+  void _shuffleQuestionOrder() {
+    questionOrder = List<int>.generate(card['english'].length, (i) => i);
+    questionOrder.shuffle();
   }
 
   void _checkAnswer(bool isCorrect, int index) {
     if (isCorrect) {
       setState(() {
-        msg = 'Chính xác!';
+        msg = _useVietnamese ? 'Chính xác!' : 'Correct!';
         _animationController.forward(from: 0.0);
         _colorTween = ColorTween(begin: Colors.white, end: Colors.green)
             .animate(_animationController);
-        _wrongAnswerIndex = index; // Đặt lại _wrongAnswerIndex
+        _wrongAnswerIndex = index;
       });
       _delayAndMoveToNextCard();
     } else {
       setState(() {
-        msg = 'Hãy thử lại lần nữa';
+        msg = _useVietnamese ? 'Hãy thử lại lần nữa' : 'Try Again';
         _wrongAnswerIndex = index;
         _animationController.forward(from: 0.0);
         _colorTween = ColorTween(begin: Colors.white, end: Colors.red)
@@ -70,16 +95,13 @@ class _TestCardScreenState extends State<TestCardScreen>
   void _delayAndMoveToNextCard() {
     Future.delayed(Duration(seconds: 1), () {
       setState(() {
-        if (_currentIndex ==
-            widget.cards['english'].length - 1) {
+        if (_currentIndex == questionOrder.length - 1) {
           Navigator.of(context).pop();
         } else {
-          _currentIndex = (_currentIndex + 1) %
-              widget.cards['english'].length as int;
+          _currentIndex = (_currentIndex + 1) % questionOrder.length;
           _generateRandomAnswers();
           msg = '';
         }
-        // Đặt lại màu sau khi di chuyển đến thẻ tiếp theo
         _colorTween = ColorTween(
                 begin: Colors.white,
                 end: const Color.fromARGB(255, 255, 255, 255))
@@ -90,9 +112,10 @@ class _TestCardScreenState extends State<TestCardScreen>
 
   @override
   Widget build(BuildContext context) {
+    int currentQuestionIndex = questionOrder[_currentIndex];
     return Scaffold(
       appBar: AppBar(
-        title: Text('Kiểm tra'),
+        title: Text(_useVietnamese ? 'Kiểm tra' : 'Test'),
         centerTitle: true,
         backgroundColor: Color(0xFF4254FE),
         foregroundColor: Colors.white,
@@ -102,6 +125,17 @@ class _TestCardScreenState extends State<TestCardScreen>
             Navigator.of(context).pop();
           },
         ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.settings),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SettingTestScreen()),
+              ).then((_) => _loadPreferences());
+            },
+          ),
+        ],
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
             bottomLeft: Radius.circular(25),
@@ -117,14 +151,18 @@ class _TestCardScreenState extends State<TestCardScreen>
             Text(
               msg,
               style: TextStyle(
-                color: msg == 'Chính xác!' ? Colors.green : Colors.red,
+                color: msg == (_useVietnamese ? 'Chính xác!' : 'Correct!')
+                    ? Colors.green
+                    : Colors.red,
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
             ),
             SizedBox(height: 20),
             Text(
-              card['vietnamese'][_currentIndex] ?? 'No Vietnamese',
+              _useVietnamese
+                  ? card['vietnamese'][currentQuestionIndex]
+                  : card['english'][currentQuestionIndex],
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
@@ -173,18 +211,19 @@ class _TestCardScreenState extends State<TestCardScreen>
   }
 
   void _generateRandomAnswers() {
+    int currentQuestionIndex = questionOrder[_currentIndex];
     int answerCount = card['english'].length;
     int displayCount = min(answerCount, 4);
 
     correctAnswerIndex = Random().nextInt(displayCount);
     answers = List<String>.filled(displayCount, '', growable: false);
 
-    Set<int> usedIndices = {_currentIndex};
+    Set<int> usedIndices = {currentQuestionIndex};
 
-    // Place the correct answer at the correctAnswerIndex
-    answers[correctAnswerIndex] = card['english'][_currentIndex];
+    answers[correctAnswerIndex] = _useVietnamese
+        ? card['english'][currentQuestionIndex]
+        : card['vietnamese'][currentQuestionIndex];
 
-    // Fill other positions with random incorrect answers
     for (int i = 0; i < answers.length; i++) {
       if (i == correctAnswerIndex) continue;
 
@@ -193,7 +232,9 @@ class _TestCardScreenState extends State<TestCardScreen>
         randomIndex = Random().nextInt(card['english'].length);
       } while (usedIndices.contains(randomIndex));
 
-      answers[i] = card['english'][randomIndex];
+      answers[i] = _useVietnamese
+          ? card['english'][randomIndex]
+          : card['vietnamese'][randomIndex];
       usedIndices.add(randomIndex);
     }
   }
