@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:midtermm/ui/Service/settingPracticeScreen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PracticeScreen extends StatefulWidget {
   final Map<String, dynamic> cardterms;
 
-  PracticeScreen({
-    required this.cardterms,
-  });
+  PracticeScreen({required this.cardterms});
 
   @override
   _PracticeScreenState createState() => _PracticeScreenState();
@@ -16,23 +16,39 @@ class _PracticeScreenState extends State<PracticeScreen> {
   late TextEditingController _textEditingController;
   int _currentIndex = 0;
   int _countWord = 0;
-  String msg = '';
-  Color msgColor = Colors.black;
-
-  void _delayAndMoveToNextCard() {
-    Future.delayed(Duration(seconds: 1), () {
-      setState(() {
-        msg = '';
-      });
-    });
-  }
+  String _msg = '';
+  Color _msgColor = Colors.black;
+  bool _shuffleQuestions = false;
+  bool _useVietnamese = false;
+  List<int> _questionOrder = [];
 
   @override
   void initState() {
     super.initState();
     _focusNode = FocusNode();
     _textEditingController = TextEditingController();
+    _loadPreferences();
+    _initializeQuestions();
     Future.delayed(Duration.zero, () => _focusNode.requestFocus());
+  }
+
+  Future<void> _loadPreferences() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _shuffleQuestions = prefs.getBool('shufflePracticeQuestions') ?? false;
+      _useVietnamese = prefs.getBool('useVietnamesePractice') ?? false;
+      _initializeQuestions();
+    });
+  }
+
+  void _initializeQuestions() {
+    setState(() {
+      _questionOrder =
+          List<int>.generate(widget.cardterms['vietnamese'].length, (i) => i);
+      if (_shuffleQuestions) {
+        _questionOrder.shuffle();
+      }
+    });
   }
 
   @override
@@ -44,13 +60,11 @@ class _PracticeScreenState extends State<PracticeScreen> {
 
   void _handleNextCard() {
     _textEditingController.clear();
-    if (_countWord ==
-        widget.cardterms['vietnamese'].length - 1) {
+    if (_countWord == widget.cardterms['vietnamese'].length - 1) {
       Navigator.of(context).pop();
     } else {
       setState(() {
-        _currentIndex = (_currentIndex + 1) %
-            widget.cardterms['vietnamese'].length as int;
+        _currentIndex = (_currentIndex + 1) % widget.cardterms['vietnamese'].length as int;
         _countWord++;
       });
     }
@@ -58,33 +72,42 @@ class _PracticeScreenState extends State<PracticeScreen> {
 
   void _checkAnswer() {
     String input = _textEditingController.text.trim().toLowerCase();
-    if (input ==
-        widget.cardterms['english'][_currentIndex]
-            .toLowerCase()) {
-      setState(() {
-        msg = 'Chính xác!';
-        msgColor = Colors.green;
-      });
-      Future.delayed(Duration(milliseconds: 1000), () {
-        _handleNextCard();
-      });
+    String correctAnswer = widget.cardterms[_useVietnamese ? 'english' : 'vietnamese']
+        [_questionOrder[_currentIndex]].toLowerCase();
+    if (input == correctAnswer) {
+      _setFeedback('Correct!', Colors.green);
+      _delayAndMoveToNextCard();
     } else {
-      setState(() {
-        msg = 'Sai rồi! Hãy thử lại.';
-        msgColor = Colors.red;
-      });
+      _setFeedback('Incorrect! Try again.', Colors.red);
     }
-    _textEditingController.clear();
-    _delayAndMoveToNextCard();
+  }
+
+  void _setFeedback(String message, Color color) {
+    setState(() {
+      _msg = message;
+      _msgColor = color;
+    });
+  }
+
+  void _delayAndMoveToNextCard() {
+    Future.delayed(Duration(seconds: 1), () {
+      _setFeedback('', Colors.black);
+      _handleNextCard();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    int currentQuestionIndex = _questionOrder[_currentIndex];
+    String currentQuestion = _useVietnamese
+        ? widget.cardterms['vietnamese'][currentQuestionIndex]
+        : widget.cardterms['english'][currentQuestionIndex];
+    String hintText = _useVietnamese ? 'Enter in English' : 'Nhập tiếng Việt';
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Color(0xFF4254FE),
         foregroundColor: Colors.white,
-        title: Text('Luyện tập'),
+        title: Text('Practice'),
         centerTitle: true,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
@@ -92,6 +115,17 @@ class _PracticeScreenState extends State<PracticeScreen> {
             bottomRight: Radius.circular(25),
           ),
         ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.settings),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SettingPracticeScreen()),
+              ).then((_) => _loadPreferences());
+            },
+          ),
+        ],
       ),
       body: Center(
         child: SingleChildScrollView(
@@ -101,17 +135,16 @@ class _PracticeScreenState extends State<PracticeScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  msg,
+                  _msg,
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: msgColor,
+                    color: _msgColor,
                   ),
                 ),
                 SizedBox(height: 16.0),
                 Text(
-                  widget.cardterms['vietnamese']
-                      [_currentIndex],
+                  currentQuestion,
                   style: TextStyle(fontSize: 40.0, fontWeight: FontWeight.bold),
                 ),
                 SizedBox(height: 50),
@@ -127,11 +160,10 @@ class _PracticeScreenState extends State<PracticeScreen> {
                         child: TextField(
                           controller: _textEditingController,
                           focusNode: _focusNode,
-                          decoration: const InputDecoration(
-                            hintText: 'Nhập bằng tiếng Anh',
+                          decoration: InputDecoration(
+                            hintText: hintText,
                             border: InputBorder.none,
-                            contentPadding:
-                                EdgeInsets.symmetric(horizontal: 10.0),
+                            contentPadding: EdgeInsets.symmetric(horizontal: 10.0),
                           ),
                         ),
                       ),
