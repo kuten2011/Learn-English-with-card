@@ -3,6 +3,7 @@ import 'package:midtermm/ui/homepage_ui/homeScreen.dart';
 import 'package:midtermm/ui/homepage_ui/libraryScreen.dart';
 import 'package:midtermm/ui/homepage_ui/popUp.dart';
 import 'package:midtermm/ui/homepage_ui/settingScreen.dart';
+import 'package:midtermm/ui/homepage_ui/termFavoriteScreen.dart';
 
 class homepageScreen extends StatefulWidget {
   @override
@@ -18,7 +19,7 @@ class _MyHomePageState extends State<homepageScreen> {
     HomeScreen(
       onTabTapped: _onItemTapped,
     ),
-    Text('Lời Giải'),
+    TermFavoriteScreen(),
     Text('Thêm'),
     libraryScreen(initialTabIndex: initialTabIndex),
     settingScreen(),
@@ -63,9 +64,9 @@ class _MyHomePageState extends State<homepageScreen> {
                 label: 'Trang Chủ',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.lightbulb_outline),
+                icon: Icon(Icons.favorite),
                 backgroundColor: Color(0xFF4254FE),
-                label: 'Lời Giải',
+                label: 'Yêu thích',
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.add),

@@ -18,6 +18,7 @@ class _SettingScreenState extends State<settingScreen> {
   String userName = 'No Username';
   bool isLoading = true;
   bool soundEffects = true;
+  bool notification = true;
 
   @override
   void initState() {
@@ -31,6 +32,14 @@ class _SettingScreenState extends State<settingScreen> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       soundEffects = prefs.getBool('soundEffect') ?? false;
+    });
+  }
+
+  Future<void> _toggleNofication(bool value) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      notification = value;
+      prefs.setBool('nofication', notification);
     });
   }
 
@@ -166,10 +175,8 @@ class _SettingScreenState extends State<settingScreen> {
                               padding: const EdgeInsets.only(left: 10.0),
                               child: const Text('Push Notifications'),
                             ),
-                            value: false,
-                            onChanged: (bool value) {
-                              // Handle push notification toggle
-                            },
+                            value: notification,
+                            onChanged: _toggleNofication,
                           ),
                           buildDividerWithPadding(),
                           SwitchListTile(

@@ -18,14 +18,12 @@ class _HomeScreenState extends State<HomeScreen> {
   String tt = 'Học phần, Sách giáo khoa, Học phần, ...';
   late User? user;
   late String userEmail = 'No Email';
-  late String userName = 'No Username';
 
   List<Map<String, dynamic>> terms = [];
   List<Map<String, dynamic>> userTerms = [];
   List<Map<String, dynamic>> similarTerms = [];
   List<Map<String, dynamic>> folders = [];
   List<Map<String, dynamic>> userFolders = [];
-  List<String> favoriteTermIds = [];
 
   @override
   void initState() {
@@ -33,19 +31,28 @@ class _HomeScreenState extends State<HomeScreen> {
     initializeData();
   }
 
+  void toggleFavorite(int index) async {
+    String termId = userTerms[index]['id'];
+    bool isFavorite = userTerms[index]['favorite'] ?? false;
+
+    // Update favorite status in Firestore
+    await FirebaseFirestore.instance.collection('terms').doc(termId).update({'favorite': !isFavorite});
+
+    setState(() {
+      userTerms[index]['favorite'] = !isFavorite;
+    });
+  }
+
   Future<void> initializeData() async {
     await getUser();
     await getTermsFromFirestore();
     await getFoldersFromFirestore();
-    await fetchFavoritesAndUpdateTermIDs();
   }
 
   Future<void> getUser() async {
     user = FirebaseAuth.instance.currentUser;
     userEmail = user?.email ?? 'No Email';
-    userName = user?.displayName ?? 'No Username';
     print('Current User Email: $userEmail');
-    print('Current User Name: $userName');
   }
 
   Future<void> getTermsFromFirestore() async {
@@ -80,93 +87,6 @@ class _HomeScreenState extends State<HomeScreen> {
       userFolders = folders.where((folder) => folder['userEmail'] == userEmail).toList();
     });
   }
-
-  Future<void> fetchFavoritesAndUpdateTermIDs() async {
-    // Fetch the favorites collection for the current user
-    final CollectionReference favoritesCollection = FirebaseFirestore.instance.collection('favorites');
-    final QuerySnapshot querySnapshot = await favoritesCollection.where('userEmail', isEqualTo: userEmail).get();
-
-    if (querySnapshot.docs.isNotEmpty) {
-      final favoriteData = querySnapshot.docs.first.data() as Map<String, dynamic>;
-      if (favoriteData['userName'] == userName) {
-        setState(() {
-          favoriteTermIds = List<String>.from(favoriteData['termIDs']);
-        });
-
-        // Update the user's terms in Firestore to set them as favorites
-        for (String termId in favoriteTermIds) {
-          await FirebaseFirestore.instance.collection('terms').doc(termId).update({'favorite': true});
-        }
-      }
-    }
-  }
-
-  void toggleFavorite(int index) async {
-    String termId = userTerms[index]['id'];
-    bool isFavorite = userTerms[index]['favorite'] ?? false;
-
-    // Update favorite status in Firestore
-    await FirebaseFirestore.instance.collection('terms').doc(termId).update({'favorite': !isFavorite});
-
-    setState(() {
-      userTerms[index]['favorite'] = !isFavorite;
-
-      if (!isFavorite) {
-        favoriteTermIds.add(termId);
-      } else {
-        favoriteTermIds.remove(termId);
-      }
-
-      // Update the favorite collection in Firestore
-      FirebaseFirestore.instance.collection('favorites').doc(userEmail).set({
-        'userEmail': userEmail,
-        'userName': userName,
-        'termIDs': favoriteTermIds,
-      });
-    });
-  }
-  void getUser() {
-    user = FirebaseAuth.instance.currentUser;
-    userEmail = user?.email ?? 'No Email';
-  }
-
-  Future<void> getTermsFromFirestore() async {
-    final CollectionReference usersCollection =
-        FirebaseFirestore.instance.collection('users');
-
-    final QuerySnapshot querySnapshot = await usersCollection
-        .where('userEmail', isEqualTo: userEmail)
-        .limit(1)
-        .get();
-
-    if (querySnapshot.docs.isNotEmpty) {
-      final DocumentSnapshot userDoc = querySnapshot.docs.first;
-      setState(() {
-        userName = userDoc['userName'] ?? 'No Username';
-      });
-    } else {
-      setState(() {
-        userName = 'No Username Found';
-      });
-    }
-  }
-  
-  onPressed: () async {
-              final CollectionReference favorite =
-                  FirebaseFirestore.instance.collection('favorite');
-
-              List<String> termIDs = termIDController
-                  .map((controller) => controller.text)
-                  .where((text) => text.isNotEmpty)
-                  .toList();
-
-              Map<String, dynamic> data = {
-                'userEmail': userEmail,
-                'userName': userName,
-                'termIDs': termIDs,
-              };
-
-              await favorite.add(data);
 
   void _viewAllTerms(BuildContext context) {
     widget.onTabTapped(3, initialTabIndex: 0);
@@ -326,23 +246,21 @@ class _HomeScreenState extends State<HomeScreen> {
                               userName: userTerm['userName'] ?? 'No Username',
                               count: userTerm['english'] != null ? userTerm['english'].length : 0,
                               isFavorite: userTerm['favorite'] ?? false,
-                              onFavoriteTap: () {
-                                toggleFavorite(index);
-                              },
+                              onFavoriteTap: () => toggleFavorite(index),
                             ),
                           );
                         },
                       ),
                     ),
                     SizedBox(height: 8),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    const Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Tài liệu công khai',
-                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            'Gợi ý học phần',
+                            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),
@@ -461,7 +379,7 @@ class EducationCard extends StatelessWidget {
         ),
         child: Container(
           color: Colors.white,
-          padding: EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(8.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
