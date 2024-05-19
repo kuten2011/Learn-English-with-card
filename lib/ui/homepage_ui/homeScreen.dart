@@ -231,6 +231,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   builder: (context) => CardListScreen(
                                     cardterms: userTerms,
                                     indexterm: index,
+                                    id: userTerm['id'],
                                   ),
                                 ),
                               );
@@ -276,6 +277,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   builder: (context) => CardListScreen(
                                     cardterms: similarTerms,
                                     indexterm: index,
+                                    id: similarTerm['id'],
                                   ),
                                 ),
                               );

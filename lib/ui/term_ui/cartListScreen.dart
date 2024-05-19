@@ -5,14 +5,17 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:midtermm/ui/Service/studyCardScreen.dart';
 import 'package:midtermm/ui/Service/testCardScreen.dart';
 import 'package:midtermm/ui/Service/practiceScreen.dart';
+import 'package:midtermm/ui/term_ui/editTermScreen.dart';
 
 class CardListScreen extends StatefulWidget {
-  final List<Map<String, dynamic>> cardterms;
+  List<Map<String, dynamic>> cardterms;
   final int indexterm;
+  final String id;
 
   CardListScreen({
     required this.cardterms,
     required this.indexterm,
+    required this.id,
   });
 
   @override
@@ -23,12 +26,37 @@ class _CardListScreenState extends State<CardListScreen> {
   int currentPage = 0;
   final FlutterTts flutterTts = FlutterTts();
 
+  Map<String, dynamic> term = {"title": "", "english": [], "vietnamese": []};
+
   Future<void> speakWord(String? word) async {
     if (word != null) {
       await flutterTts.setLanguage('en-US');
       await flutterTts.setPitch(1);
       await flutterTts.setSpeechRate(0.5);
       await flutterTts.speak(word);
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getTermById();
+  }
+
+  void getTermById() async {
+    try {
+      var documentSnapshot = await FirebaseFirestore.instance
+          .collection('terms')
+          .doc(widget.id)
+          .get();
+
+      if (documentSnapshot.exists) {
+        setState(() {
+          term = documentSnapshot.data() as Map<String, dynamic>;
+        });
+      }
+    } catch (e) {
+      print("Error fetching term from Firestore: $e");
     }
   }
 
@@ -66,16 +94,9 @@ class _CardListScreenState extends State<CardListScreen> {
     );
   }
 
-  void onMerge() {
-    print('Ghép từ button pressed');
-  }
-
   @override
   Widget build(BuildContext context) {
-    List<Map<String, dynamic>> cardterms = widget.cardterms;
-
-    // Check if indexterm is within bounds
-    if (widget.indexterm < 0 || widget.indexterm >= cardterms.length) {
+    if (widget.indexterm < 0 || widget.indexterm >= widget.cardterms.length) {
       return Scaffold(
         body: Center(
           child: Text('Index out of bounds'),
@@ -85,7 +106,7 @@ class _CardListScreenState extends State<CardListScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(cardterms[widget.indexterm]["title"] ?? 'No Title'),
+        title: Text(term["title"] ?? 'No Title'),
         backgroundColor: Color(0xFF4254FE),
         foregroundColor: Colors.white,
         shape: RoundedRectangleBorder(
@@ -94,6 +115,25 @@ class _CardListScreenState extends State<CardListScreen> {
             bottomRight: Radius.circular(25),
           ),
         ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.edit),
+            onPressed: () async {
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => EditTermScreen(
+                    existingTerm: term,
+                    id: widget.cardterms[widget.indexterm]['id'],
+                  ),
+                ),
+              );
+              if (result != null && result) {
+                getTermById();
+              }
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -102,7 +142,7 @@ class _CardListScreenState extends State<CardListScreen> {
             Container(
               height: 200,
               child: PageView.builder(
-                itemCount: cardterms[widget.indexterm]["english"].length,
+                itemCount: term["english"].length,
                 controller: PageController(
                   initialPage: currentPage,
                   viewportFraction: 0.8,
@@ -112,32 +152,12 @@ class _CardListScreenState extends State<CardListScreen> {
                     currentPage = page;
                   });
                 },
-                itemBuilder: (context, indexterm) {
-                  int englishCount =
-                      cardterms[widget.indexterm]["english"].length;
-                  return PageView.builder(
-                    itemCount: englishCount,
-                    controller: PageController(
-                      initialPage: 0,
-                      viewportFraction: 0.8,
+                itemBuilder: (context, index) {
+                  return Center(
+                    child: FlipCard(
+                      frontChild: CardItem(term["english"][index] ?? 'No English'),
+                      backChild: CardItem(term["vietnamese"][index] ?? 'No Vietnamese'),
                     ),
-                    onPageChanged: (int page) {
-                      setState(() {
-                        currentPage = page;
-                      });
-                    },
-                    itemBuilder: (context, arrayindex) {
-                      return Center(
-                        child: FlipCard(
-                          frontChild: CardItem(cardterms[widget.indexterm]
-                                  ["english"][arrayindex] ??
-                              'No English'),
-                          backChild: CardItem(cardterms[widget.indexterm]
-                                  ["vietnamese"][arrayindex] ??
-                              'No Vietnamese'),
-                        ),
-                      );
-                    },
                   );
                 },
               ),
@@ -146,7 +166,7 @@ class _CardListScreenState extends State<CardListScreen> {
             Align(
               alignment: Alignment.center,
               child: Text(
-                '${currentPage + 1} of ${cardterms[widget.indexterm]["english"].length}',
+                '${currentPage + 1} of ${term["english"].length}',
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
             ),
@@ -161,7 +181,7 @@ class _CardListScreenState extends State<CardListScreen> {
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      print('Xem tất cả button pressed');
+                      print('Download button pressed');
                     },
                     child: Icon(
                       Icons.download,
@@ -189,7 +209,7 @@ class _CardListScreenState extends State<CardListScreen> {
                   ),
                   ElevatedButton.icon(
                     onPressed: () {
-                      print('Xem tất cả button pressed');
+                      print('Sort button pressed');
                     },
                     label: Text(
                       'Thứ tự gốc',
@@ -200,37 +220,27 @@ class _CardListScreenState extends State<CardListScreen> {
                 ],
               ),
             ),
-            for (int index = 0;
-                index < cardterms[widget.indexterm]['english'].length;
-                index++)
+            for (int index = 0; index < term['english'].length; index++)
               Dismissible(
                 key: UniqueKey(),
                 onDismissed: (direction) {
                   setState(() {
-                    // Xác định term cần xóa từ
-                    Map<String, dynamic> term = cardterms[widget.indexterm];
-                    // Xóa từ tiếng Anh và tiếng Việt tương ứng với chỉ mục index
-                    String deletedEnglishWord =
-                        cardterms[widget.indexterm]["english"][index];
-                    String deletedVietnameseWord =
-                        cardterms[widget.indexterm]["vietnamese"][index];
-                    cardterms[widget.indexterm]["english"].removeAt(index);
-                    cardterms[widget.indexterm]["vietnamese"].removeAt(index);
-                    // Xóa từ khỏi Firestore
+                    String deletedEnglishWord = term["english"][index];
+                    String deletedVietnameseWord = term["vietnamese"][index];
+                    term["english"].removeAt(index);
+                    term["vietnamese"].removeAt(index);
                     FirebaseFirestore.instance
                         .collection('terms')
-                        .doc(term['id'])
+                        .doc(widget.id)
                         .update({
-                          "english":
-                              FieldValue.arrayRemove([deletedEnglishWord]),
-                          "vietnamese":
-                              FieldValue.arrayRemove([deletedVietnameseWord])
+                          "english": FieldValue.arrayRemove([deletedEnglishWord]),
+                          "vietnamese": FieldValue.arrayRemove([deletedVietnameseWord])
                         })
-                        .then((_) => print("Xóa từ thành công!"))
-                        .catchError((error) => print("Lỗi khi xóa từ: $error"));
+                        .then((_) => print("Deleted successfully!"))
+                        .catchError((error) => print("Error deleting word: $error"));
                   });
                 },
-                direction: DismissDirection.endToStart, // Kéo từ phải sang trái
+                direction: DismissDirection.endToStart,
                 background: Container(
                   color: Colors.red,
                   child: Icon(Icons.delete),
@@ -263,15 +273,11 @@ class _CardListScreenState extends State<CardListScreen> {
                             children: <Widget>[
                               ListTile(
                                 title: Text(
-                                  cardterms[widget.indexterm]["english"]
-                                          [index] ??
-                                      'No English',
+                                  term["english"][index] ?? 'No English',
                                   style: TextStyle(color: Colors.black),
                                 ),
                                 subtitle: Text(
-                                  cardterms[widget.indexterm]["vietnamese"]
-                                          [index] ??
-                                      'No Vietnamese',
+                                  term["vietnamese"][index] ?? 'No Vietnamese',
                                   style: TextStyle(color: Colors.black),
                                 ),
                               ),
@@ -281,8 +287,7 @@ class _CardListScreenState extends State<CardListScreen> {
                         IconButton(
                           icon: Icon(Icons.volume_up),
                           onPressed: () {
-                            speakWord(
-                                cardterms[widget.indexterm]["english"][index]);
+                            speakWord(term["english"][index]);
                           },
                         ),
                       ],
@@ -312,7 +317,7 @@ class _CardListScreenState extends State<CardListScreen> {
           borderRadius: BorderRadius.circular(16.0),
           onTap: onPressed,
           child: Container(
-            height: 60, // Đặt chiều cao tùy ý
+            height: 60,
             padding: EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               children: [
