@@ -43,9 +43,8 @@ class _FolderListState extends State<FolderList> {
               })
           .toList();
 
-      userfolders = folders
-          .where((folder) => folder['userEmail'] == userEmail)
-          .toList();
+      userfolders =
+          folders.where((folder) => folder['userEmail'] == userEmail).toList();
     });
   }
 
@@ -55,7 +54,7 @@ class _FolderListState extends State<FolderList> {
         .collection('folders')
         .doc(userfolders[index]['id'])
         .delete();
-    
+
     setState(() {
       // Xóa thư mục khỏi danh sách userfolders
       userfolders.removeAt(index);
@@ -67,6 +66,7 @@ class _FolderListState extends State<FolderList> {
     return Scaffold(
       body: Column(
         children: [
+          SizedBox(height: 5),
           Expanded(
             child: ListView.builder(
               itemCount: userfolders.length,
@@ -92,7 +92,8 @@ class _FolderListState extends State<FolderList> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => FolderListScreen(folderId: folder['id']),
+                          builder: (context) =>
+                              FolderListScreen(folderId: folder['id']),
                         ),
                       );
                     },
@@ -146,7 +147,7 @@ class FolderCard extends StatelessWidget {
             side: BorderSide(color: Colors.grey[400]!), // Viền đen
           ),
           color: Colors.white,
-          margin: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 5.0),
+          margin: const EdgeInsets.symmetric(horizontal: 5.0),
           child: Padding(
             padding: const EdgeInsets.all(10.0),
             child: Column(
@@ -179,7 +180,8 @@ class FolderCard extends StatelessWidget {
                       ),
                       child: Text(
                         '$count học phần',
-                        style: const TextStyle(fontSize: 15, color: Colors.black),
+                        style:
+                            const TextStyle(fontSize: 15, color: Colors.black),
                       ),
                     ),
                     const SizedBox(width: 10),

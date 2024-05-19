@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/widgets.dart';
 import 'AddTermIntoFolder.dart';
 import 'EditFolderScreen.dart'; // Import the EditFolderScreen
 import '../term_ui/cartListScreen.dart';
@@ -122,6 +123,7 @@ class _FolderListScreenState extends State<FolderListScreen> {
       ),
       body: Column(
         children: <Widget>[
+          SizedBox(height: 10),
           Container(
             margin: const EdgeInsets.all(10.0),
             child: InkWell(
