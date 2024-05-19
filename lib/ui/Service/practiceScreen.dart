@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 
 class PracticeScreen extends StatefulWidget {
-  final List<Map<String, dynamic>> cardterms;
-  final int indexterm;
+  final Map<String, dynamic> cardterms;
 
   PracticeScreen({
     required this.cardterms,
-    required this.indexterm,
   });
 
   @override
@@ -47,12 +45,12 @@ class _PracticeScreenState extends State<PracticeScreen> {
   void _handleNextCard() {
     _textEditingController.clear();
     if (_countWord ==
-        widget.cardterms[widget.indexterm]['vietnamese'].length - 1) {
+        widget.cardterms['vietnamese'].length - 1) {
       Navigator.of(context).pop();
     } else {
       setState(() {
         _currentIndex = (_currentIndex + 1) %
-            widget.cardterms[widget.indexterm]['vietnamese'].length as int;
+            widget.cardterms['vietnamese'].length as int;
         _countWord++;
       });
     }
@@ -61,7 +59,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
   void _checkAnswer() {
     String input = _textEditingController.text.trim().toLowerCase();
     if (input ==
-        widget.cardterms[widget.indexterm]['english'][_currentIndex]
+        widget.cardterms['english'][_currentIndex]
             .toLowerCase()) {
       setState(() {
         msg = 'Chính xác!';
@@ -112,7 +110,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
                 ),
                 SizedBox(height: 16.0),
                 Text(
-                  widget.cardterms[widget.indexterm]['vietnamese']
+                  widget.cardterms['vietnamese']
                       [_currentIndex],
                   style: TextStyle(fontSize: 40.0, fontWeight: FontWeight.bold),
                 ),
