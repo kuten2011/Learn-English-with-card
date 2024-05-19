@@ -50,7 +50,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
     setState(() {
       terms = querySnapshot.docs
-          .map((doc) => doc.data() as Map<String, dynamic>)
+          .map((doc) => {
+                ...doc.data() as Map<String, dynamic>,
+                'id': doc.id, // Bao gồm id
+              })
           .toList();
       userTerms =
           terms.where((term) => term['userEmail'] == userEmail).toList();

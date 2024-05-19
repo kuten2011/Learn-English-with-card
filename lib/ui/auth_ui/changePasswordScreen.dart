@@ -22,6 +22,13 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       appBar: AppBar(
         title: Text('Change Password'),
         backgroundColor: Color(0xFF4254FE),
+        foregroundColor: Colors.white,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(25),
+            bottomRight: Radius.circular(25),
+          ),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -35,11 +42,13 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               decoration: InputDecoration(
                 labelText: 'Current Password',
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
+                  borderRadius: BorderRadius.circular(16.0),
                 ),
                 suffixIcon: IconButton(
                   icon: Icon(
-                    _currentPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                    _currentPasswordVisible
+                        ? Icons.visibility
+                        : Icons.visibility_off,
                     color: Color(0xFF4254FE),
                   ),
                   onPressed: () {
@@ -57,11 +66,13 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               decoration: InputDecoration(
                 labelText: 'New Password',
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
+                  borderRadius: BorderRadius.circular(16.0),
                 ),
                 suffixIcon: IconButton(
                   icon: Icon(
-                    _newPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                    _newPasswordVisible
+                        ? Icons.visibility
+                        : Icons.visibility_off,
                     color: Color(0xFF4254FE),
                   ),
                   onPressed: () {
@@ -79,11 +90,13 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               decoration: InputDecoration(
                 labelText: 'Confirm New Password',
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10.0),
+                  borderRadius: BorderRadius.circular(16.0),
                 ),
                 suffixIcon: IconButton(
                   icon: Icon(
-                    _confirmPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                    _confirmPasswordVisible
+                        ? Icons.visibility
+                        : Icons.visibility_off,
                     color: Color(0xFF4254FE),
                   ),
                   onPressed: () {
@@ -94,18 +107,24 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                 ),
               ),
             ),
-            SizedBox(height: 32),
+            SizedBox(height: 35),
             ElevatedButton(
               onPressed: () {
                 changePassword();
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Color(0xFF4254FE),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 16, horizontal: 32),
               ),
               child: Text(
-                'Change Password',
+                'Update',
                 style: TextStyle(
                   color: Colors.white,
+                  fontSize: 18,
                 ),
               ),
             ),
@@ -139,7 +158,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         showErrorMsg('User not found.');
       }
     } catch (e) {
-      showErrorMsg("Password change failed. Please check your current password.");
+      showErrorMsg(
+          "Password change failed. Please check your current password.");
     }
   }
 

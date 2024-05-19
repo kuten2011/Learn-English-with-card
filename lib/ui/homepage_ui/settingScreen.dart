@@ -101,63 +101,95 @@ class _SettingScreenState extends State<settingScreen> {
                       color: Color(0xFF4254FE),
                     ),
                   ),
-                  ListTile(
-                    leading: Icon(Icons.lock, color: Color(0xFF4254FE)),
-                    title: const Text('Change Password'),
-                    onTap: () {
-                      changePassword();
-                    },
-                  ),
-                  const Divider(),
-                  ListTile(
-                    leading: Icon(Icons.download_rounded, color: Color(0xFF4254FE)),
-                    title: const Text('Download Courses for Offline'),
-                    subtitle: const Text(
-                      'Your 8 most recently accessed courses will be automatically downloaded',
+                  Container(
+                    margin: const EdgeInsets.all(16.0),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey[300]!),
+                      borderRadius: BorderRadius.circular(25.0),
                     ),
-                    onTap: () {
-                      // Navigate to offline learning screen
-                    },
-                  ),
-                  const Divider(),
-                  ListTile(
-                    leading: Icon(Icons.storage, color: Color(0xFF4254FE)),
-                    title: const Text('Manage Storage'),
-                    onTap: () {
-                      // Navigate to storage management screen
-                    },
-                  ),
-                  const Divider(),
-                  SwitchListTile(
-                    activeColor: Color(0xFF4254FE),
-                    contentPadding: const EdgeInsets.all(8.0),
-                    title: const Text('Push Notifications'),
-                    value: false,
-                    onChanged: (bool value) {
-                      // Handle push notification toggle
-                    },
-                  ),
-                  const Divider(),
-                  SwitchListTile(
-                    activeColor: Color(0xFF4254FE),
-                    contentPadding: const EdgeInsets.all(8.0),
-                    title: const Text('Sound Effects'),
-                    value: true,
-                    onChanged: (bool value) {
-                      // Handle sound effects toggle
-                    },
-                  ),
-                  const Divider(),
-                  ListTile(
-                    leading: Icon(Icons.logout, color: Colors.redAccent),
-                    title: const Text('Logout'),
-                    onTap: () {
-                      signOut();
-                    },
+                    child: Card(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(25.0),
+                      ),
+                      elevation: 0,
+                      child: Column(
+                        children: [
+                          ListTile(
+                            leading: Icon(Icons.lock, color: Color(0xFF4254FE)),
+                            title: const Text('Change Password'),
+                            onTap: () {
+                              changePassword();
+                            },
+                          ),
+                          buildDividerWithPadding(),
+                          ListTile(
+                            leading: Icon(Icons.download_rounded, color: Color(0xFF4254FE)),
+                            title: const Text('Download Courses for Offline'),
+                            subtitle: const Text(
+                              'Your 8 most recently accessed courses will be automatically downloaded',
+                            ),
+                            onTap: () {
+                              // Navigate to offline learning screen
+                            },
+                          ),
+                          buildDividerWithPadding(),
+                          ListTile(
+                            leading: Icon(Icons.storage, color: Color(0xFF4254FE)),
+                            title: const Text('Manage Storage'),
+                            onTap: () {
+                              // Navigate to storage management screen
+                            },
+                          ),
+                          buildDividerWithPadding(),
+                          SwitchListTile(
+                            activeColor: Color(0xFF4254FE),
+                            contentPadding: const EdgeInsets.all(8.0),
+                            title: Padding(
+                              padding: const EdgeInsets.only(left: 10.0),
+                              child: const Text('Push Notifications'),
+                            ),
+                            value: false,
+                            onChanged: (bool value) {
+                              // Handle push notification toggle
+                            },
+                          ),
+                          buildDividerWithPadding(),
+                          SwitchListTile(
+                            activeColor: Color(0xFF4254FE),
+                            contentPadding: const EdgeInsets.all(8.0),
+                            title: Padding(
+                              padding: const EdgeInsets.only(left: 10.0),
+                              child: const Text('Sound Effects'),
+                            ),
+                            value: true,
+                            onChanged: (bool value) {
+                              // Handle sound effects toggle
+                            },
+                          ),
+                          buildDividerWithPadding(),
+                          ListTile(
+                            leading: Icon(Icons.logout, color: Colors.redAccent),
+                            title: const Text('Logout'),
+                            onTap: () {
+                              signOut();
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                 ],
               ),
             ),
+    );
+  }
+
+  Widget buildDividerWithPadding() {
+    return Row(
+      children: [
+        SizedBox(width: 55), // adjust the width as needed
+        Expanded(child: Divider()),
+      ],
     );
   }
 
