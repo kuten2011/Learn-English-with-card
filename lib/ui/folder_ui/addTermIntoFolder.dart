@@ -25,8 +25,7 @@ class _AddTermIntoFolderState extends State<AddTermIntoFolder> {
   List<Map<String, dynamic>> terms = [];
   List<Map<String, dynamic>> userTerms = [];
   List<String> selectedTermIds = [];
-  List<String> termsInFolder =
-      []; // Danh sách ID của các học phần đã được thêm vào thư mục
+  List<String> termsInFolder = []; // Danh sách ID của các học phần đã được thêm vào thư mục
 
   Future<void> getUser() async {
     user = FirebaseAuth.instance.currentUser;
@@ -35,8 +34,7 @@ class _AddTermIntoFolderState extends State<AddTermIntoFolder> {
   }
 
   Future<void> getTermsFromFirestore() async {
-    final CollectionReference termsCollection =
-        FirebaseFirestore.instance.collection('terms');
+    final CollectionReference termsCollection = FirebaseFirestore.instance.collection('terms');
 
     final QuerySnapshot querySnapshot = await termsCollection.get();
 
@@ -48,27 +46,21 @@ class _AddTermIntoFolderState extends State<AddTermIntoFolder> {
               })
           .toList();
 
-      userTerms =
-          terms.where((term) => term['userEmail'] == userEmail).toList();
+      userTerms = terms.where((term) => term['userEmail'] == userEmail).toList();
       print('Filtered terms: $userTerms'); // Debug output
     });
 
     // Lấy danh sách ID của các học phần đã được thêm vào thư mục
-    final folderDocument =
-        FirebaseFirestore.instance.collection('folders').doc(widget.folderId);
+    final folderDocument = FirebaseFirestore.instance.collection('folders').doc(widget.folderId);
     final folderSnapshot = await folderDocument.get();
     setState(() {
-      termsInFolder =
-          List<String>.from(folderSnapshot.data()?['termIDs'] ?? []);
+      termsInFolder = List<String>.from(folderSnapshot.data()?['termIDs'] ?? []);
     });
   }
 
   void removeTerm(int index) async {
     // Handle item deletion
-    await FirebaseFirestore.instance
-        .collection('terms')
-        .doc(userTerms[index]['id'])
-        .delete();
+    await FirebaseFirestore.instance.collection('terms').doc(userTerms[index]['id']).delete();
     setState(() {
       // Remove item from userTerms list
       userTerms.removeAt(index);
@@ -76,11 +68,22 @@ class _AddTermIntoFolderState extends State<AddTermIntoFolder> {
   }
 
   Future<void> updateFolderWithTerms() async {
-    final folderDocument =
-        FirebaseFirestore.instance.collection('folders').doc(widget.folderId);
+    final folderDocument = FirebaseFirestore.instance.collection('folders').doc(widget.folderId);
 
     await folderDocument.update({
       'termIDs': FieldValue.arrayUnion(selectedTermIds),
+    });
+  }
+
+  Future<void> removeTermsFromFolder(List<String> termIdsToRemove) async {
+    final folderDocument = FirebaseFirestore.instance.collection('folders').doc(widget.folderId);
+
+    await folderDocument.update({
+      'termIDs': FieldValue.arrayRemove(termIdsToRemove),
+    });
+
+    setState(() {
+      termsInFolder.removeWhere((id) => termIdsToRemove.contains(id));
     });
   }
 
@@ -111,8 +114,7 @@ class _AddTermIntoFolderState extends State<AddTermIntoFolder> {
             onPressed: () async {
               // Handle done button press
               await updateFolderWithTerms();
-              Navigator.pop(
-                  context); // Example: simply go back to the previous screen
+              Navigator.pop(context, true); // Example: simply go back to the previous screen
             },
             child: Row(
               children: [
@@ -130,8 +132,7 @@ class _AddTermIntoFolderState extends State<AddTermIntoFolder> {
               itemCount: userTerms.length,
               itemBuilder: (BuildContext context, int index) {
                 final term = userTerms[index];
-                final isInFolder = termsInFolder.contains(term[
-                    'id']); // Kiểm tra xem học phần đã được thêm vào thư mục hay chưa
+                final isInFolder = termsInFolder.contains(term['id']); // Kiểm tra xem học phần đã được thêm vào thư mục hay chưa
                 return Dismissible(
                   key: Key(term['id']),
                   direction: DismissDirection.none,
@@ -160,8 +161,10 @@ class _AddTermIntoFolderState extends State<AddTermIntoFolder> {
                         }
                       });
                     },
-                    isInFolder:
-                        isInFolder, // Truyền giá trị isInFolder cho Term
+                    isInFolder: isInFolder,
+                    onRemove: () async {
+                      await removeTermsFromFolder([term['id']]);
+                    },
                   ),
                 );
               },
@@ -180,6 +183,7 @@ class Term extends StatefulWidget {
   final double? width;
   final ValueChanged<bool> onSelected;
   final bool isInFolder;
+  final VoidCallback onRemove;
 
   const Term({
     Key? key,
@@ -189,6 +193,7 @@ class Term extends StatefulWidget {
     this.width,
     required this.onSelected,
     required this.isInFolder,
+    required this.onRemove,
   }) : super(key: key);
 
   @override
@@ -202,7 +207,9 @@ class _TermState extends State<Term> {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        if (!widget.isInFolder) {
+        if (widget.isInFolder) {
+          widget.onRemove();
+        } else {
           setState(() {
             _isSelected = !_isSelected;
           });
@@ -215,16 +222,16 @@ class _TermState extends State<Term> {
         child: Card(
           shape: RoundedRectangleBorder(
             side: BorderSide(
-              color: widget.isInFolder
-                  ? Colors.grey[400]!
-                  : (_isSelected ? Colors.blue : Colors.grey[400]!),
+              color: widget.isInFolder || _isSelected
+                  ? const Color(0xFF4254FE) // Use the same color for terms in the folder and selected terms
+                  : Colors.grey[400]!,
               width: 1,
             ),
             borderRadius: BorderRadius.circular(16),
           ),
-          color: widget.isInFolder
-              ? Colors.grey[200]
-              : (_isSelected ? Colors.blue[50] : Colors.white),
+          color: widget.isInFolder || _isSelected
+              ? Colors.blue[50] // Use the same background color for terms in the folder and selected terms
+              : Colors.white,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(

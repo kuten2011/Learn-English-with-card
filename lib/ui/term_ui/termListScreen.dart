@@ -46,7 +46,7 @@ class _TermListScreenState extends State<TermListScreen> {
 
       userterms =
           terms.where((subject) => subject['userEmail'] == userEmail).toList();
-      print('Filtered terms: $userterms'); // Debug output
+      //print('Filtered terms: $userterms'); // Debug output
     });
   }
 

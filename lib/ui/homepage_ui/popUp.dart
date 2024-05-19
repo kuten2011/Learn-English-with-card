@@ -20,7 +20,7 @@ class AddMenuPopup extends StatelessWidget {
         children: <Widget>[
           ListTile(
             leading: Icon(Icons.book_outlined, color: Color(0xFF4254FE)),
-            title: Text('Học phần', style: TextStyle(color: Colors.grey)),
+            title: Text('Học phần', style: TextStyle(color: Color(0xFF4254FE))),
             onTap: () {
               // Xử lý khi nhấn "Học phần"
               Navigator.push(
@@ -32,7 +32,7 @@ class AddMenuPopup extends StatelessWidget {
           Divider(),
           ListTile(
             leading: Icon(Icons.folder_outlined, color: Color(0xFF4254FE)),
-            title: Text('Thư mục', style: TextStyle(color: Colors.grey)),
+            title: Text('Thư mục', style: TextStyle(color: Color(0xFF4254FE))),
             onTap: () {
               // Xử lý khi nhấn "Thư mục"
               Navigator.push(

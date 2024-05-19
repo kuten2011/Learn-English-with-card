@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:midtermm/ui/folder_ui/addFolderScreen.dart';
 import 'termOfFolderScreen.dart';
 
 class FolderList extends StatefulWidget {
@@ -107,6 +108,22 @@ class _FolderListState extends State<FolderList> {
             ),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Color(0xFF4254FE),
+        foregroundColor: Colors.white,
+        onPressed: () async {
+          // Chờ cho trang AddTermScreen được đóng và cập nhật danh sách thuật ngữ sau khi quay lại
+          await Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => AddFolderScreen()),
+          );
+          setState(() {
+            // Tải lại danh sách thuật ngữ
+            getFoldersFromFirestore();
+          });
+        },
+        child: Icon(Icons.add),
       ),
     );
   }

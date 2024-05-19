@@ -30,19 +30,19 @@ class _libraryScreenState extends State<libraryScreen>
     });
   }
 
-  void _onAddButtonPressed() {
-    if (_tabController.index == 0) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => AddTermScreen()),
-      );
-    } else if (_tabController.index == 1) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => AddFolderScreen()),
-      );
-    }
-  }
+  // void _onAddButtonPressed() {
+  //   if (_tabController.index == 0) {
+  //     Navigator.push(
+  //       context,
+  //       MaterialPageRoute(builder: (context) => AddTermScreen()),
+  //     );
+  //   } else if (_tabController.index == 1) {
+  //     Navigator.push(
+  //       context,
+  //       MaterialPageRoute(builder: (context) => AddFolderScreen()),
+  //     );
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -52,14 +52,14 @@ class _libraryScreenState extends State<libraryScreen>
         title: Text('Thư viện'),
         backgroundColor: Color(0xFF4254FE),
         foregroundColor: Colors.white,
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: () {
-              _onAddButtonPressed();
-            },
-          ),
-        ],
+        // actions: <Widget>[
+        //   IconButton(
+        //     icon: Icon(Icons.add),
+        //     onPressed: () {
+        //       _onAddButtonPressed();
+        //     },
+        //   ),
+        // ],
         bottom: TabBar(
           labelColor: Colors.white,
           unselectedLabelColor: Colors.grey[400],

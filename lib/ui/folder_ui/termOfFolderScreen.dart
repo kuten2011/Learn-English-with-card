@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'AddTermIntoFolder.dart';
+import 'EditFolderScreen.dart'; // Import the EditFolderScreen
 import '../term_ui/cartListScreen.dart';
 
 class FolderListScreen extends StatefulWidget {
@@ -14,13 +15,13 @@ class FolderListScreen extends StatefulWidget {
 
 class _FolderListScreenState extends State<FolderListScreen> {
   List<Map<String, dynamic>> terms = [];
-  String folderTitle = ''; // Biến để lưu trữ title của folder
+  String folderTitle = '';
 
   @override
   void initState() {
     super.initState();
     fetchTerms();
-    fetchFolderTitle(); // Gọi hàm để lấy title từ Firestore khi widget được khởi tạo
+    fetchFolderTitle();
   }
 
   Future<void> fetchTerms() async {
@@ -68,57 +69,6 @@ class _FolderListScreenState extends State<FolderListScreen> {
     }
   }
 
-  void _showPopupMenu(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (BuildContext context) {
-        return Container(
-          margin: const EdgeInsets.all(10.0),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(25.0),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ListTile(
-                leading: const Icon(Icons.folder_shared),
-                title: const Text('Sửa thư mục'),
-                onTap: () {
-                  Navigator.pop(context);
-                  // Handle action for 'Sửa thư mục'
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.plus_one_rounded),
-                title: const Text('Thêm học phần'),
-                onTap: () {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          AddTermIntoFolder(folderId: widget.folderId),
-                    ),
-                  );
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.cancel),
-                title: const Text('Hủy'),
-                onTap: () {
-                  Navigator.pop(context);
-                  // Handle action for 'Hủy'
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
   void _deleteTerm(String termId) async {
     try {
       await FirebaseFirestore.instance
@@ -145,39 +95,61 @@ class _FolderListScreenState extends State<FolderListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(folderTitle), // Sử dụng title từ Firestore cho AppBar
+        title: Text(folderTitle),
         backgroundColor: const Color(0xFF4254FE),
         foregroundColor: Colors.white,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.more_vert),
-            onPressed: () {
-              _showPopupMenu(context);
-            },
-          ),
-        ],
-        shape: RoundedRectangleBorder(
+        shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
             bottomLeft: Radius.circular(25),
             bottomRight: Radius.circular(25),
           ),
         ),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.settings),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => EditFolderScreen(
+                      folderIdEdit: widget
+                          .folderId), // Update the parameter name to folderId
+                ),
+              );
+            },
+          ),
+        ],
       ),
       body: Column(
         children: <Widget>[
           Container(
             margin: const EdgeInsets.all(10.0),
-            child: Card(
-              color: const Color(0xFF4254FE), // Card's background color
-              child: ListTile(
-                title: const Text(
-                  'Học thư mục này',
-                  style: TextStyle(color: Colors.white),
-                  textAlign: TextAlign.center,
+            child: InkWell(
+              onTap: () async {
+                bool? result = await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        AddTermIntoFolder(folderId: widget.folderId),
+                  ),
+                );
+                if (result == true) {
+                  fetchTerms();
+                }
+              },
+              child: Container(
+                width: 50, // Equal width and height for a square shape
+                height: 50,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF4254FE),
+                  borderRadius: BorderRadius.circular(10),
                 ),
-                onTap: () {
-                  // Handle action when card is pressed
-                },
+                child: const Center(
+                  child: Icon(
+                    Icons.add,
+                    color: Colors.white,
+                  ),
+                ),
               ),
             ),
           ),
@@ -205,9 +177,9 @@ class _FolderListScreenState extends State<FolderListScreen> {
                     },
                     background: Container(
                       alignment: Alignment.centerRight,
-                      padding: EdgeInsets.only(right: 20.0),
+                      padding: const EdgeInsets.only(right: 20.0),
                       color: Colors.red,
-                      child: Icon(Icons.delete, color: Colors.white),
+                      child: const Icon(Icons.delete, color: Colors.white),
                     ),
                     child: TermList(
                       title: terms[index]['title'] ?? 'No Title',
@@ -242,11 +214,10 @@ class TermList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Lấy kích thước chiều rộng của màn hình
     double screenWidth = MediaQuery.of(context).size.width;
 
     return Container(
-      width: screenWidth, // Sử dụng chiều rộng của màn hình cho mỗi mục term
+      width: screenWidth,
       margin: const EdgeInsets.only(left: 9, right: 9, top: 9),
       child: Card(
         shape: RoundedRectangleBorder(
