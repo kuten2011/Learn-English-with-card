@@ -2,10 +2,9 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 class TestCardScreen extends StatefulWidget {
-  final List<Map<String, dynamic>> cards;
-  final int indexterm;
+  final Map<String, dynamic> cards;
 
-  TestCardScreen({required this.cards, required this.indexterm});
+  TestCardScreen({required this.cards});
 
   @override
   _TestCardScreenState createState() => _TestCardScreenState();
@@ -40,7 +39,7 @@ class _TestCardScreenState extends State<TestCardScreen>
 
   void _updateCard() {
     setState(() {
-      card = widget.cards[widget.indexterm];
+      card = widget.cards;
       _generateRandomAnswers();
     });
   }
@@ -72,11 +71,11 @@ class _TestCardScreenState extends State<TestCardScreen>
     Future.delayed(Duration(seconds: 1), () {
       setState(() {
         if (_currentIndex ==
-            widget.cards[widget.indexterm]['english'].length - 1) {
+            widget.cards['english'].length - 1) {
           Navigator.of(context).pop();
         } else {
           _currentIndex = (_currentIndex + 1) %
-              widget.cards[widget.indexterm]['english'].length as int;
+              widget.cards['english'].length as int;
           _generateRandomAnswers();
           msg = '';
         }

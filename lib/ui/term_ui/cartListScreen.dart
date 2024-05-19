@@ -65,7 +65,7 @@ class _CardListScreenState extends State<CardListScreen> {
       context,
       MaterialPageRoute(
         builder: (context) => StudyCardScreen(
-            cards: widget.cardterms, indexterm: widget.indexterm),
+            card: term),
       ),
     );
   }
@@ -76,8 +76,7 @@ class _CardListScreenState extends State<CardListScreen> {
       MaterialPageRoute(
         builder: (context) => Material(
           child: PracticeScreen(
-            cardterms: widget.cardterms,
-            indexterm: widget.indexterm,
+            cardterms: term,
           ),
         ),
       ),
@@ -89,7 +88,7 @@ class _CardListScreenState extends State<CardListScreen> {
       context,
       MaterialPageRoute(
         builder: (context) => TestCardScreen(
-            cards: widget.cardterms, indexterm: widget.indexterm),
+            cards: term),
       ),
     );
   }

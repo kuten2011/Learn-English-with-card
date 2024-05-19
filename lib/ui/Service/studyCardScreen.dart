@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 
 class StudyCardScreen extends StatelessWidget {
-  final List<Map<String, dynamic>> cards;
-  final int indexterm;
+  final Map<String, dynamic> card;
 
-  StudyCardScreen({required this.cards, required this.indexterm});
+  StudyCardScreen({required this.card});
 
   @override
   Widget build(BuildContext context) {
-    // Accessing card list inside the build method
-    Map card = cards[indexterm];
 
     return Scaffold(
       appBar: AppBar(
