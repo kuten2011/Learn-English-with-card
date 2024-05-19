@@ -10,8 +10,10 @@ class FolderList extends StatefulWidget {
 }
 
 class _FolderListState extends State<FolderList> {
-  late User? user;
+  User? user;
   String userEmail = 'No Email';
+  List<Map<String, dynamic>> folders = [];
+  List<Map<String, dynamic>> userfolders = [];
 
   @override
   void initState() {
@@ -21,42 +23,28 @@ class _FolderListState extends State<FolderList> {
     });
   }
 
-  List<Map<String, dynamic>> folders = [];
-  List<Map<String, dynamic>> userfolders = [];
-
   Future<void> getUser() async {
     user = FirebaseAuth.instance.currentUser;
     userEmail = user?.email ?? 'No Email';
   }
 
   Future<void> getFoldersFromFirestore() async {
-    final CollectionReference foldersCollection =
-        FirebaseFirestore.instance.collection('folders');
-
+    final CollectionReference foldersCollection = FirebaseFirestore.instance.collection('folders');
     final QuerySnapshot querySnapshot = await foldersCollection.get();
 
     setState(() {
-      folders = querySnapshot.docs
-          .map((doc) => {
-                ...doc.data() as Map<String, dynamic>,
-                'id': doc.id, // Thêm ID cho mỗi mục
-              })
-          .toList();
+      folders = querySnapshot.docs.map((doc) => {
+        ...doc.data() as Map<String, dynamic>,
+        'id': doc.id,
+      }).toList();
 
-      userfolders =
-          folders.where((folder) => folder['userEmail'] == userEmail).toList();
+      userfolders = folders.where((folder) => folder['userEmail'] == userEmail).toList();
     });
   }
 
   void removeFolder(int index) async {
-    // Xóa thư mục khỏi Firestore
-    await FirebaseFirestore.instance
-        .collection('folders')
-        .doc(userfolders[index]['id'])
-        .delete();
-
+    await FirebaseFirestore.instance.collection('folders').doc(userfolders[index]['id']).delete();
     setState(() {
-      // Xóa thư mục khỏi danh sách userfolders
       userfolders.removeAt(index);
     });
   }
@@ -88,20 +76,18 @@ class _FolderListState extends State<FolderList> {
                     ),
                   ),
                   child: InkWell(
-                    onTap: () {
-                      Navigator.push(
+                    onTap: () async {
+                      await Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              FolderListScreen(folderId: folder['id']),
+                          builder: (context) => FolderListScreen(folderId: folder['id']),
                         ),
                       );
+                      getFoldersFromFirestore();
                     },
                     child: FolderCard(
                       folder: folder,
-                      count: folder['termIDs'] != null
-                          ? folder['termIDs'].length
-                          : 0,
+                      count: folder['termIDs'] != null ? folder['termIDs'].length : 0,
                     ),
                   ),
                 );
@@ -114,15 +100,11 @@ class _FolderListState extends State<FolderList> {
         backgroundColor: Color(0xFF4254FE),
         foregroundColor: Colors.white,
         onPressed: () async {
-          // Chờ cho trang AddTermScreen được đóng và cập nhật danh sách thuật ngữ sau khi quay lại
           await Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => AddFolderScreen()),
           );
-          setState(() {
-            // Tải lại danh sách thuật ngữ
-            getFoldersFromFirestore();
-          });
+          getFoldersFromFirestore();
         },
         child: Icon(Icons.add),
       ),
@@ -144,7 +126,7 @@ class FolderCard extends StatelessWidget {
         child: Card(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16.0),
-            side: BorderSide(color: Colors.grey[400]!), // Viền đen
+            side: BorderSide(color: Colors.grey[400]!),
           ),
           color: Colors.white,
           margin: const EdgeInsets.symmetric(horizontal: 5.0),
@@ -180,8 +162,7 @@ class FolderCard extends StatelessWidget {
                       ),
                       child: Text(
                         '$count học phần',
-                        style:
-                            const TextStyle(fontSize: 15, color: Colors.black),
+                        style: const TextStyle(fontSize: 15, color: Colors.black),
                       ),
                     ),
                     const SizedBox(width: 10),

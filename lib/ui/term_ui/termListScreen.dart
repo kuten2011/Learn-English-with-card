@@ -2,7 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'cartListScreen.dart';
-import 'addTermScreen.dart'; // Import AddTermScreen
+import 'addTermScreen.dart';
 
 class TermListScreen extends StatefulWidget {
   @override
@@ -10,61 +10,47 @@ class TermListScreen extends StatefulWidget {
 }
 
 class _TermListScreenState extends State<TermListScreen> {
-  late User? user;
+  User? user;
   String userEmail = 'No Email';
+  List<Map<String, dynamic>> terms = [];
+  List<Map<String, dynamic>> userterms = [];
 
   @override
   void initState() {
     super.initState();
-    getUser().then((_) {
-      getTermsFromFirestore();
-    });
+    getUser().then((_) => getTermsFromFirestore());
   }
-
-  List<Map<String, dynamic>> terms = [];
-  List<Map<String, dynamic>> userterms = [];
 
   Future<void> getUser() async {
     user = FirebaseAuth.instance.currentUser;
     userEmail = user?.email ?? 'No Email';
-    print('Current User Email: $userEmail'); // Debug output
+    print('Current User Email: $userEmail');
   }
 
   Future<void> getTermsFromFirestore() async {
-    final CollectionReference termsCollection =
-        FirebaseFirestore.instance.collection('terms');
-
+    final CollectionReference termsCollection = FirebaseFirestore.instance.collection('terms');
     final QuerySnapshot querySnapshot = await termsCollection.get();
 
     setState(() {
-      terms = querySnapshot.docs
-          .map((doc) => {
-                ...doc.data() as Map<String, dynamic>,
-                'id': doc.id, // Thêm ID cho mỗi mục
-              })
-          .toList();
+      terms = querySnapshot.docs.map((doc) => {
+        ...doc.data() as Map<String, dynamic>,
+        'id': doc.id,
+      }).toList();
 
-      userterms =
-          terms.where((subject) => subject['userEmail'] == userEmail).toList();
-      //print('Filtered terms: $userterms'); // Debug output
+      userterms = terms.where((term) => term['userEmail'] == userEmail).toList();
+      print('Filtered terms: $userterms');
     });
   }
 
   void removeTerm(int index) async {
-    // Xử lý khi mục bị xóa
-    await FirebaseFirestore.instance
-        .collection('terms')
-        .doc(userterms[index]['id'])
-        .delete();
+    await FirebaseFirestore.instance.collection('terms').doc(userterms[index]['id']).delete();
     setState(() {
-      // Xóa mục khỏi danh sách userterms
       userterms.removeAt(index);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // Lấy kích thước chiều rộng của màn hình
     double screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
@@ -75,21 +61,19 @@ class _TermListScreenState extends State<TermListScreen> {
               itemCount: userterms.length,
               itemBuilder: (BuildContext context, int index) {
                 return Dismissible(
-                  key:
-                      UniqueKey(), // Đảm bảo tính duy nhất của mỗi mục trong danh sách
-                  direction: DismissDirection
-                      .endToStart, // Lướt từ phải sang trái để xóa
+                  key: UniqueKey(),
+                  direction: DismissDirection.endToStart,
                   onDismissed: (direction) {
                     removeTerm(index);
                   },
                   background: Container(
                     alignment: Alignment.centerRight,
-                    color: Colors.red, // Màu nền khi lướt để xóa
-                    child: Icon(Icons.delete, color: Colors.white), // Icon xóa
+                    color: Colors.red,
+                    child: Icon(Icons.delete, color: Colors.white),
                   ),
                   child: InkWell(
-                    onTap: () {
-                      Navigator.push(
+                    onTap: () async {
+                      await Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => CardListScreen(
@@ -99,14 +83,12 @@ class _TermListScreenState extends State<TermListScreen> {
                           ),
                         ),
                       );
+                      getTermsFromFirestore();
                     },
                     child: Term(
                       title: userterms[index]['title'] ?? 'No Title',
                       name: userterms[index]['userName'] ?? 'No Name',
-                      count: userterms[index]['english'] != null
-                          ? userterms[index]['english'].length
-                          : 0,
-                      // Gán chiều rộng của thẻ bằng kích thước chiều rộng của màn hình
+                      count: userterms[index]['english']?.length ?? 0,
                       width: screenWidth,
                     ),
                   ),
@@ -120,15 +102,11 @@ class _TermListScreenState extends State<TermListScreen> {
         backgroundColor: Color(0xFF4254FE),
         foregroundColor: Colors.white,
         onPressed: () async {
-          // Chờ cho trang AddTermScreen được đóng và cập nhật danh sách thuật ngữ sau khi quay lại
           await Navigator.push(
             context,
             MaterialPageRoute(builder: (context) => AddTermScreen()),
           );
-          setState(() {
-            // Tải lại danh sách thuật ngữ
-            getTermsFromFirestore();
-          });
+          getTermsFromFirestore();
         },
         child: Icon(Icons.add),
       ),
@@ -140,21 +118,21 @@ class Term extends StatelessWidget {
   final String title;
   final int count;
   final String name;
-  final double? width; // Thêm thuộc tính width
+  final double? width;
 
   const Term({
     Key? key,
     required this.title,
     required this.count,
     required this.name,
-    this.width, // Cập nhật constructor để chấp nhận width
+    this.width,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: width, // Sử dụng width được cung cấp
-      margin: const EdgeInsets.only(left: 9, right: 9, top: 9),
+      width: width,
+      margin: const EdgeInsets.all(9),
       child: Card(
         shape: RoundedRectangleBorder(
           side: BorderSide(color: Colors.grey[400]!, width: 1),
@@ -167,9 +145,8 @@ class Term extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '$title ',
-                style:
-                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                title,
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
               ),
               const SizedBox(height: 10),
               Container(
@@ -185,7 +162,7 @@ class Term extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 10),
-              Text('$name'),
+              Text(name),
             ],
           ),
         ),

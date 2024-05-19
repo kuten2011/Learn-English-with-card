@@ -64,7 +64,7 @@ class _EditFolderScreenState extends State<EditFolderScreen> {
     );
 
     // Trả về kết quả cập nhật thông tin
-    Navigator.pop(context, data);
+    Navigator.pop(context, true);
   }
 
   @override

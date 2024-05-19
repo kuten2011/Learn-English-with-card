@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/widgets.dart';
 import 'AddTermIntoFolder.dart';
 import 'EditFolderScreen.dart'; // Import the EditFolderScreen
 import '../term_ui/cartListScreen.dart';
@@ -108,15 +107,17 @@ class _FolderListScreenState extends State<FolderListScreen> {
         actions: [
           IconButton(
             icon: Icon(Icons.settings),
-            onPressed: () {
-              Navigator.push(
+            onPressed: () async {
+              bool? result = await Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => EditFolderScreen(
-                      folderIdEdit: widget
-                          .folderId), // Update the parameter name to folderId
+                  builder: (context) => EditFolderScreen(folderIdEdit: widget.folderId),
                 ),
               );
+              if (result == true) {
+                fetchFolderTitle();
+                fetchTerms();
+              }
             },
           ),
         ],
@@ -131,8 +132,7 @@ class _FolderListScreenState extends State<FolderListScreen> {
                 bool? result = await Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        AddTermIntoFolder(folderId: widget.folderId),
+                    builder: (context) => AddTermIntoFolder(folderId: widget.folderId),
                   ),
                 );
                 if (result == true) {
@@ -140,7 +140,7 @@ class _FolderListScreenState extends State<FolderListScreen> {
                 }
               },
               child: Container(
-                width: 50, // Equal width and height for a square shape
+                width: 50,
                 height: 50,
                 decoration: BoxDecoration(
                   color: const Color(0xFF4254FE),
