@@ -114,6 +114,7 @@ class _AddTermScreenState extends State<AddTermScreen> {
                     .map((definition) => definition.trim())
                     .toList(),
                 'visibility': _visibility,
+                'favorite': false,
               };
 
               await termsCollection.add(data);

@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:midtermm/ui/folder_ui/termOfFolderScreen.dart';
+import 'package:midtermm/ui/folder_ui/termOfFolderScreen.dart';  // Ensure this import is correct for your project structure
 import 'package:midtermm/ui/term_ui/cartListScreen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -18,12 +18,14 @@ class _HomeScreenState extends State<HomeScreen> {
   String tt = 'Học phần, Sách giáo khoa, Học phần, ...';
   late User? user;
   late String userEmail = 'No Email';
+  late String userName = 'No Username';
 
   List<Map<String, dynamic>> terms = [];
   List<Map<String, dynamic>> userTerms = [];
   List<Map<String, dynamic>> similarTerms = [];
   List<Map<String, dynamic>> folders = [];
   List<Map<String, dynamic>> userFolders = [];
+  List<String> favoriteTermIds = [];
 
   @override
   void initState() {
@@ -35,39 +37,35 @@ class _HomeScreenState extends State<HomeScreen> {
     await getUser();
     await getTermsFromFirestore();
     await getFoldersFromFirestore();
+    await fetchFavoritesAndUpdateTermIDs();
   }
 
   Future<void> getUser() async {
     user = FirebaseAuth.instance.currentUser;
     userEmail = user?.email ?? 'No Email';
+    userName = user?.displayName ?? 'No Username';
     print('Current User Email: $userEmail');
+    print('Current User Name: $userName');
   }
 
   Future<void> getTermsFromFirestore() async {
-    final CollectionReference termsCollection =
-        FirebaseFirestore.instance.collection('terms');
+    final CollectionReference termsCollection = FirebaseFirestore.instance.collection('terms');
     final QuerySnapshot querySnapshot = await termsCollection.get();
 
     setState(() {
       terms = querySnapshot.docs
           .map((doc) => {
                 ...doc.data() as Map<String, dynamic>,
-                'id': doc.id, // Bao gồm id
+                'id': doc.id, // Include the id
               })
           .toList();
-      userTerms =
-          terms.where((term) => term['userEmail'] == userEmail).toList();
-      similarTerms = terms
-          .where((term) =>
-              term['userEmail'] != userEmail &&
-              term['visibility'] == 'Mọi người')
-          .toList();
+      userTerms = terms.where((term) => term['userEmail'] == userEmail).toList();
+      similarTerms = terms.where((term) => term['userEmail'] != userEmail && term['visibility'] == 'Mọi người').toList();
     });
   }
 
   Future<void> getFoldersFromFirestore() async {
-    final CollectionReference foldersCollection =
-        FirebaseFirestore.instance.collection('folders');
+    final CollectionReference foldersCollection = FirebaseFirestore.instance.collection('folders');
 
     final QuerySnapshot querySnapshot = await foldersCollection.get();
 
@@ -79,10 +77,96 @@ class _HomeScreenState extends State<HomeScreen> {
               })
           .toList();
 
-      userFolders =
-          folders.where((folder) => folder['userEmail'] == userEmail).toList();
+      userFolders = folders.where((folder) => folder['userEmail'] == userEmail).toList();
     });
   }
+
+  Future<void> fetchFavoritesAndUpdateTermIDs() async {
+    // Fetch the favorites collection for the current user
+    final CollectionReference favoritesCollection = FirebaseFirestore.instance.collection('favorites');
+    final QuerySnapshot querySnapshot = await favoritesCollection.where('userEmail', isEqualTo: userEmail).get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      final favoriteData = querySnapshot.docs.first.data() as Map<String, dynamic>;
+      if (favoriteData['userName'] == userName) {
+        setState(() {
+          favoriteTermIds = List<String>.from(favoriteData['termIDs']);
+        });
+
+        // Update the user's terms in Firestore to set them as favorites
+        for (String termId in favoriteTermIds) {
+          await FirebaseFirestore.instance.collection('terms').doc(termId).update({'favorite': true});
+        }
+      }
+    }
+  }
+
+  void toggleFavorite(int index) async {
+    String termId = userTerms[index]['id'];
+    bool isFavorite = userTerms[index]['favorite'] ?? false;
+
+    // Update favorite status in Firestore
+    await FirebaseFirestore.instance.collection('terms').doc(termId).update({'favorite': !isFavorite});
+
+    setState(() {
+      userTerms[index]['favorite'] = !isFavorite;
+
+      if (!isFavorite) {
+        favoriteTermIds.add(termId);
+      } else {
+        favoriteTermIds.remove(termId);
+      }
+
+      // Update the favorite collection in Firestore
+      FirebaseFirestore.instance.collection('favorites').doc(userEmail).set({
+        'userEmail': userEmail,
+        'userName': userName,
+        'termIDs': favoriteTermIds,
+      });
+    });
+  }
+  void getUser() {
+    user = FirebaseAuth.instance.currentUser;
+    userEmail = user?.email ?? 'No Email';
+  }
+
+  Future<void> getTermsFromFirestore() async {
+    final CollectionReference usersCollection =
+        FirebaseFirestore.instance.collection('users');
+
+    final QuerySnapshot querySnapshot = await usersCollection
+        .where('userEmail', isEqualTo: userEmail)
+        .limit(1)
+        .get();
+
+    if (querySnapshot.docs.isNotEmpty) {
+      final DocumentSnapshot userDoc = querySnapshot.docs.first;
+      setState(() {
+        userName = userDoc['userName'] ?? 'No Username';
+      });
+    } else {
+      setState(() {
+        userName = 'No Username Found';
+      });
+    }
+  }
+  
+  onPressed: () async {
+              final CollectionReference favorite =
+                  FirebaseFirestore.instance.collection('favorite');
+
+              List<String> termIDs = termIDController
+                  .map((controller) => controller.text)
+                  .where((text) => text.isNotEmpty)
+                  .toList();
+
+              Map<String, dynamic> data = {
+                'userEmail': userEmail,
+                'userName': userName,
+                'termIDs': termIDs,
+              };
+
+              await favorite.add(data);
 
   void _viewAllTerms(BuildContext context) {
     widget.onTabTapped(3, initialTabIndex: 0);
@@ -177,8 +261,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               horizontal: 16.0,
                             ),
                             filled: true,
-                            fillColor: Color.fromARGB(255, 255, 255, 255)
-                                .withOpacity(0.8),
+                            fillColor: Color.fromARGB(255, 255, 255, 255).withOpacity(0.8),
                             isDense: true,
                           ),
                           style: TextStyle(
@@ -203,8 +286,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           Text(
                             'Học phần',
-                            style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.bold),
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                           ),
                           ElevatedButton(
                             onPressed: () {
@@ -242,24 +324,25 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: EducationCard(
                               title: userTerm['title'] ?? 'No Title',
                               userName: userTerm['userName'] ?? 'No Username',
-                              count: userTerm['english'] != null
-                                  ? userTerm['english'].length
-                                  : 0,
+                              count: userTerm['english'] != null ? userTerm['english'].length : 0,
+                              isFavorite: userTerm['favorite'] ?? false,
+                              onFavoriteTap: () {
+                                toggleFavorite(index);
+                              },
                             ),
                           );
                         },
                       ),
                     ),
                     SizedBox(height: 8),
-                    const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.0),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            'Gợi ý học phần',
-                            style: TextStyle(
-                                fontSize: 18, fontWeight: FontWeight.bold),
+                            'Tài liệu công khai',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                           ),
                         ],
                       ),
@@ -287,11 +370,10 @@ class _HomeScreenState extends State<HomeScreen> {
                             },
                             child: EducationCard(
                               title: similarTerm['title'] ?? 'No Title',
-                              userName:
-                                  similarTerm['userName'] ?? 'No Username',
-                              count: similarTerm['english'] != null
-                                  ? similarTerm['english'].length
-                                  : 0,
+                              userName: similarTerm['userName'] ?? 'No Username',
+                              count: similarTerm['english'] != null ? similarTerm['english'].length : 0,
+                              isFavorite: similarTerm['favorite'] ?? false,
+                              onFavoriteTap: () {}, // Similar terms might not have the same favorite mechanism
                             ),
                           );
                         },
@@ -305,8 +387,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         children: [
                           Text(
                             'Thư mục',
-                            style: TextStyle(
-                                fontSize: 16, fontWeight: FontWeight.bold),
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                           ),
                           ElevatedButton(
                             onPressed: () {
@@ -335,9 +416,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             child: FolderCard(
                               title: userFolder['title'] ?? 'No Title',
                               userName: userFolder['userName'] ?? 'No Username',
-                              count: userFolder['termIDs'] != null
-                                  ? userFolder['termIDs'].length
-                                  : 0,
+                              count: userFolder['termIDs'] != null ? userFolder['termIDs'].length : 0,
                             ),
                           );
                         },
@@ -358,12 +437,16 @@ class EducationCard extends StatelessWidget {
   final String title;
   final String userName;
   final int count;
+  final bool isFavorite;
+  final VoidCallback onFavoriteTap;
 
   const EducationCard({
     Key? key,
     required this.title,
     required this.count,
     required this.userName,
+    required this.isFavorite,
+    required this.onFavoriteTap,
   }) : super(key: key);
 
   @override
@@ -382,9 +465,22 @@ class EducationCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                title,
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20.0),
+                    ),
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      isFavorite ? Icons.favorite : Icons.favorite_border,
+                      color: isFavorite ? Colors.red : Colors.grey,
+                    ),
+                    onPressed: onFavoriteTap,
+                  ),
+                ],
               ),
               SizedBox(height: 4),
               Container(
@@ -405,8 +501,7 @@ class EducationCard extends StatelessWidget {
                   Text(
                     '$userName   ',
                     style: TextStyle(
-                        color: const Color.fromARGB(255, 0, 0, 0),
-                        fontSize: 16),
+                        color: const Color.fromARGB(255, 0, 0, 0), fontSize: 16),
                   ),
                   Container(
                     padding: EdgeInsets.all(2.0),
@@ -493,8 +588,7 @@ class FolderCard extends StatelessWidget {
                   Text(
                     '$userName   ',
                     style: TextStyle(
-                        color: const Color.fromARGB(255, 0, 0, 0),
-                        fontSize: 16),
+                        color: const Color.fromARGB(255, 0, 0, 0), fontSize: 16),
                   ),
                 ],
               ),

@@ -49,6 +49,15 @@ class _TermListScreenState extends State<TermListScreen> {
     });
   }
 
+  void toggleFavorite(int index) async {
+    String termId = userterms[index]['id'];
+    bool isFavorite = userterms[index]['favorite'] ?? false;
+    await FirebaseFirestore.instance.collection('terms').doc(termId).update({'favorite': !isFavorite});
+    setState(() {
+      userterms[index]['favorite'] = !isFavorite;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -90,6 +99,10 @@ class _TermListScreenState extends State<TermListScreen> {
                       name: userterms[index]['userName'] ?? 'No Name',
                       count: userterms[index]['english']?.length ?? 0,
                       width: screenWidth,
+                      isFavorite: userterms[index]['favorite'] ?? false,
+                      onFavoriteTap: () {
+                        toggleFavorite(index);
+                      },
                     ),
                   ),
                 );
@@ -119,6 +132,8 @@ class Term extends StatelessWidget {
   final int count;
   final String name;
   final double? width;
+  final bool isFavorite;
+  final VoidCallback? onFavoriteTap;
 
   const Term({
     Key? key,
@@ -126,6 +141,8 @@ class Term extends StatelessWidget {
     required this.count,
     required this.name,
     this.width,
+    required this.isFavorite,
+    this.onFavoriteTap,
   }) : super(key: key);
 
   @override
@@ -144,9 +161,21 @@ class Term extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                title,
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      isFavorite ? Icons.favorite : Icons.favorite_border,
+                      color: isFavorite ? Colors.red : Colors.grey,
+                    ),
+                    onPressed: onFavoriteTap,
+                  ),
+                ],
               ),
               const SizedBox(height: 10),
               Container(
