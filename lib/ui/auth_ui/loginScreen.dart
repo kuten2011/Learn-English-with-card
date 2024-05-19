@@ -206,7 +206,7 @@ class _loginScreenState extends State<loginScreen> {
 
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: emailController.text, password: passwordController.text);
+          email: emailController.text.trim(), password: passwordController.text.trim());
       Navigator.pop(context);
       Navigator.pushReplacement(
         context,
