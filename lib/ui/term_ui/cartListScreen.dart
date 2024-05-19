@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+import 'package:midtermm/ui/Service/practiceScreen.dart';
 import 'package:midtermm/ui/Service/studyCardScreen.dart';
 import 'package:midtermm/ui/Service/testCardScreen.dart';
-import 'package:midtermm/ui/Service/practiceScreen.dart';
 import 'package:midtermm/ui/term_ui/editTermScreen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class CardListScreen extends StatefulWidget {
   List<Map<String, dynamic>> cardterms;
@@ -25,11 +25,13 @@ class CardListScreen extends StatefulWidget {
 class _CardListScreenState extends State<CardListScreen> {
   int currentPage = 0;
   final FlutterTts flutterTts = FlutterTts();
+  bool isSoundEnabled = true; // Add this line
 
   Map<String, dynamic> term = {"title": "", "english": [], "vietnamese": []};
 
   Future<void> speakWord(String? word) async {
-    if (word != null) {
+    if (isSoundEnabled && word != null) {
+      // Modify this line
       await flutterTts.setLanguage('en-US');
       await flutterTts.setPitch(1);
       await flutterTts.setSpeechRate(0.5);
@@ -41,6 +43,14 @@ class _CardListScreenState extends State<CardListScreen> {
   void initState() {
     super.initState();
     getTermById();
+    _loadPreferences();
+  }
+
+  Future<void> _loadPreferences() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      isSoundEnabled = prefs.getBool('soundEffect') ?? false;
+    });
   }
 
   void getTermById() async {
@@ -64,8 +74,7 @@ class _CardListScreenState extends State<CardListScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => StudyCardScreen(
-            card: term),
+        builder: (context) => StudyCardScreen(card: term),
       ),
     );
   }
@@ -87,8 +96,7 @@ class _CardListScreenState extends State<CardListScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => TestCardScreen(
-            cards: term),
+        builder: (context) => TestCardScreen(cards: term),
       ),
     );
   }
@@ -154,8 +162,10 @@ class _CardListScreenState extends State<CardListScreen> {
                 itemBuilder: (context, index) {
                   return Center(
                     child: FlipCard(
-                      frontChild: CardItem(term["english"][index] ?? 'No English'),
-                      backChild: CardItem(term["vietnamese"][index] ?? 'No Vietnamese'),
+                      frontChild:
+                          CardItem(term["english"][index] ?? 'No English'),
+                      backChild: CardItem(
+                          term["vietnamese"][index] ?? 'No Vietnamese'),
                     ),
                   );
                 },
@@ -232,11 +242,14 @@ class _CardListScreenState extends State<CardListScreen> {
                         .collection('terms')
                         .doc(widget.id)
                         .update({
-                          "english": FieldValue.arrayRemove([deletedEnglishWord]),
-                          "vietnamese": FieldValue.arrayRemove([deletedVietnameseWord])
+                          "english":
+                              FieldValue.arrayRemove([deletedEnglishWord]),
+                          "vietnamese":
+                              FieldValue.arrayRemove([deletedVietnameseWord])
                         })
                         .then((_) => print("Deleted successfully!"))
-                        .catchError((error) => print("Error deleting word: $error"));
+                        .catchError(
+                            (error) => print("Error deleting word: $error"));
                   });
                 },
                 direction: DismissDirection.endToStart,

@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:midtermm/ui/auth_ui/welcomeScreen.dart';
 import 'package:midtermm/ui/auth_ui/ChangePasswordScreen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class settingScreen extends StatefulWidget {
   const settingScreen({Key? key}) : super(key: key);
@@ -16,12 +17,29 @@ class _SettingScreenState extends State<settingScreen> {
   late String userEmail = 'No Email';
   String userName = 'No Username';
   bool isLoading = true;
+  bool soundEffects = true;
 
   @override
   void initState() {
     super.initState();
     getUser();
     getTermsFromFirestore();
+    _loadPreferences();
+  }
+
+  Future<void> _loadPreferences() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      soundEffects = prefs.getBool('soundEffect') ?? false;
+    });
+  }
+
+  Future<void> _toggleSound(bool value) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      soundEffects = value;
+      prefs.setBool('soundEffect', soundEffects);
+    });
   }
 
   void getUser() {
@@ -161,10 +179,8 @@ class _SettingScreenState extends State<settingScreen> {
                               padding: const EdgeInsets.only(left: 10.0),
                               child: const Text('Sound Effects'),
                             ),
-                            value: true,
-                            onChanged: (bool value) {
-                              // Handle sound effects toggle
-                            },
+                            value: soundEffects,
+                            onChanged: _toggleSound,
                           ),
                           buildDividerWithPadding(),
                           ListTile(
